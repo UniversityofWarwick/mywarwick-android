@@ -32,8 +32,8 @@ public class StartWebViewClient extends WebViewClient {
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
-    public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-        Uri url = request.getUrl();
+    public boolean shouldOverrideUrlLoading(WebView view, String urlString) {
+        Uri url = Uri.parse(urlString);
 
         if (url.getScheme().equalsIgnoreCase("start")) {
             view.evaluateJavascript("Start.APP", new ValueCallback<String>() {
