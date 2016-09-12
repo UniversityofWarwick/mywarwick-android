@@ -3,7 +3,7 @@ package uk.ac.warwick.start.app;
 public class Global {
 
     public static String getStartHost() {
-        return "swordfish.warwick.ac.uk";
+        return "start-dev.warwick.ac.uk";
     }
 
     public static String getWebSignOnHost() {
