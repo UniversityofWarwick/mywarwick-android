@@ -4,27 +4,9 @@
     <group>
         <item
             android:id="@+id/action_search"
-            android:visible="false"
             android:title="@string/search"
             app:actionViewClass="android.support.v7.widget.SearchView"
-            app:showAsAction="never|collapseActionView" />
-    </group>
-
-    <group>
-        <item
-            android:id="@+id/action_account_settings"
-            android:title="@string/action_account_settings"
-            app:showAsAction="never" />
-        <item
-            android:id="@+id/action_sign_out"
-            android:title="@string/action_sign_out"
-            app:showAsAction="never" />
-    </group>
-
-    <group>
-        <item
-            android:id="@+id/action_reload"
-            android:title="@string/action_reload"
-            app:showAsAction="never" />
+            android:icon="@drawable/ic_search_white"
+            app:showAsAction="ifRoom|collapseActionView" />
     </group>
 </menu>

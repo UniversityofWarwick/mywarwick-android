@@ -1,0 +1,18 @@
+<tabs>
+    <tab
+        id="@+id/tab_me"
+        icon="@drawable/ic_account_circle"
+        title="@string/me" />
+    <tab
+        id="@+id/tab_notifications"
+        icon="@drawable/ic_notifications"
+        title="@string/notifications" />
+    <tab
+        id="@+id/tab_activity"
+        icon="@drawable/ic_eye"
+        title="@string/activity" />
+    <tab
+        id="@+id/tab_news"
+        icon="@drawable/ic_school"
+        title="@string/news" />
+</tabs>

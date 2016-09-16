@@ -1,14 +1,11 @@
 package uk.ac.warwick.start.app.activities;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -81,7 +78,6 @@ public class WebViewActivity extends AppCompatActivity {
             this.destinationHost = destinationHost;
         }
 
-        @TargetApi(Build.VERSION_CODES.LOLLIPOP)
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String urlString) {
             Uri url = Uri.parse(urlString);

@@ -14,6 +14,6 @@
     <string name="news">News</string>
     <string name="search">Search</string>
     <string name="search_warwick">Search Warwick…</string>
-    <string name="its_account">IT Services account</string>
+    <string name="account_settings">IT Services account</string>
     <string name="user_agent">WarwickStart/1.0</string>
 </resources>

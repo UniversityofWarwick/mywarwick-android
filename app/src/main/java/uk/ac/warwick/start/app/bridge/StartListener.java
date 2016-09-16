@@ -6,6 +6,8 @@ public interface StartListener {
 
     void onPathChange(String currentPath);
 
+    void onUnreadNotificationCountChange(int count);
+
     void onUserChange(User user);
 
 }

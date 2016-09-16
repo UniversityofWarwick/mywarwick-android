@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.webkit.ValueCallback;
-import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -19,8 +18,8 @@ import java.util.Collection;
 import uk.ac.warwick.start.app.Global;
 import uk.ac.warwick.start.app.user.AnonymousUser;
 import uk.ac.warwick.start.app.user.AuthenticatedUser;
-import uk.ac.warwick.start.app.user.User;
 import uk.ac.warwick.start.app.user.SsoUrls;
+import uk.ac.warwick.start.app.user.User;
 
 public class StartWebViewClient extends WebViewClient {
 

@@ -2,8 +2,8 @@ package uk.ac.warwick.start.app.bridge;
 
 import java.util.Collection;
 
-import uk.ac.warwick.start.app.user.User;
 import uk.ac.warwick.start.app.user.SsoUrls;
+import uk.ac.warwick.start.app.user.User;
 
 /**
  * A place to put all of Start's state, that can notify an interested listener
@@ -60,6 +60,10 @@ public class StartState {
     }
 
     public void setUnreadNotificationCount(int count) {
+        if (listener != null && count != this.unreadNotificationCount) {
+            listener.onUnreadNotificationCountChange(count);
+        }
+
         this.unreadNotificationCount = count;
     }
 
