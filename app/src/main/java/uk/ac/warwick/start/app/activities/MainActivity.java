@@ -197,6 +197,12 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         }
     }
 
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return false;
+    }
+
     private void startNavigate(String path) {
         getWebView().loadUrl(String.format("javascript:Start.navigate('%s')", path));
     }
