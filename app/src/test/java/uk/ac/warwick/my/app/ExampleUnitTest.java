@@ -1,4 +1,4 @@
-package uk.ac.warwick.start.app;
+package uk.ac.warwick.my.app;
 
 import org.junit.Test;
 

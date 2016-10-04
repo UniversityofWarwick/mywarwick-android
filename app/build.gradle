@@ -5,7 +5,7 @@ android {
     buildToolsVersion "24.0.2"
 
     defaultConfig {
-        applicationId "uk.ac.warwick.start.app"
+        applicationId "uk.ac.warwick.my.app"
         minSdkVersion 15
         targetSdkVersion 24
         versionCode 1

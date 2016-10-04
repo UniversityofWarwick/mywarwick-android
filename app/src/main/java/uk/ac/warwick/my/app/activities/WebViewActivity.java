@@ -1,4 +1,4 @@
-package uk.ac.warwick.start.app.activities;
+package uk.ac.warwick.my.app.activities;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -9,7 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import uk.ac.warwick.start.app.R;
+import uk.ac.warwick.my.app.R;
 
 public class WebViewActivity extends AppCompatActivity {
 

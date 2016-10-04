@@ -1,9 +1,9 @@
-package uk.ac.warwick.start.app;
+package uk.ac.warwick.my.app;
 
 public class Global {
 
-    public static String getStartHost() {
-        return "start-dev.warwick.ac.uk";
+    public static String getAppHost() {
+        return "my-dev.warwick.ac.uk";
     }
 
     public static String getWebSignOnHost() {
