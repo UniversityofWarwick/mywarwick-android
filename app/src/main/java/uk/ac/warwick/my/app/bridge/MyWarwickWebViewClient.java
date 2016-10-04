@@ -1,4 +1,4 @@
-package uk.ac.warwick.start.app.bridge;
+package uk.ac.warwick.my.app.bridge;
 
 import android.annotation.TargetApi;
 import android.content.Intent;
@@ -15,18 +15,18 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import uk.ac.warwick.start.app.Global;
-import uk.ac.warwick.start.app.user.AnonymousUser;
-import uk.ac.warwick.start.app.user.AuthenticatedUser;
-import uk.ac.warwick.start.app.user.SsoUrls;
-import uk.ac.warwick.start.app.user.User;
+import uk.ac.warwick.my.app.Global;
+import uk.ac.warwick.my.app.user.AnonymousUser;
+import uk.ac.warwick.my.app.user.AuthenticatedUser;
+import uk.ac.warwick.my.app.user.SsoUrls;
+import uk.ac.warwick.my.app.user.User;
 
-public class StartWebViewClient extends WebViewClient {
+public class MyWarwickWebViewClient extends WebViewClient {
 
-    private StartState start;
+    private MyWarwickState myWarwick;
 
-    public StartWebViewClient(StartState startClient) {
-        this.start = startClient;
+    public MyWarwickWebViewClient(MyWarwickState myWarwick) {
+        this.myWarwick = myWarwick;
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -41,11 +41,11 @@ public class StartWebViewClient extends WebViewClient {
                     try {
                         JSONObject state = new JSONObject(value);
 
-                        start.setApplicationOrigins(getApplicationOriginsFromState(state));
-                        start.setPath(state.getString("currentPath"));
-                        start.setUnreadNotificationCount(state.getInt("unreadNotificationCount"));
-                        start.setUser(getUserFromState(state));
-                        start.setSsoUrls(getSsoUrlsFromState(state));
+                        myWarwick.setApplicationOrigins(getApplicationOriginsFromState(state));
+                        myWarwick.setPath(state.getString("currentPath"));
+                        myWarwick.setUnreadNotificationCount(state.getInt("unreadNotificationCount"));
+                        myWarwick.setUser(getUserFromState(state));
+                        myWarwick.setSsoUrls(getSsoUrlsFromState(state));
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -55,7 +55,7 @@ public class StartWebViewClient extends WebViewClient {
             return true;
         }
 
-        if (!start.isApplicationOrigin(getOrigin(url))) {
+        if (!myWarwick.isApplicationOrigin(getOrigin(url))) {
             Intent intent = new Intent(Intent.ACTION_VIEW, url);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             view.getContext().startActivity(intent);
@@ -87,7 +87,7 @@ public class StartWebViewClient extends WebViewClient {
         JSONArray originsArray = state.getJSONArray("applicationOrigins");
 
         Collection<String> origins = new ArrayList<>(originsArray.length() + 1);
-        origins.add("https://" + Global.getStartHost());
+        origins.add("https://" + Global.getAppHost());
 
         for (int i = 0; i < originsArray.length(); i++) {
             String origin = originsArray.getString(i);

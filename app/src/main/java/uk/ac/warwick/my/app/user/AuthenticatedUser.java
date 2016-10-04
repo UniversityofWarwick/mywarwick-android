@@ -1,4 +1,4 @@
-package uk.ac.warwick.start.app.user;
+package uk.ac.warwick.my.app.user;
 
 public class AuthenticatedUser implements User {
 

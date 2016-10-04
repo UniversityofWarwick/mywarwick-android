@@ -1,15 +1,15 @@
-package uk.ac.warwick.start.app.bridge;
+package uk.ac.warwick.my.app.bridge;
 
 import java.util.Collection;
 
-import uk.ac.warwick.start.app.user.SsoUrls;
-import uk.ac.warwick.start.app.user.User;
+import uk.ac.warwick.my.app.user.SsoUrls;
+import uk.ac.warwick.my.app.user.User;
 
 /**
- * A place to put all of Start's state, that can notify an interested listener
- * when things change.
+ * A place to put all of My Warwick's state, that can notify an interested
+ * listener when things change.
  */
-public class StartState {
+public class MyWarwickState {
 
     private User user;
     private int unreadNotificationCount;
@@ -17,9 +17,9 @@ public class StartState {
     private SsoUrls ssoUrls;
     private Collection<String> applicationOrigins;
 
-    private StartListener listener;
+    private MyWarwickListener listener;
 
-    public StartState(StartListener listener) {
+    public MyWarwickState(MyWarwickListener listener) {
         this.listener = listener;
     }
 
@@ -76,6 +76,10 @@ public class StartState {
     }
 
     public boolean isApplicationOrigin(String url) {
+        if (applicationOrigins == null) {
+            return true;
+        }
+
         for (String origin : applicationOrigins) {
             if (url.startsWith(origin)) {
                 return true;

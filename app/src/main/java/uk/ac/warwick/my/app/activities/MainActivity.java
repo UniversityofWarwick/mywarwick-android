@@ -1,4 +1,4 @@
-package uk.ac.warwick.start.app.activities;
+package uk.ac.warwick.my.app.activities;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -23,15 +23,15 @@ import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.BottomBarTab;
 import com.roughike.bottombar.OnTabSelectListener;
 
-import uk.ac.warwick.start.app.Global;
-import uk.ac.warwick.start.app.R;
-import uk.ac.warwick.start.app.bridge.StartListener;
-import uk.ac.warwick.start.app.bridge.StartState;
-import uk.ac.warwick.start.app.bridge.StartWebViewClient;
-import uk.ac.warwick.start.app.user.User;
-import uk.ac.warwick.start.app.utils.DownloadImageTask;
+import uk.ac.warwick.my.app.Global;
+import uk.ac.warwick.my.app.R;
+import uk.ac.warwick.my.app.bridge.MyWarwickListener;
+import uk.ac.warwick.my.app.bridge.MyWarwickState;
+import uk.ac.warwick.my.app.bridge.MyWarwickWebViewClient;
+import uk.ac.warwick.my.app.user.User;
+import uk.ac.warwick.my.app.utils.DownloadImageTask;
 
-public class MainActivity extends AppCompatActivity implements OnTabSelectListener, StartListener {
+public class MainActivity extends AppCompatActivity implements OnTabSelectListener, MyWarwickListener {
 
     public static final int TAB_INDEX_NOTIFICATIONS = 1;
     public static final int TAB_INDEX_ACTIVITIES = 2;
@@ -41,12 +41,12 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
     public static final int SIGN_IN = 1;
 
-    private StartState start = new StartState(this);
+    private MyWarwickState myWarwick = new MyWarwickState(this);
     private MenuItem searchItem;
 
     @Override
     public void onTabSelected(@IdRes int tabId) {
-        startNavigate(getPathForTabItem(tabId));
+        appNavigate(getPathForTabItem(tabId));
     }
 
     @Override
@@ -135,10 +135,10 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         settings.setJavaScriptEnabled(true);
         settings.setUserAgentString(settings.getUserAgentString() + " " + getString(R.string.user_agent));
 
-        StartWebViewClient webViewClient = new StartWebViewClient(start);
+        MyWarwickWebViewClient webViewClient = new MyWarwickWebViewClient(myWarwick);
         webView.setWebViewClient(webViewClient);
 
-        webView.loadUrl("https://" + Global.getStartHost());
+        webView.loadUrl("https://" + Global.getAppHost());
     }
 
     @Override
@@ -188,9 +188,9 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
     @Override
     public void onBackPressed() {
-        if (start.getPath().startsWith("/tiles")) {
+        if (myWarwick.getPath().startsWith("/tiles")) {
             // If we are looking at zoomed tile, unzoom it
-            startNavigate(ROOT_PATH);
+            appNavigate(ROOT_PATH);
         } else {
             // Otherwise do the default thing
             super.onBackPressed();
@@ -203,19 +203,19 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         return false;
     }
 
-    private void startNavigate(String path) {
+    private void appNavigate(String path) {
         getWebView().loadUrl(String.format("javascript:Start.navigate('%s')", path));
     }
 
-    private void startSearch(String query) {
+    private void appSearch(String query) {
         getWebView().loadUrl(String.format("javascript:Start.search('%s')", query.replace("'", "\\'")));
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        if (start.getSsoUrls() != null) {
-            getMenuInflater().inflate(start.getUser().isSignedIn() ? R.menu.signed_in : R.menu.signed_out, menu);
+        if (myWarwick.getSsoUrls() != null) {
+            getMenuInflater().inflate(myWarwick.getUser().isSignedIn() ? R.menu.signed_in : R.menu.signed_out, menu);
         }
 
         searchItem = menu.findItem(R.id.action_search);
@@ -227,7 +227,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             MenuItemCompat.setOnActionExpandListener(searchItem, new MenuItemCompat.OnActionExpandListener() {
                 @Override
                 public boolean onMenuItemActionExpand(MenuItem item) {
-                    startNavigate(SEARCH_PATH);
+                    appNavigate(SEARCH_PATH);
                     getBottomBar().setVisibility(View.GONE);
                     return true;
                 }
@@ -236,7 +236,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
                 public boolean onMenuItemActionCollapse(MenuItem item) {
                     // When pressing the back arrow in the search field, go back to /
                     getBottomBar().setVisibility(View.VISIBLE);
-                    startNavigate(ROOT_PATH);
+                    appNavigate(ROOT_PATH);
                     return true;
                 }
             });
@@ -245,7 +245,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
                 @Override
                 public boolean onQueryTextSubmit(String query) {
                     searchView.clearFocus();
-                    startSearch(query);
+                    appSearch(query);
                     return true;
                 }
 
@@ -284,16 +284,16 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     }
 
     private void signOut() {
-        if (start.getSsoUrls() != null) {
-            getWebView().loadUrl(start.getSsoUrls().getLogoutUrl());
+        if (myWarwick.getSsoUrls() != null) {
+            getWebView().loadUrl(myWarwick.getSsoUrls().getLogoutUrl());
         }
     }
 
     private void startSignInActivity() {
-        if (start.getSsoUrls() != null) {
+        if (myWarwick.getSsoUrls() != null) {
             Intent intent = new Intent(this, WebViewActivity.class);
-            intent.putExtra(WebViewActivity.EXTRA_URL, start.getSsoUrls().getLoginUrl());
-            intent.putExtra(WebViewActivity.EXTRA_DESTINATION_HOST, Global.getStartHost());
+            intent.putExtra(WebViewActivity.EXTRA_URL, myWarwick.getSsoUrls().getLoginUrl());
+            intent.putExtra(WebViewActivity.EXTRA_DESTINATION_HOST, Global.getAppHost());
             intent.putExtra(WebViewActivity.EXTRA_TITLE, getString(R.string.action_sign_in));
             startActivityForResult(intent, SIGN_IN);
         }

@@ -1,8 +1,8 @@
-package uk.ac.warwick.start.app.bridge;
+package uk.ac.warwick.my.app.bridge;
 
-import uk.ac.warwick.start.app.user.User;
+import uk.ac.warwick.my.app.user.User;
 
-public interface StartListener {
+public interface MyWarwickListener {
 
     void onPathChange(String currentPath);
 

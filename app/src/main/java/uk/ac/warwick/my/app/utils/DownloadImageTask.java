@@ -1,4 +1,4 @@
-package uk.ac.warwick.start.app.utils;
+package uk.ac.warwick.my.app.utils;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
