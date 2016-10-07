@@ -25,6 +25,7 @@ import com.roughike.bottombar.OnTabSelectListener;
 
 import uk.ac.warwick.my.app.Global;
 import uk.ac.warwick.my.app.R;
+import uk.ac.warwick.my.app.SettingsActivity;
 import uk.ac.warwick.my.app.bridge.MyWarwickListener;
 import uk.ac.warwick.my.app.bridge.MyWarwickState;
 import uk.ac.warwick.my.app.bridge.MyWarwickWebViewClient;
@@ -277,6 +278,9 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         switch (item.getItemId()) {
             case R.id.action_sign_in:
                 startSignInActivity();
+                return true;
+            case R.id.action_settings:
+                startActivity(new Intent(this, SettingsActivity.class));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
