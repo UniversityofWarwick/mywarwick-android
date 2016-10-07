@@ -17,9 +17,15 @@ public class MyWarwickState {
     private SsoUrls ssoUrls;
     private Collection<String> applicationOrigins;
 
+    public String getAppHost() {
+        return appHost;
+    }
+
+    private String appHost;
     private MyWarwickListener listener;
 
-    public MyWarwickState(MyWarwickListener listener) {
+    public MyWarwickState(MyWarwickListener listener, String appHost) {
+        this.appHost = appHost;
         this.listener = listener;
     }
 

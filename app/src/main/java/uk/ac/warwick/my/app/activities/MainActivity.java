@@ -2,7 +2,9 @@ package uk.ac.warwick.my.app.activities;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.IdRes;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
@@ -42,7 +44,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
     public static final int SIGN_IN = 1;
 
-    private MyWarwickState myWarwick = new MyWarwickState(this);
+    private MyWarwickState myWarwick;
     private MenuItem searchItem;
 
     @Override
@@ -116,6 +118,10 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
         ActionBar actionBar = getSupportActionBar();
 
+        PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
         if (actionBar != null) {
             actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM | ActionBar.DISPLAY_SHOW_TITLE);
             View accountPhotoView = getLayoutInflater().inflate(R.layout.account_photo_view, null);
@@ -136,18 +142,27 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         settings.setJavaScriptEnabled(true);
         settings.setUserAgentString(settings.getUserAgentString() + " " + getString(R.string.user_agent));
 
+        String appHost = preferences.getString("mywarwick_server", "");
+        this.myWarwick = new MyWarwickState(this, appHost);
+
         MyWarwickWebViewClient webViewClient = new MyWarwickWebViewClient(myWarwick);
         webView.setWebViewClient(webViewClient);
 
-        webView.loadUrl("https://" + Global.getAppHost());
+        webView.loadUrl(appHost);
     }
+
 
     @Override
     protected void onStart() {
         super.onStart();
 
-        // Let the embedded app know that it's being brought to the foreground
-        getWebView().loadUrl("javascript:Start.appToForeground()");
+        String appHostfromPreferences = PreferenceManager.getDefaultSharedPreferences(this).getString("mywarwick_server", "");
+        if (!this.getWebView().getUrl().equals(appHostfromPreferences)) {
+            this.getWebView().loadUrl(appHostfromPreferences);
+        } else {
+            // Let the embedded app know that it's being brought to the foreground
+            getWebView().loadUrl("javascript:Start.appToForeground()");
+        }
     }
 
     private void showAccountPopupMenu(View view) {
@@ -297,7 +312,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         if (myWarwick.getSsoUrls() != null) {
             Intent intent = new Intent(this, WebViewActivity.class);
             intent.putExtra(WebViewActivity.EXTRA_URL, myWarwick.getSsoUrls().getLoginUrl());
-            intent.putExtra(WebViewActivity.EXTRA_DESTINATION_HOST, Global.getAppHost());
+            intent.putExtra(WebViewActivity.EXTRA_DESTINATION_HOST, PreferenceManager.getDefaultSharedPreferences(this).getString("mywarwick_server", ""));
             intent.putExtra(WebViewActivity.EXTRA_TITLE, getString(R.string.action_sign_in));
             startActivityForResult(intent, SIGN_IN);
         }

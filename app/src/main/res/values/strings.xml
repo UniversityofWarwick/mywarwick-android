@@ -28,16 +28,16 @@
     <string name="pref_title_display_name">Display name</string>
     <string name="pref_default_display_name">John Smith</string>
 
-    <string name="pref_title_add_friends_to_messages">Add friends to messages</string>
-    <string-array name="pref_example_list_titles">
-        <item>Always</item>
-        <item>When possible</item>
-        <item>Never</item>
+    <string name="choose_mywarwick_server">Choose MyWarwick server</string>
+    <string-array name="mywarwick_server_list">
+        <item>Development</item>
+        <item>Production</item>
+        <item>Test</item>
     </string-array>
-    <string-array name="pref_example_list_values">
-        <item>1</item>
-        <item>0</item>
-        <item>-1</item>
+    <string-array name="mywarwick_server_list_values">
+        <item>https://my-dev.warwick.ac.uk</item>
+        <item>https://my.warwick.ac.uk</item>
+        <item>https://my-test.warwick.ac.uk</item>
     </string-array>
 
     <!-- Example settings for Data & Sync -->
