@@ -15,18 +15,11 @@ public class MyWarwickState {
     private int unreadNotificationCount;
     private String path;
     private SsoUrls ssoUrls;
-    private Collection<String> applicationOrigins;
-    private String appHost;
     private MyWarwickListener listener;
+    private Boolean appCached;
 
-
-    public MyWarwickState(MyWarwickListener listener, String appHost) {
-        this.appHost = appHost;
+    public MyWarwickState(MyWarwickListener listener) {
         this.listener = listener;
-    }
-
-    public String getAppHost() {
-        return appHost;
     }
 
     public SsoUrls getSsoUrls() {
@@ -73,25 +66,12 @@ public class MyWarwickState {
         this.unreadNotificationCount = count;
     }
 
-    public Collection<String> getApplicationOrigins() {
-        return applicationOrigins;
+    public void setAppCached(Boolean appCached) {
+        this.appCached = appCached;
     }
 
-    public void setApplicationOrigins(Collection<String> applicationOrigins) {
-        this.applicationOrigins = applicationOrigins;
+    public Boolean getAppCached() {
+        return appCached;
     }
 
-    public boolean isApplicationOrigin(String url) {
-        if (applicationOrigins == null) {
-            return true;
-        }
-
-        for (String origin : applicationOrigins) {
-            if (url.startsWith(origin)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
 }
