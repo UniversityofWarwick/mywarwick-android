@@ -14,4 +14,10 @@
         android:summary="%s"
         android:title="@string/choose_mywarwick_server" />
 
+
+    <EditTextPreference
+        android:title="@string/custom_server_address"
+        android:key="custom_server_address"
+        android:enabled="false"
+        android:defaultValue="" />
 </PreferenceScreen>

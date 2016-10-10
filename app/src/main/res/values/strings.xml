@@ -33,12 +33,15 @@
         <item>Development</item>
         <item>Production</item>
         <item>Test</item>
+        <item>Custom</item>
     </string-array>
     <string-array name="mywarwick_server_list_values">
         <item>https://my-dev.warwick.ac.uk</item>
         <item>https://my.warwick.ac.uk</item>
         <item>https://my-test.warwick.ac.uk</item>
+        <item>__custom__</item>
     </string-array>
 
     <string name="settings">Settings</string>
+    <string name="custom_server_address">Custom server address</string>
 </resources>

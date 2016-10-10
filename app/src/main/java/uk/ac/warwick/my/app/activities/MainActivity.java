@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     public static final int SIGN_IN = 1;
 
     private MyWarwickState myWarwick;
+    private String appHost = "";
     private MenuItem searchItem;
 
     @Override
@@ -118,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
         ActionBar actionBar = getSupportActionBar();
 
-        PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
+        PreferenceManager.setDefaultValues(this, R.xml.pref_general, true);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -142,8 +143,8 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         settings.setJavaScriptEnabled(true);
         settings.setUserAgentString(settings.getUserAgentString() + " " + getString(R.string.user_agent));
 
-        String appHost = preferences.getString("mywarwick_server", "");
-        this.myWarwick = new MyWarwickState(this, appHost);
+        this.setAppHost(preferences.getString("mywarwick_server", ""));
+        this.myWarwick = new MyWarwickState(this, this.appHost);
 
         MyWarwickWebViewClient webViewClient = new MyWarwickWebViewClient(myWarwick);
         webView.setWebViewClient(webViewClient);
@@ -151,14 +152,19 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         webView.loadUrl(appHost);
     }
 
-
     @Override
     protected void onStart() {
         super.onStart();
 
         String appHostfromPreferences = PreferenceManager.getDefaultSharedPreferences(this).getString("mywarwick_server", "");
-        if (!this.getWebView().getUrl().equals(appHostfromPreferences)) {
-            this.getWebView().loadUrl(appHostfromPreferences);
+        String appHostFromWebView = "";
+        if (this.getWebView().getUrl() != null) {
+            appHostFromWebView = this.getWebView().getUrl();
+        }
+
+        if (!appHostFromWebView.equals(this.appHost) || !this.appHost.equals(appHostfromPreferences)) {
+            this.setAppHost(appHostfromPreferences);
+            this.getWebView().loadUrl(this.appHost);
         } else {
             // Let the embedded app know that it's being brought to the foreground
             getWebView().loadUrl("javascript:Start.appToForeground()");
@@ -312,7 +318,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         if (myWarwick.getSsoUrls() != null) {
             Intent intent = new Intent(this, WebViewActivity.class);
             intent.putExtra(WebViewActivity.EXTRA_URL, myWarwick.getSsoUrls().getLoginUrl());
-            intent.putExtra(WebViewActivity.EXTRA_DESTINATION_HOST, PreferenceManager.getDefaultSharedPreferences(this).getString("mywarwick_server", ""));
+            intent.putExtra(WebViewActivity.EXTRA_DESTINATION_HOST, this.appHost);
             intent.putExtra(WebViewActivity.EXTRA_TITLE, getString(R.string.action_sign_in));
             startActivityForResult(intent, SIGN_IN);
         }
@@ -363,5 +369,14 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             default:
                 return getString(R.string.app_name);
         }
+    }
+
+    public void setAppHost(String appHost) {
+        if (appHost.equals("__custom__")) {
+            //get custom url from preference
+            this.appHost = PreferenceManager.getDefaultSharedPreferences(this).getString("custom_server_address", "");
+            return;
+        }
+        this.appHost = appHost;
     }
 }
