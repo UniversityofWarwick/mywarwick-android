@@ -17,7 +17,10 @@
 
     <EditTextPreference
         android:title="@string/custom_server_address"
+        android:dialogMessage="please include https://"
         android:key="custom_server_address"
         android:enabled="false"
-        android:defaultValue="" />
+        android:defaultValue=""
+        android:autoText="false"
+        />
 </PreferenceScreen>
