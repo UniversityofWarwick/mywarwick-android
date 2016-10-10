@@ -41,7 +41,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static class GeneralPreferenceFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -49,7 +48,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             SharedPreferences sharedPreferences = getPreferenceScreen().getSharedPreferences();
             sharedPreferences.registerOnSharedPreferenceChangeListener(this);
             this.enableCustomAppHostTextFieldIfDesired(sharedPreferences);
-
 
         }
 
@@ -64,8 +62,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
         private void enableCustomAppHostTextFieldIfDesired(SharedPreferences sharedPreferences) {
             getPreferenceScreen().findPreference("custom_server_address").setEnabled(
-                    new MyWarwickPreferences(sharedPreferences).getAppHost().equals("__custom__")
-            );
+                            sharedPreferences.getString("mywarwick_server", "").equals("__custom__")
+                    );
         }
     }
 }
