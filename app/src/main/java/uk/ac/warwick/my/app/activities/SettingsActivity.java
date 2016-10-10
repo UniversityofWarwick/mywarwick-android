@@ -9,6 +9,7 @@ import android.preference.PreferenceFragment;
 
 import uk.ac.warwick.my.app.AppCompatPreferenceActivity;
 import uk.ac.warwick.my.app.R;
+import uk.ac.warwick.my.app.bridge.MyWarwickPreferences;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -40,6 +41,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static class GeneralPreferenceFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
 
+
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -47,6 +49,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             SharedPreferences sharedPreferences = getPreferenceScreen().getSharedPreferences();
             sharedPreferences.registerOnSharedPreferenceChangeListener(this);
             this.enableCustomAppHostTextFieldIfDesired(sharedPreferences);
+
+
         }
 
         @Override
@@ -60,8 +64,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
         private void enableCustomAppHostTextFieldIfDesired(SharedPreferences sharedPreferences) {
             getPreferenceScreen().findPreference("custom_server_address").setEnabled(
-                            sharedPreferences.getString("mywarwick_server", "").equals("__custom__")
-                    );
+                    new MyWarwickPreferences(sharedPreferences).getAppHost().equals("__custom__")
+            );
         }
     }
 }

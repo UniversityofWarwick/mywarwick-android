@@ -2,7 +2,6 @@ package uk.ac.warwick.my.app.activities;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.IdRes;
@@ -27,8 +26,8 @@ import com.roughike.bottombar.OnTabSelectListener;
 
 import uk.ac.warwick.my.app.Global;
 import uk.ac.warwick.my.app.R;
-import uk.ac.warwick.my.app.SettingsActivity;
 import uk.ac.warwick.my.app.bridge.MyWarwickListener;
+import uk.ac.warwick.my.app.bridge.MyWarwickPreferences;
 import uk.ac.warwick.my.app.bridge.MyWarwickState;
 import uk.ac.warwick.my.app.bridge.MyWarwickWebViewClient;
 import uk.ac.warwick.my.app.user.User;
@@ -45,7 +44,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     public static final int SIGN_IN = 1;
 
     private MyWarwickState myWarwick;
-    private String appHost = "";
+    private MyWarwickPreferences myWarwickPreferences;
     private MenuItem searchItem;
 
     @Override
@@ -121,8 +120,6 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
         PreferenceManager.setDefaultValues(this, R.xml.pref_general, true);
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-
         if (actionBar != null) {
             actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM | ActionBar.DISPLAY_SHOW_TITLE);
             View accountPhotoView = getLayoutInflater().inflate(R.layout.account_photo_view, null);
@@ -143,28 +140,22 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         settings.setJavaScriptEnabled(true);
         settings.setUserAgentString(settings.getUserAgentString() + " " + getString(R.string.user_agent));
 
-        this.setAppHost(preferences.getString("mywarwick_server", ""));
-        this.myWarwick = new MyWarwickState(this, this.appHost);
+        this.myWarwickPreferences = new MyWarwickPreferences(PreferenceManager.getDefaultSharedPreferences(this));
+
+        this.myWarwick = new MyWarwickState(this, myWarwickPreferences.getAppHost());
 
         MyWarwickWebViewClient webViewClient = new MyWarwickWebViewClient(myWarwick);
         webView.setWebViewClient(webViewClient);
 
-        webView.loadUrl(appHost);
+        webView.loadUrl(myWarwickPreferences.getAppHost());
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-
-        String appHostfromPreferences = PreferenceManager.getDefaultSharedPreferences(this).getString("mywarwick_server", "");
-        String appHostFromWebView = "";
-        if (this.getWebView().getUrl() != null) {
-            appHostFromWebView = this.getWebView().getUrl();
-        }
-
-        if (!appHostFromWebView.equals(this.appHost) || !this.appHost.equals(appHostfromPreferences)) {
-            this.setAppHost(appHostfromPreferences);
-            this.getWebView().loadUrl(this.appHost);
+        String appHostFromWebView = this.getWebView().getUrl() != null ? appHostFromWebView = this.getWebView().getUrl() : "";
+        if (!appHostFromWebView.equals(myWarwickPreferences.getAppHost())) {
+            this.getWebView().loadUrl(myWarwickPreferences.getAppHost());
         } else {
             // Let the embedded app know that it's being brought to the foreground
             getWebView().loadUrl("javascript:Start.appToForeground()");
@@ -318,7 +309,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         if (myWarwick.getSsoUrls() != null) {
             Intent intent = new Intent(this, WebViewActivity.class);
             intent.putExtra(WebViewActivity.EXTRA_URL, myWarwick.getSsoUrls().getLoginUrl());
-            intent.putExtra(WebViewActivity.EXTRA_DESTINATION_HOST, this.appHost);
+            intent.putExtra(WebViewActivity.EXTRA_DESTINATION_HOST, myWarwickPreferences.getAppHost());
             intent.putExtra(WebViewActivity.EXTRA_TITLE, getString(R.string.action_sign_in));
             startActivityForResult(intent, SIGN_IN);
         }
@@ -369,14 +360,5 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             default:
                 return getString(R.string.app_name);
         }
-    }
-
-    public void setAppHost(String appHost) {
-        if (appHost.equals("__custom__")) {
-            //get custom url from preference
-            this.appHost = PreferenceManager.getDefaultSharedPreferences(this).getString("custom_server_address", "");
-            return;
-        }
-        this.appHost = appHost;
     }
 }
