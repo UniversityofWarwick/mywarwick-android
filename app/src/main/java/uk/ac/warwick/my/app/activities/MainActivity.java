@@ -3,6 +3,7 @@ package uk.ac.warwick.my.app.activities;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.IdRes;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
@@ -26,6 +27,7 @@ import com.roughike.bottombar.OnTabSelectListener;
 import uk.ac.warwick.my.app.Global;
 import uk.ac.warwick.my.app.R;
 import uk.ac.warwick.my.app.bridge.MyWarwickListener;
+import uk.ac.warwick.my.app.bridge.MyWarwickPreferences;
 import uk.ac.warwick.my.app.bridge.MyWarwickState;
 import uk.ac.warwick.my.app.bridge.MyWarwickWebViewClient;
 import uk.ac.warwick.my.app.user.User;
@@ -41,7 +43,8 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
     public static final int SIGN_IN = 1;
 
-    private MyWarwickState myWarwick = new MyWarwickState(this);
+    private MyWarwickState myWarwick;
+    private MyWarwickPreferences myWarwickPreferences;
     private MenuItem searchItem;
 
     @Override
@@ -115,6 +118,8 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
         ActionBar actionBar = getSupportActionBar();
 
+        PreferenceManager.setDefaultValues(this, R.xml.pref_general, true);
+
         if (actionBar != null) {
             actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM | ActionBar.DISPLAY_SHOW_TITLE);
             View accountPhotoView = getLayoutInflater().inflate(R.layout.account_photo_view, null);
@@ -135,18 +140,26 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         settings.setJavaScriptEnabled(true);
         settings.setUserAgentString(settings.getUserAgentString() + " " + getString(R.string.user_agent));
 
+        this.myWarwickPreferences = new MyWarwickPreferences(PreferenceManager.getDefaultSharedPreferences(this));
+
+        this.myWarwick = new MyWarwickState(this, myWarwickPreferences.getAppHost());
+
         MyWarwickWebViewClient webViewClient = new MyWarwickWebViewClient(myWarwick);
         webView.setWebViewClient(webViewClient);
 
-        webView.loadUrl("https://" + Global.getAppHost());
+        webView.loadUrl(myWarwickPreferences.getAppHost());
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-
-        // Let the embedded app know that it's being brought to the foreground
-        getWebView().loadUrl("javascript:Start.appToForeground()");
+        String appHostFromWebView = this.getWebView().getUrl() != null ? appHostFromWebView = this.getWebView().getUrl() : "";
+        if (!appHostFromWebView.equals(myWarwickPreferences.getAppHost())) {
+            this.getWebView().loadUrl(myWarwickPreferences.getAppHost());
+        } else {
+            // Let the embedded app know that it's being brought to the foreground
+            getWebView().loadUrl("javascript:Start.appToForeground()");
+        }
     }
 
     private void showAccountPopupMenu(View view) {
@@ -278,6 +291,9 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             case R.id.action_sign_in:
                 startSignInActivity();
                 return true;
+            case R.id.action_settings:
+                startActivity(new Intent(this, SettingsActivity.class));
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -293,7 +309,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         if (myWarwick.getSsoUrls() != null) {
             Intent intent = new Intent(this, WebViewActivity.class);
             intent.putExtra(WebViewActivity.EXTRA_URL, myWarwick.getSsoUrls().getLoginUrl());
-            intent.putExtra(WebViewActivity.EXTRA_DESTINATION_HOST, Global.getAppHost());
+            intent.putExtra(WebViewActivity.EXTRA_DESTINATION_HOST, myWarwickPreferences.getAppHost());
             intent.putExtra(WebViewActivity.EXTRA_TITLE, getString(R.string.action_sign_in));
             startActivityForResult(intent, SIGN_IN);
         }

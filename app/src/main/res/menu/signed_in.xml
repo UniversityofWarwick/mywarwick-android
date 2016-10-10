@@ -9,4 +9,9 @@
             android:icon="@drawable/ic_search_white"
             app:showAsAction="ifRoom|collapseActionView" />
     </group>
+
+    <item
+        android:id="@+id/action_settings"
+        android:title="@string/settings"
+        app:showAsAction="never" />
 </menu>

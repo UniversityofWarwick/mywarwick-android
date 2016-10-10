@@ -13,4 +13,24 @@
     <string name="search_warwick">Search Warwick…</string>
     <string name="account_settings">IT Services account</string>
     <string name="user_agent">MyWarwick/1.0</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Strings related to Settings -->
+
+    <string name="choose_mywarwick_server">Choose MyWarwick server</string>
+    <string-array name="mywarwick_server_list">
+        <item>Development</item>
+        <item>Production</item>
+        <item>Test</item>
+        <item>Custom</item>
+    </string-array>
+    <string-array name="mywarwick_server_list_values">
+        <item>https://my-dev.warwick.ac.uk</item>
+        <item>https://my.warwick.ac.uk</item>
+        <item>https://my-test.warwick.ac.uk</item>
+        <item>__custom__</item>
+    </string-array>
+
+    <string name="settings">Settings</string>
+    <string name="custom_server_address">Custom server address</string>
 </resources>

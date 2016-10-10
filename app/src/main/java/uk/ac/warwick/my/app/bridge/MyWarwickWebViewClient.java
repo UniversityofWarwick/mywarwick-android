@@ -87,7 +87,7 @@ public class MyWarwickWebViewClient extends WebViewClient {
         JSONArray originsArray = state.getJSONArray("applicationOrigins");
 
         Collection<String> origins = new ArrayList<>(originsArray.length() + 1);
-        origins.add("https://" + Global.getAppHost());
+        origins.add(myWarwick.getAppHost());
 
         for (int i = 0; i < originsArray.length(); i++) {
             String origin = originsArray.getString(i);

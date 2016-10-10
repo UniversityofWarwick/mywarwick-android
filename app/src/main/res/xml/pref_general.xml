@@ -1,0 +1,26 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <!-- NOTE: Hide buttons to simplify the UI. Users can touch outside the dialog to
+         dismiss it. -->
+    <!-- NOTE: ListPreference's summary should be set to its value by the activity code. -->
+    <ListPreference
+        android:defaultValue="https://my.warwick.ac.uk"
+        android:entries="@array/mywarwick_server_list"
+        android:entryValues="@array/mywarwick_server_list_values"
+        android:key="mywarwick_server"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null"
+        android:summary="%s"
+        android:title="@string/choose_mywarwick_server" />
+
+
+    <EditTextPreference
+        android:title="@string/custom_server_address"
+        android:dialogMessage="Please include https://"
+        android:key="custom_server_address"
+        android:enabled="false"
+        android:defaultValue=""
+        android:autoText="false"
+        />
+</PreferenceScreen>
