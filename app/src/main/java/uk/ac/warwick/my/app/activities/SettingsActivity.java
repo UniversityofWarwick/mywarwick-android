@@ -1,20 +1,14 @@
-package uk.ac.warwick.my.app;
+package uk.ac.warwick.my.app.activities;
 
 import android.annotation.TargetApi;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.EditTextPreference;
-import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
-import android.preference.PreferenceManager;
-import android.preference.PreferenceScreen;
-import android.support.annotation.Nullable;
-import android.util.Log;
 
-import java.util.Map;
-import java.util.Set;
+import uk.ac.warwick.my.app.AppCompatPreferenceActivity;
+import uk.ac.warwick.my.app.R;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -45,30 +39,29 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static class GeneralPreferenceFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
+
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.pref_general);
-            getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
-
-            if (getPreferenceScreen().getSharedPreferences().getString("mywarwick_server", "").equals("__custom__")) {
-                findPreference("custom_server_address").setEnabled(true);
-            }
-
+            SharedPreferences sharedPreferences = getPreferenceScreen().getSharedPreferences();
+            sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+            this.enableCustomAppHostTextFieldIfDesired(sharedPreferences);
         }
 
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
             switch (key) {
                 case "mywarwick_server":
-                    if (sharedPreferences.getString("mywarwick_server", "").equals("__custom__")) {
-                        findPreference("custom_server_address").setEnabled(true);
-                    } else {
-                        findPreference("custom_server_address").setEnabled(false);
-                    }
+                    this.enableCustomAppHostTextFieldIfDesired(sharedPreferences);
                     break;
-
             }
+        }
+
+        private void enableCustomAppHostTextFieldIfDesired(SharedPreferences sharedPreferences) {
+            getPreferenceScreen().findPreference("custom_server_address").setEnabled(
+                            sharedPreferences.getString("mywarwick_server", "").equals("__custom__")
+                    );
         }
     }
 }
