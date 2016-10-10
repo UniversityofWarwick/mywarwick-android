@@ -17,7 +17,7 @@
 
     <EditTextPreference
         android:title="@string/custom_server_address"
-        android:dialogMessage="please include https://"
+        android:dialogMessage="Please include https://"
         android:key="custom_server_address"
         android:enabled="false"
         android:defaultValue=""
