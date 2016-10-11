@@ -32,6 +32,7 @@ import uk.ac.warwick.my.app.bridge.MyWarwickState;
 import uk.ac.warwick.my.app.bridge.MyWarwickWebViewClient;
 import uk.ac.warwick.my.app.user.User;
 import uk.ac.warwick.my.app.utils.DownloadImageTask;
+import uk.ac.warwick.my.app.bridge.MyWarwickJavaScriptInterface;
 
 public class MainActivity extends AppCompatActivity implements OnTabSelectListener, MyWarwickListener {
 
@@ -43,7 +44,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
     public static final int SIGN_IN = 1;
 
-    private MyWarwickState myWarwick;
+    private MyWarwickState myWarwick = new MyWarwickState(this);
     private MyWarwickPreferences myWarwickPreferences;
     private MenuItem searchItem;
 
@@ -53,60 +54,75 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     }
 
     @Override
-    public void onPathChange(String path) {
-        setTitle(getTitleForPath(path));
+    public void onPathChange(final String path) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                setTitle(getTitleForPath(path));
 
-        getBottomBar().selectTabWithId(getTabItemForPath(path));
+                getBottomBar().selectTabWithId(getTabItemForPath(path));
 
-        ActionBar actionBar = getSupportActionBar();
+                ActionBar actionBar = getSupportActionBar();
 
-        if (actionBar != null) {
-            if (path.startsWith("/tiles")) {
-                // Display a back arrow in place of the drawer indicator
-                actionBar.setDisplayHomeAsUpEnabled(true);
-            } else {
-                // Restore the drawer indicator
-                actionBar.setDisplayHomeAsUpEnabled(false);
+                if (actionBar != null) {
+                    if (path.startsWith("/tiles")) {
+                        // Display a back arrow in place of the drawer indicator
+                        actionBar.setDisplayHomeAsUpEnabled(true);
+                    } else {
+                        // Restore the drawer indicator
+                        actionBar.setDisplayHomeAsUpEnabled(false);
+                    }
+                }
+
+                if (path.equals("/search") && searchItem != null) {
+                    // Show the search field in the action bar on /search
+                    MenuItemCompat.expandActionView(searchItem);
+                }
             }
-        }
-
-        if (path.equals("/search") && searchItem != null) {
-            // Show the search field in the action bar on /search
-            MenuItemCompat.expandActionView(searchItem);
-        }
+        });
     }
 
     @Override
-    public void onUnreadNotificationCountChange(int count) {
-        BottomBarTab tab = getBottomBar().getTabAtPosition(TAB_INDEX_NOTIFICATIONS);
+    public void onUnreadNotificationCountChange(final int count) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                BottomBarTab tab = getBottomBar().getTabAtPosition(TAB_INDEX_NOTIFICATIONS);
 
-        tab.setBadgeCount(count);
+                tab.setBadgeCount(count);
+            }
+        });
     }
 
     @Override
-    public void onUserChange(User user) {
-        View accountPhotoView = getAccountPhotoView();
+    public void onUserChange(final User user) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                View accountPhotoView = getAccountPhotoView();
 
-        View cardView = accountPhotoView.findViewById(R.id.image_card_view);
-        ImageView photoView = (ImageView) accountPhotoView.findViewById(R.id.image_view);
+                View cardView = accountPhotoView.findViewById(R.id.image_card_view);
+                ImageView photoView = (ImageView) accountPhotoView.findViewById(R.id.image_view);
 
-        if (user.isSignedIn()) {
-            new DownloadImageTask(photoView, cardView).execute(user.getPhotoUrl());
-        } else {
-            photoView.setImageURI(null);
-            cardView.setVisibility(View.GONE);
-        }
+                if (user.isSignedIn()) {
+                    new DownloadImageTask(photoView, cardView).execute(user.getPhotoUrl());
+                } else {
+                    photoView.setImageURI(null);
+                    cardView.setVisibility(View.GONE);
+                }
 
-        BottomBar bottomBar = getBottomBar();
+                BottomBar bottomBar = getBottomBar();
 
-        bottomBar.getTabAtPosition(TAB_INDEX_NOTIFICATIONS).setEnabled(user.isSignedIn());
-        bottomBar.getTabAtPosition(TAB_INDEX_ACTIVITIES).setEnabled(user.isSignedIn());
+                bottomBar.getTabAtPosition(TAB_INDEX_NOTIFICATIONS).setEnabled(user.isSignedIn());
+                bottomBar.getTabAtPosition(TAB_INDEX_ACTIVITIES).setEnabled(user.isSignedIn());
 
-        // Cause the options menu to be updated to reflect the signed in/out state
-        supportInvalidateOptionsMenu();
+                // Cause the options menu to be updated to reflect the signed in/out state
+                supportInvalidateOptionsMenu();
+            }
+        });
     }
 
-    @SuppressLint("SetJavaScriptEnabled")
+    @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -142,24 +158,20 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
         this.myWarwickPreferences = new MyWarwickPreferences(PreferenceManager.getDefaultSharedPreferences(this));
 
-        this.myWarwick = new MyWarwickState(this, myWarwickPreferences.getAppHost());
+        webView.addJavascriptInterface(new MyWarwickJavaScriptInterface(myWarwick), "MyWarwickAndroid");
 
-        MyWarwickWebViewClient webViewClient = new MyWarwickWebViewClient(myWarwick);
+        MyWarwickWebViewClient webViewClient = new MyWarwickWebViewClient(myWarwickPreferences);
         webView.setWebViewClient(webViewClient);
 
-        webView.loadUrl(myWarwickPreferences.getAppHost());
+        webView.loadUrl(myWarwickPreferences.getAppURL());
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        String appHostFromWebView = this.getWebView().getUrl() != null ? appHostFromWebView = this.getWebView().getUrl() : "";
-        if (!appHostFromWebView.equals(myWarwickPreferences.getAppHost())) {
-            this.getWebView().loadUrl(myWarwickPreferences.getAppHost());
-        } else {
-            // Let the embedded app know that it's being brought to the foreground
-            getWebView().loadUrl("javascript:Start.appToForeground()");
-        }
+
+        // Let the embedded app know that it's being brought to the foreground
+        getWebView().loadUrl("javascript:MyWarwick.onApplicationDidBecomeActive()");
     }
 
     private void showAccountPopupMenu(View view) {
@@ -217,11 +229,11 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     }
 
     private void appNavigate(String path) {
-        getWebView().loadUrl(String.format("javascript:Start.navigate('%s')", path));
+        getWebView().loadUrl(String.format("javascript:MyWarwick.navigate('%s')", path));
     }
 
     private void appSearch(String query) {
-        getWebView().loadUrl(String.format("javascript:Start.search('%s')", query.replace("'", "\\'")));
+        getWebView().loadUrl(String.format("javascript:MyWarwick.search('%s')", query.replace("'", "\\'")));
     }
 
     @Override
