@@ -7,9 +7,7 @@ import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 
-import uk.ac.warwick.my.app.AppCompatPreferenceActivity;
 import uk.ac.warwick.my.app.R;
-import uk.ac.warwick.my.app.bridge.MyWarwickPreferences;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
