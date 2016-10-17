@@ -1,4 +1,4 @@
-package uk.ac.warwick.my.app;
+package uk.ac.warwick.my.app.activities;
 
 import android.content.res.Configuration;
 import android.os.Bundle;

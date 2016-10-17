@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -35,7 +36,9 @@ public class WebViewActivity extends AppCompatActivity {
         }
 
         WebView webView = getWebView();
-        webView.getSettings().setJavaScriptEnabled(true);
+        WebSettings settings = webView.getSettings();
+        settings.setJavaScriptEnabled(true);
+        settings.setUserAgentString(settings.getUserAgentString() + " " + getString(R.string.user_agent));
 
         String destinationHost = getIntent().getStringExtra(EXTRA_DESTINATION_HOST);
         webView.setWebViewClient(destinationHost != null ? new DestinationWebViewClient(destinationHost) : new WebViewClient());

@@ -1,7 +1,10 @@
 package uk.ac.warwick.my.app.activities;
 
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.IdRes;
@@ -26,13 +29,14 @@ import com.roughike.bottombar.OnTabSelectListener;
 
 import uk.ac.warwick.my.app.Global;
 import uk.ac.warwick.my.app.R;
+import uk.ac.warwick.my.app.bridge.MyWarwickJavaScriptInterface;
 import uk.ac.warwick.my.app.bridge.MyWarwickListener;
 import uk.ac.warwick.my.app.bridge.MyWarwickPreferences;
 import uk.ac.warwick.my.app.bridge.MyWarwickState;
 import uk.ac.warwick.my.app.bridge.MyWarwickWebViewClient;
 import uk.ac.warwick.my.app.user.User;
 import uk.ac.warwick.my.app.utils.DownloadImageTask;
-import uk.ac.warwick.my.app.bridge.MyWarwickJavaScriptInterface;
+import uk.ac.warwick.my.app.utils.PushNotifications;
 
 public class MainActivity extends AppCompatActivity implements OnTabSelectListener, MyWarwickListener {
 
@@ -43,10 +47,17 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     public static final String SEARCH_PATH = "/search";
 
     public static final int SIGN_IN = 1;
+    public static final String NOTIFICATIONS_PATH = "/notifications";
 
     private MyWarwickState myWarwick = new MyWarwickState(this);
     private MyWarwickPreferences myWarwickPreferences;
     private MenuItem searchItem;
+    private BroadcastReceiver tokenRefreshReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, final Intent intent) {
+            registerForPushNotifications();
+        }
+    };
 
     @Override
     public void onTabSelected(@IdRes int tabId) {
@@ -106,6 +117,8 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
                 if (user.isSignedIn()) {
                     new DownloadImageTask(photoView, cardView).execute(user.getPhotoUrl());
+
+                    registerForPushNotifications();
                 } else {
                     photoView.setImageURI(null);
                     cardView.setVisibility(View.GONE);
@@ -163,7 +176,47 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         MyWarwickWebViewClient webViewClient = new MyWarwickWebViewClient(myWarwickPreferences);
         webView.setWebViewClient(webViewClient);
 
-        webView.loadUrl(myWarwickPreferences.getAppURL());
+        String appURL = myWarwickPreferences.getAppURL();
+        if (isOpenedFromNotification()) {
+            onPathChange(NOTIFICATIONS_PATH);
+            webView.loadUrl(appURL + NOTIFICATIONS_PATH);
+        } else {
+            webView.loadUrl(appURL);
+        }
+
+        registerTokenRefreshReceiver();
+    }
+
+    private void registerTokenRefreshReceiver() {
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(PushNotifications.TOKEN_REFRESH);
+
+        registerReceiver(tokenRefreshReceiver, intentFilter);
+    }
+
+    private void registerForPushNotifications() {
+        User user = myWarwick.getUser();
+
+        if (user == null || !user.isSignedIn()) {
+            // Only do this for signed-in users
+            return;
+        }
+
+        String token = PushNotifications.getToken();
+
+        if (token == null) {
+            // The token might not have been generated yet
+            return;
+        }
+
+        getWebView().loadUrl(String.format("javascript:MyWarwick.registerForFCM('%s')", token));
+    }
+
+    @Override
+    protected void onDestroy() {
+        unregisterReceiver(tokenRefreshReceiver);
+
+        super.onDestroy();
     }
 
     @Override
@@ -172,6 +225,12 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
         // Let the embedded app know that it's being brought to the foreground
         getWebView().loadUrl("javascript:MyWarwick.onApplicationDidBecomeActive()");
+    }
+
+    private boolean isOpenedFromNotification() {
+        Bundle extras = getIntent().getExtras();
+
+        return extras != null && extras.containsKey("from");
     }
 
     private void showAccountPopupMenu(View view) {
@@ -239,7 +298,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        if (myWarwick.getSsoUrls() != null) {
+        if (myWarwick.getSsoUrls() != null && myWarwick.getUser() != null) {
             getMenuInflater().inflate(myWarwick.getUser().isSignedIn() ? R.menu.signed_in : R.menu.signed_out, menu);
         }
 
