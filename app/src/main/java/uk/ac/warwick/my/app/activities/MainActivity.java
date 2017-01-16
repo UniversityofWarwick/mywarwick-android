@@ -272,7 +272,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
     @Override
     public void onBackPressed() {
-        if (myWarwick.getPath().startsWith("/tiles")) {
+        if (myWarwick.getPath() != null && myWarwick.getPath().startsWith("/tiles")) {
             // If we are looking at zoomed tile, unzoom it
             appNavigate(ROOT_PATH);
         } else {
