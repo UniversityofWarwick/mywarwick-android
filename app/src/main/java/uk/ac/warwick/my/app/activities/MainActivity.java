@@ -61,7 +61,12 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
     @Override
     public void onTabSelected(@IdRes int tabId) {
-        appNavigate(getPathForTabItem(tabId));
+        String path = getPathForTabItem(tabId);
+
+        // Prevent double navigation (NEWSTART-500)
+        if (!path.equals(myWarwick.getPath())) {
+            appNavigate(path);
+        }
     }
 
     @Override
