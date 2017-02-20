@@ -2,6 +2,7 @@ package uk.ac.warwick.my.app.bridge;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -11,15 +12,23 @@ import uk.ac.warwick.my.app.R;
 public class MyWarwickWebViewClient extends WebViewClient {
 
     private final MyWarwickPreferences preferences;
+    private final JavascriptInvoker invoker;
 
-    public MyWarwickWebViewClient(MyWarwickPreferences preferences) {
+    public MyWarwickWebViewClient(JavascriptInvoker invoker, MyWarwickPreferences preferences) {
         this.preferences = preferences;
+        this.invoker = invoker;
     }
+
+    private String lastLoadedUrl = null;
 
     @Override
     public void onPageFinished(WebView view, String url) {
-        String js = view.getContext().getString(R.string.bridge);
-        view.loadUrl("javascript:" + js);
+        if (!url.equals(lastLoadedUrl)) {
+            Log.d("MyWarwick", "Page loaded: " + url);
+            String js = view.getContext().getString(R.string.bridge);
+            view.loadUrl("javascript:" + js);
+        }
+        lastLoadedUrl = url;
     }
 
     @Override

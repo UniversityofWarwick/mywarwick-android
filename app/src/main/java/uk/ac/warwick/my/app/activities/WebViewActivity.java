@@ -12,6 +12,9 @@ import android.webkit.WebViewClient;
 
 import uk.ac.warwick.my.app.R;
 
+/**
+ * Used as a full screen web page for signing in to websignon.
+ */
 public class WebViewActivity extends AppCompatActivity {
 
     public static final String EXTRA_URL = "URL";
