@@ -1,5 +1,6 @@
 package uk.ac.warwick.my.app.bridge;
 
+import android.util.Log;
 import android.webkit.JavascriptInterface;
 
 import org.json.JSONException;
@@ -10,12 +11,28 @@ import uk.ac.warwick.my.app.user.AuthenticatedUser;
 import uk.ac.warwick.my.app.user.SsoUrls;
 import uk.ac.warwick.my.app.user.User;
 
+/**
+ * Provides an interface for the WebView page to call back to the app,
+ * and also implements some methods for making calls on the page.
+ */
 public class MyWarwickJavaScriptInterface {
 
     private final MyWarwickState startState;
+    private final JavascriptInvoker invoker;
 
-    public MyWarwickJavaScriptInterface(MyWarwickState startState) {
+    public MyWarwickJavaScriptInterface(JavascriptInvoker invoker, MyWarwickState startState) {
         this.startState = startState;
+        this.invoker = invoker;
+    }
+
+    /**
+     * Called by the web page when it is ready and the
+     * MyWarwick variable is ready to be used.
+     */
+    @JavascriptInterface
+    public void ready() {
+        Log.d("MyWarwick", "JS ready()");
+        invoker.ready();
     }
 
     @JavascriptInterface
@@ -62,5 +79,7 @@ public class MyWarwickJavaScriptInterface {
             return new AnonymousUser();
         }
     }
+
+
 
 }

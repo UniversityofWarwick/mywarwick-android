@@ -5,6 +5,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ApplicationInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.IdRes;
@@ -14,6 +16,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -29,6 +32,7 @@ import com.roughike.bottombar.OnTabSelectListener;
 
 import uk.ac.warwick.my.app.Global;
 import uk.ac.warwick.my.app.R;
+import uk.ac.warwick.my.app.bridge.JavascriptInvoker;
 import uk.ac.warwick.my.app.bridge.MyWarwickJavaScriptInterface;
 import uk.ac.warwick.my.app.bridge.MyWarwickListener;
 import uk.ac.warwick.my.app.bridge.MyWarwickPreferences;
@@ -58,6 +62,8 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             registerForPushNotifications();
         }
     };
+    private MyWarwickJavaScriptInterface javascriptInterface;
+    private JavascriptInvoker invoker;
 
     @Override
     public void onTabSelected(@IdRes int tabId) {
@@ -66,6 +72,8 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         // Prevent double navigation (NEWSTART-500)
         if (!path.equals(myWarwick.getPath())) {
             appNavigate(path);
+        } else {
+            Log.d("MyWarwick", "Not navigating to " + path + " because we're already on it.");
         }
     }
 
@@ -148,6 +156,25 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        WebView webView = getWebView();
+        WebSettings settings = webView.getSettings();
+        settings.setJavaScriptEnabled(true);
+        settings.setUserAgentString(settings.getUserAgentString() + " " + getString(R.string.user_agent));
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            if (0 != (getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE)) {
+                WebView.setWebContentsDebuggingEnabled(true);
+            }
+        }
+
+        this.myWarwickPreferences = new MyWarwickPreferences(PreferenceManager.getDefaultSharedPreferences(this));
+        this.invoker = new JavascriptInvoker(webView);
+        this.javascriptInterface = new MyWarwickJavaScriptInterface(invoker, myWarwick);
+        webView.addJavascriptInterface(javascriptInterface, "MyWarwickAndroid");
+
+        MyWarwickWebViewClient webViewClient = new MyWarwickWebViewClient(invoker, myWarwickPreferences);
+        webView.setWebViewClient(webViewClient);
+
         getBottomBar().setOnTabSelectListener(this);
 
         ActionBar actionBar = getSupportActionBar();
@@ -168,18 +195,6 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
                 }
             });
         }
-
-        WebView webView = getWebView();
-        WebSettings settings = webView.getSettings();
-        settings.setJavaScriptEnabled(true);
-        settings.setUserAgentString(settings.getUserAgentString() + " " + getString(R.string.user_agent));
-
-        this.myWarwickPreferences = new MyWarwickPreferences(PreferenceManager.getDefaultSharedPreferences(this));
-
-        webView.addJavascriptInterface(new MyWarwickJavaScriptInterface(myWarwick), "MyWarwickAndroid");
-
-        MyWarwickWebViewClient webViewClient = new MyWarwickWebViewClient(myWarwickPreferences);
-        webView.setWebViewClient(webViewClient);
 
         String appURL = myWarwickPreferences.getAppURL();
         if (isOpenedFromNotification()) {
@@ -214,22 +229,23 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             return;
         }
 
-        getWebView().loadUrl(String.format("javascript:MyWarwick.registerForFCM('%s')", token));
+        invoker.invokeMyWarwickMethod(String.format("registerForFCM('%s')", token));
     }
 
     @Override
     protected void onDestroy() {
         unregisterReceiver(tokenRefreshReceiver);
-
+        invoker.reset();
+        invoker.clear();
+        Log.d("MyWarwick", "onDestroy");
         super.onDestroy();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-
         // Let the embedded app know that it's being brought to the foreground
-        getWebView().loadUrl("javascript:MyWarwick.onApplicationDidBecomeActive()");
+        invoker.invokeMyWarwickMethod("onApplicationDidBecomeActive()");
     }
 
     private boolean isOpenedFromNotification() {
@@ -293,11 +309,11 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     }
 
     private void appNavigate(String path) {
-        getWebView().loadUrl(String.format("javascript:MyWarwick.navigate('%s')", path));
+        invoker.invokeMyWarwickMethod(String.format("navigate('%s')", path));
     }
 
     private void appSearch(String query) {
-        getWebView().loadUrl(String.format("javascript:MyWarwick.search('%s')", query.replace("'", "\\'")));
+        invoker.invokeMyWarwickMethod(String.format("search('%s')", query.replace("'", "\\'")));
     }
 
     @Override

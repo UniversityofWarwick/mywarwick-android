@@ -36,24 +36,33 @@
 
     <string name="bridge">
         (function androidBridge(global) {
-            var native = {};
-            global.MyWarwickNative = native;
+            if (global.MyWarwickNative) {
+                console.log(\'Bridge already connected\');
+            } else {
+                console.log(\'Connecting bridge\');
+                var native = {};
+                global.MyWarwickNative = native;
 
-            native.setUser = function setUser(user) {
-                MyWarwickAndroid.setUser(JSON.stringify(user));
-            };
+                native.setUser = function setUser(user) {
+                    MyWarwickAndroid.setUser(JSON.stringify(user));
+                };
 
-            native.setWebSignOnUrls = function setWebSignOnUrls(signInUrl, signOutUrl) {
-                MyWarwickAndroid.setWebSignOnUrls(signInUrl, signOutUrl);
-            };
+                native.setWebSignOnUrls = function setWebSignOnUrls(signInUrl, signOutUrl) {
+                    MyWarwickAndroid.setWebSignOnUrls(signInUrl, signOutUrl);
+                };
 
-            native.setUnreadNotificationCount = function setUnreadNotificationCount(count) {
-                MyWarwickAndroid.setUnreadNotificationCount(count);
-            };
+                native.setUnreadNotificationCount = function setUnreadNotificationCount(count) {
+                    MyWarwickAndroid.setUnreadNotificationCount(count);
+                };
 
-            native.setPath = function setPath(path) {
-                MyWarwickAndroid.setPath(path);
-            };
-        }(window));
+                native.setPath = function setPath(path) {
+                    MyWarwickAndroid.setPath(path);
+                };
+
+                native.ready = function ready() {
+                    MyWarwickAndroid.ready();
+                };
+            }
+        })(window);
     </string>
 </resources>
