@@ -19,16 +19,11 @@ public class MyWarwickWebViewClient extends WebViewClient {
         this.invoker = invoker;
     }
 
-    private String lastLoadedUrl = null;
-
     @Override
     public void onPageFinished(WebView view, String url) {
-        if (!url.equals(lastLoadedUrl)) {
-            Log.d("MyWarwick", "Page loaded: " + url);
-            String js = view.getContext().getString(R.string.bridge);
-            view.loadUrl("javascript:" + js);
-        }
-        lastLoadedUrl = url;
+        Log.d("MyWarwick", "Page loaded: " + url);
+        String js = view.getContext().getString(R.string.bridge);
+        view.loadUrl("javascript:" + js);
     }
 
     @Override

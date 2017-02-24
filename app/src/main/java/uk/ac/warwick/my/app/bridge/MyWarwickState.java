@@ -1,5 +1,6 @@
 package uk.ac.warwick.my.app.bridge;
 
+import uk.ac.warwick.my.app.helper.Objects;
 import uk.ac.warwick.my.app.user.SsoUrls;
 import uk.ac.warwick.my.app.user.User;
 
@@ -48,7 +49,7 @@ public class MyWarwickState {
     }
 
     public void setUser(User user) {
-        if (listener != null && !user.equals(this.user)) {
+        if (listener != null && !Objects.equals(user, this.user)) {
             listener.onUserChange(user);
         }
 

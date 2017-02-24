@@ -25,4 +25,16 @@ public class MyWarwickPreferences {
         return Uri.parse(getAppURL()).getHost();
     }
 
+    /**
+     * Stores whether the WebView needs to be reloaded - maybe we've signed out,
+     * or changed the target server.
+     */
+    public boolean needsReload() {
+        return sharedPreferences.getBoolean("mywarwick_needsreload", false);
+    }
+
+    public void setNeedsReload(boolean needed) {
+        sharedPreferences.edit().putBoolean("mywarwick_needsreload", needed).apply();
+    }
+
 }
