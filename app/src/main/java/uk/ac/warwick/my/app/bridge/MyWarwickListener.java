@@ -11,6 +11,6 @@ public interface MyWarwickListener {
 
     void onUserChange(User user);
 
-    void onSetSSoUrls(SsoUrls ssoUrls);
+    void onSetSsoUrls(SsoUrls ssoUrls);
 
 }

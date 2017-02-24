@@ -150,7 +150,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     }
 
     @Override
-    public void onSetSSoUrls(final SsoUrls ssoUrls) {
+    public void onSetSsoUrls(final SsoUrls ssoUrls) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {

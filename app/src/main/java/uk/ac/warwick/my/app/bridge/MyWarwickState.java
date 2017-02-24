@@ -26,7 +26,7 @@ public class MyWarwickState {
 
     public void setSsoUrls(SsoUrls ssoUrls) {
         if (listener != null && !ssoUrls.equals(this.ssoUrls)) {
-            listener.onSetSSoUrls(ssoUrls);
+            listener.onSetSsoUrls(ssoUrls);
         }
         this.ssoUrls = ssoUrls;
     }
