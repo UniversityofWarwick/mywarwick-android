@@ -1,4 +1,5 @@
 package uk.ac.warwick.my.app.user;
+import uk.ac.warwick.my.app.helper.Objects;
 
 public class SsoUrls {
 
@@ -23,10 +24,11 @@ public class SsoUrls {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        SsoUrls ssoUrls = (SsoUrls) o;
+        SsoUrls that = (SsoUrls) o;
 
-        if (!loginUrl.equals(ssoUrls.loginUrl)) return false;
-        return logoutUrl.equals(ssoUrls.logoutUrl);
+        boolean loginUrlsEqual = Objects.equals(this.loginUrl, that.loginUrl);
+        boolean logoutUrlsEqual = Objects.equals(this.logoutUrl, that.logoutUrl);
 
+        return loginUrlsEqual && logoutUrlsEqual;
     }
 }
