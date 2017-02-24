@@ -38,6 +38,7 @@ import uk.ac.warwick.my.app.bridge.MyWarwickListener;
 import uk.ac.warwick.my.app.bridge.MyWarwickPreferences;
 import uk.ac.warwick.my.app.bridge.MyWarwickState;
 import uk.ac.warwick.my.app.bridge.MyWarwickWebViewClient;
+import uk.ac.warwick.my.app.user.SsoUrls;
 import uk.ac.warwick.my.app.user.User;
 import uk.ac.warwick.my.app.utils.DownloadImageTask;
 import uk.ac.warwick.my.app.utils.PushNotifications;
@@ -143,6 +144,16 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
                 bottomBar.getTabAtPosition(TAB_INDEX_ACTIVITIES).setEnabled(user.isSignedIn());
 
                 // Cause the options menu to be updated to reflect the signed in/out state
+                supportInvalidateOptionsMenu();
+            }
+        });
+    }
+
+    @Override
+    public void onSetSSoUrls(final SsoUrls ssoUrls) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
                 supportInvalidateOptionsMenu();
             }
         });
