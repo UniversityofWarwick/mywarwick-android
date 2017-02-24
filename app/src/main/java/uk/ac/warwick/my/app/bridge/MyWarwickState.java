@@ -1,8 +1,5 @@
 package uk.ac.warwick.my.app.bridge;
 
-import java.util.Collection;
-
-import uk.ac.warwick.my.app.user.AnonymousUser;
 import uk.ac.warwick.my.app.user.SsoUrls;
 import uk.ac.warwick.my.app.user.User;
 
@@ -28,6 +25,9 @@ public class MyWarwickState {
     }
 
     public void setSsoUrls(SsoUrls ssoUrls) {
+        if (listener != null && !ssoUrls.equals(this.ssoUrls)) {
+            listener.onSetSsoUrls(ssoUrls);
+        }
         this.ssoUrls = ssoUrls;
     }
 
