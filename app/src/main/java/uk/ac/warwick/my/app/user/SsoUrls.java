@@ -18,4 +18,15 @@ public class SsoUrls {
         return logoutUrl;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        SsoUrls ssoUrls = (SsoUrls) o;
+
+        if (!loginUrl.equals(ssoUrls.loginUrl)) return false;
+        return logoutUrl.equals(ssoUrls.logoutUrl);
+
+    }
 }
