@@ -173,7 +173,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         settings.setUserAgentString(settings.getUserAgentString() + " " + getString(R.string.user_agent));
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            if (0 != (getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE)) {
+            if (isDebugBuild()) {
                 WebView.setWebContentsDebuggingEnabled(true);
             }
         }
@@ -332,7 +332,15 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         // Inflate the menu; this adds items to the action bar if it is present.
         if (myWarwick.getSsoUrls() != null && myWarwick.getUser() != null) {
             getMenuInflater().inflate(myWarwick.getUser().isSignedIn() ? R.menu.signed_in : R.menu.signed_out, menu);
+        } else {
+            // Show something before user data has arrived - signed_in is OK
+            // as we decide later whether to show the user account stuff.
+            getMenuInflater().inflate(R.menu.signed_in, menu);
         }
+
+        // NEWSTART-540 - When we add settings for non-debug stuff, we'll need
+        // to revert this and hide the individual settings items instead.
+        menu.findItem(R.id.action_settings).setVisible(isDebugBuild());
 
         searchItem = menu.findItem(R.id.action_search);
 
@@ -463,5 +471,9 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             default:
                 return getString(R.string.app_name);
         }
+    }
+
+    private boolean isDebugBuild() {
+        return 0 != (getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE);
     }
 }
