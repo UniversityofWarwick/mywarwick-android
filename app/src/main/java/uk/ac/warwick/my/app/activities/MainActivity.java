@@ -178,7 +178,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         settings.setUserAgentString(settings.getUserAgentString() + " " + getString(R.string.user_agent));
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            if (0 != (getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE)) {
+            if (isDebugBuild()) {
                 WebView.setWebContentsDebuggingEnabled(true);
             }
         }
@@ -364,6 +364,10 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             getMenuInflater().inflate(R.menu.signed_in, menu);
         }
 
+        // NEWSTART-540 - When we add settings for non-debug stuff, we'll need
+        // to revert this and hide the individual settings items instead.
+        menu.findItem(R.id.action_settings).setVisible(isDebugBuild());
+
         searchItem = menu.findItem(R.id.action_search);
 
         if (searchItem != null) {
@@ -506,5 +510,9 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             default:
                 return getString(R.string.app_name);
         }
+    }
+
+    private boolean isDebugBuild() {
+        return 0 != (getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE);
     }
 }
