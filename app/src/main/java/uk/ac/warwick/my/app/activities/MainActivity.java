@@ -10,6 +10,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.IdRes;
+import android.support.annotation.Nullable;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -45,14 +46,17 @@ import uk.ac.warwick.my.app.utils.PushNotifications;
 
 public class MainActivity extends AppCompatActivity implements OnTabSelectListener, MyWarwickListener {
 
-    public static final int TAB_INDEX_NOTIFICATIONS = 1;
-    public static final int TAB_INDEX_ACTIVITIES = 2;
-
     public static final String ROOT_PATH = "/";
     public static final String SEARCH_PATH = "/search";
+    public static final String TILES_PATH = "/tiles";
+    public static final String NOTIFICATIONS_PATH = "/notifications";
+
+    public static final int TAB_INDEX_ACTIVITIES = 2;
+    public static final int TAB_INDEX_NOTIFICATIONS = 1;
 
     public static final int SIGN_IN = 1;
-    public static final String NOTIFICATIONS_PATH = "/notifications";
+
+    private static final String TAG = "MainActivity";
 
     private MyWarwickState myWarwick = new MyWarwickState(this);
     private MyWarwickPreferences myWarwickPreferences;
@@ -74,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         if (!path.equals(myWarwick.getPath())) {
             appNavigate(path);
         } else {
-            Log.d("MyWarwick", "Not navigating to " + path + " because we're already on it.");
+            Log.d(TAG, "Not navigating to " + path + " because we're already on it.");
         }
     }
 
@@ -90,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
                 ActionBar actionBar = getSupportActionBar();
 
                 if (actionBar != null) {
-                    if (path.startsWith("/tiles")) {
+                    if (path.startsWith(TILES_PATH)) {
                         // Display a back arrow in place of the drawer indicator
                         actionBar.setDisplayHomeAsUpEnabled(true);
                     } else {
@@ -99,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
                     }
                 }
 
-                if (path.equals("/search") && searchItem != null) {
+                if (path.equals(SEARCH_PATH) && searchItem != null) {
                     // Show the search field in the action bar on /search
                     MenuItemCompat.expandActionView(searchItem);
                 }
@@ -120,16 +124,17 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     }
 
     @Override
-    public void onUserChange(final User user) {
+    public void onUserChange(@Nullable final User user) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 View accountPhotoView = getAccountPhotoView();
-
                 View cardView = accountPhotoView.findViewById(R.id.image_card_view);
                 ImageView photoView = (ImageView) accountPhotoView.findViewById(R.id.image_view);
 
-                if (user.isSignedIn()) {
+                final boolean signedIn = (user != null && user.isSignedIn());
+
+                if (signedIn) {
                     new DownloadImageTask(photoView, cardView).execute(user.getPhotoUrl());
 
                     registerForPushNotifications();
@@ -140,8 +145,8 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
                 BottomBar bottomBar = getBottomBar();
 
-                bottomBar.getTabAtPosition(TAB_INDEX_NOTIFICATIONS).setEnabled(user.isSignedIn());
-                bottomBar.getTabAtPosition(TAB_INDEX_ACTIVITIES).setEnabled(user.isSignedIn());
+                bottomBar.getTabAtPosition(TAB_INDEX_NOTIFICATIONS).setEnabled(signedIn);
+                bottomBar.getTabAtPosition(TAB_INDEX_ACTIVITIES).setEnabled(signedIn);
 
                 // Cause the options menu to be updated to reflect the signed in/out state
                 supportInvalidateOptionsMenu();
@@ -248,16 +253,36 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         unregisterReceiver(tokenRefreshReceiver);
         invoker.reset();
         invoker.clear();
-        Log.d("MyWarwick", "onDestroy");
+        Log.d(TAG, "onDestroy");
         super.onDestroy();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        // Let the embedded app know that it's being brought to the foreground
-        invoker.invokeMyWarwickMethod("onApplicationDidBecomeActive()");
+        Log.d(TAG, "onStart");
+
+        if (myWarwickPreferences.needsReload()) {
+            Log.i(TAG, "Reloading because something has changed");
+            // try not clearing any cache, just reload.
+            //getWebView().clearCache(false);
+            getWebView().reload();
+            invoker.reset();
+            myWarwickPreferences.setNeedsReload(false);
+        } else {
+            // Let the embedded app know that it's being brought to the foreground
+            // (Only need to do this if we didn't just reload the whole page)
+            invoker.invokeMyWarwickMethod("onApplicationDidBecomeActive()");
+        }
     }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d(TAG, "onStop");
+    }
+
+
 
     private boolean isOpenedFromNotification() {
         Bundle extras = getIntent().getExtras();
@@ -331,10 +356,11 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         if (myWarwick.getSsoUrls() != null && myWarwick.getUser() != null) {
+            Log.d(TAG, "Generating options menu, user signed in: " + myWarwick.getUser().isSignedIn());
             getMenuInflater().inflate(myWarwick.getUser().isSignedIn() ? R.menu.signed_in : R.menu.signed_out, menu);
         } else {
-            // Show something before user data has arrived - signed_in is OK
-            // as we decide later whether to show the user account stuff.
+            // We don't know anything about anything
+            // Render the signed_in version (which won't have the account pic), so that Settings are always available.
             getMenuInflater().inflate(R.menu.signed_in, menu);
         }
 
@@ -394,6 +420,13 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     @Override
     protected void onResume() {
         super.onResume();
+        Log.d(TAG, "onResume");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(TAG, "onPause");
     }
 
     @Override
@@ -413,6 +446,9 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     private void signOut() {
         if (myWarwick.getSsoUrls() != null) {
             getWebView().loadUrl(myWarwick.getSsoUrls().getLogoutUrl());
+
+            myWarwick.setUser(null);
+            myWarwickPreferences.setNeedsReload(true);
         }
     }
 
@@ -423,6 +459,9 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             intent.putExtra(WebViewActivity.EXTRA_DESTINATION_HOST, myWarwickPreferences.getAppHost());
             intent.putExtra(WebViewActivity.EXTRA_TITLE, getString(R.string.action_sign_in));
             startActivityForResult(intent, SIGN_IN);
+
+            myWarwick.setUser(null);
+            myWarwickPreferences.setNeedsReload(true);
         }
     }
 
