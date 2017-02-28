@@ -2,7 +2,6 @@ package uk.ac.warwick.my.app.bridge;
 
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.preference.PreferenceManager;
 
 public class MyWarwickPreferences {
 
