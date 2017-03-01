@@ -14,6 +14,7 @@
         <screen android:screenSize="small" android:screenDensity="420" />
         <screen android:screenSize="small" android:screenDensity="480" />
         <screen android:screenSize="small" android:screenDensity="560" />
+        <screen android:screenSize="small" android:screenDensity="640" />
         <!-- all normal size screens -->
         <screen android:screenSize="normal" android:screenDensity="ldpi" />
         <screen android:screenSize="normal" android:screenDensity="mdpi" />
@@ -24,6 +25,7 @@
         <screen android:screenSize="normal" android:screenDensity="420" />
         <screen android:screenSize="normal" android:screenDensity="480" />
         <screen android:screenSize="normal" android:screenDensity="560" />
+        <screen android:screenSize="normal" android:screenDensity="640" />
     </compatible-screens>
 
     <uses-permission android:name="android.permission.INTERNET" />
