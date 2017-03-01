@@ -47,7 +47,8 @@
             </intent-filter>
         </service>
 
-        <activity android:name=".activities.PleaseConnectActivity"></activity>
+        <activity android:name=".activities.PleaseConnectActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"></activity>
     </application>
 
 </manifest>
