@@ -65,4 +65,6 @@
             }
         })(window);
     </string>
+    <string name="please_connect_text">My Warwick needs to download additional content before it can be used offline. Please connect to the Internet.</string>
+    <string name="please_connect_heading">Cannot connect to My Warwick</string>
 </resources>
