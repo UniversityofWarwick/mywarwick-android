@@ -12,11 +12,34 @@ import uk.ac.warwick.my.app.R;
 public class MyWarwickWebViewClient extends WebViewClient {
 
     private final MyWarwickPreferences preferences;
-    private final JavascriptInvoker invoker;
+    private final MyWarwickListener listener;
 
-    public MyWarwickWebViewClient(JavascriptInvoker invoker, MyWarwickPreferences preferences) {
+    public MyWarwickWebViewClient(MyWarwickPreferences preferences, MyWarwickListener listener) {
         this.preferences = preferences;
-        this.invoker = invoker;
+        this.listener = listener;
+    }
+
+
+    /**
+     * This method is deprecated on newer APIs but we are using older APIs. Note that this
+     * should only be called for errors on the top level page, whereas the replacement APIs are
+     * called for subresources as well, so would need to watch out for that.
+     *
+     * Catches failure to load a page by showing a helpful message.
+     */
+    @Override
+    public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+        switch (errorCode) {
+            case ERROR_HOST_LOOKUP:
+            case ERROR_CONNECT:
+            case ERROR_TIMEOUT:
+                Log.d(Global.TAG, "onReceivedError for " + failingUrl);
+                view.loadUrl("about:blank");
+                listener.onUncachedPageFail();
+                break;
+            default:
+                super.onReceivedError(view, errorCode, description, failingUrl);
+        }
     }
 
     @Override

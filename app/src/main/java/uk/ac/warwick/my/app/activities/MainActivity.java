@@ -164,6 +164,13 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         });
     }
 
+    @Override
+    public void onUncachedPageFail() {
+        Intent intent = new Intent(this, PleaseConnectActivity.class);
+        this.startActivity(intent);
+        this.finish();
+    }
+
     @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -188,7 +195,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         this.javascriptInterface = new MyWarwickJavaScriptInterface(invoker, myWarwick);
         webView.addJavascriptInterface(javascriptInterface, "MyWarwickAndroid");
 
-        MyWarwickWebViewClient webViewClient = new MyWarwickWebViewClient(invoker, myWarwickPreferences);
+        MyWarwickWebViewClient webViewClient = new MyWarwickWebViewClient(myWarwickPreferences, this);
         webView.setWebViewClient(webViewClient);
 
         getBottomBar().setOnTabSelectListener(this);
