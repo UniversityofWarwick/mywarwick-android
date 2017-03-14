@@ -35,6 +35,14 @@
 
         <activity android:name=".activities.PleaseConnectActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"></activity>
+
+
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_warwick_notification" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/colorAccent" />
     </application>
 
 </manifest>
