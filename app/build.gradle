@@ -4,7 +4,7 @@ if (!project.hasProperty("MyWarwick.keystore")) {
     throw new InvalidUserDataException("~/.gradle/gradle.properties needs to contain the necessary MyWarwick.* properties.");
 }
 
-def buildNumber = 9
+def buildNumber = 10
 def buildVersionSuffix = " - Beta build"
 
 android {
