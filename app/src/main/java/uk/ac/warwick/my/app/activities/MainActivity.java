@@ -58,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
     private static final String TAG = "MainActivity";
 
+    private WebView myWarwickWebView;
     private MyWarwickState myWarwick = new MyWarwickState(this);
     private MyWarwickPreferences myWarwickPreferences;
     private MenuItem searchItem;
@@ -179,8 +180,8 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        WebView webView = getWebView();
-        WebSettings settings = webView.getSettings();
+        myWarwickWebView = getWebView();
+        WebSettings settings = myWarwickWebView.getSettings();
         settings.setJavaScriptEnabled(true);
         settings.setUserAgentString(settings.getUserAgentString() + " " + getString(R.string.user_agent));
 
@@ -191,12 +192,12 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         }
 
         this.myWarwickPreferences = new MyWarwickPreferences(PreferenceManager.getDefaultSharedPreferences(this));
-        this.invoker = new JavascriptInvoker(webView);
+        this.invoker = new JavascriptInvoker(myWarwickWebView);
         this.javascriptInterface = new MyWarwickJavaScriptInterface(invoker, myWarwick);
-        webView.addJavascriptInterface(javascriptInterface, "MyWarwickAndroid");
+        myWarwickWebView.addJavascriptInterface(javascriptInterface, "MyWarwickAndroid");
 
         MyWarwickWebViewClient webViewClient = new MyWarwickWebViewClient(myWarwickPreferences, this);
-        webView.setWebViewClient(webViewClient);
+        myWarwickWebView.setWebViewClient(webViewClient);
 
         getBottomBar().setOnTabSelectListener(this);
 
@@ -222,9 +223,9 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         String appURL = myWarwickPreferences.getAppURL();
         if (isOpenedFromNotification()) {
             onPathChange(NOTIFICATIONS_PATH);
-            webView.loadUrl(appURL + NOTIFICATIONS_PATH);
+            myWarwickWebView.loadUrl(appURL + NOTIFICATIONS_PATH);
         } else {
-            webView.loadUrl(appURL);
+            myWarwickWebView.loadUrl(appURL);
         }
 
         registerTokenRefreshReceiver();
@@ -336,9 +337,12 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
     @Override
     public void onBackPressed() {
-        if (myWarwick.getPath() != null && myWarwick.getPath().startsWith("/tiles")) {
-            // If we are looking at zoomed tile, unzoom it
-            appNavigate(ROOT_PATH);
+        if (myWarwick.getPath() != null && myWarwick.getPath().equals("/")) {
+            // If we're on the tiles view do the default
+            super.onBackPressed();
+        } else if (myWarwickWebView.canGoBack()) {
+            // Go back from editing, configuring, zoomed tile, other tabs, to tiles view
+            myWarwickWebView.goBack();
         } else {
             // Otherwise do the default thing
             super.onBackPressed();
