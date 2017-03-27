@@ -4,7 +4,7 @@ if (!project.hasProperty("MyWarwick.keystore")) {
     throw new InvalidUserDataException("~/.gradle/gradle.properties needs to contain the necessary MyWarwick.* properties.");
 }
 
-def buildNumber = 9
+def buildNumber = 11
 def buildVersionSuffix = " - Beta build"
 
 android {
@@ -48,7 +48,7 @@ dependencies {
     compile 'com.roughike:bottom-bar:2.1.1'
     compile 'com.google.guava:guava:20.0'
 
-    compile "com.google.firebase:firebase-messaging:9.6.1"
+    compile 'com.google.firebase:firebase-messaging:10.2.0'
 }
 
 apply plugin: 'com.google.gms.google-services'

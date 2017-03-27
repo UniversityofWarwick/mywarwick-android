@@ -58,6 +58,9 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
     private static final String TAG = "MainActivity";
 
+    public static final float disabledTabAlpha = 0.3f;
+    public static final float enabledTabAlpha = 1;
+
     private WebView myWarwickWebView;
     private MyWarwickState myWarwick = new MyWarwickState(this);
     private MyWarwickPreferences myWarwickPreferences;
@@ -146,8 +149,18 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
                 BottomBar bottomBar = getBottomBar();
 
-                bottomBar.getTabAtPosition(TAB_INDEX_NOTIFICATIONS).setEnabled(signedIn);
-                bottomBar.getTabAtPosition(TAB_INDEX_ACTIVITIES).setEnabled(signedIn);
+                BottomBarTab notificationsTab = bottomBar.getTabAtPosition(TAB_INDEX_NOTIFICATIONS);
+                BottomBarTab activitiesTab = bottomBar.getTabAtPosition(TAB_INDEX_ACTIVITIES);
+                notificationsTab.setEnabled(signedIn);
+                activitiesTab.setEnabled(signedIn);
+
+                if (!signedIn) {
+                    notificationsTab.setAlpha(disabledTabAlpha);
+                    activitiesTab.setAlpha(disabledTabAlpha);
+                } else {
+                    notificationsTab.setAlpha(enabledTabAlpha);
+                    activitiesTab.setAlpha(enabledTabAlpha);
+                }
 
                 // Cause the options menu to be updated to reflect the signed in/out state
                 supportInvalidateOptionsMenu();
