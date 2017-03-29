@@ -5,16 +5,18 @@ public class AuthenticatedUser implements User {
     private final String usercode;
     private final String name;
     private final String photoUrl;
+    private final boolean authoritative;
 
     @Override
     public boolean isSignedIn() {
         return usercode != null;
     }
 
-    public AuthenticatedUser(final String usercode, final String name, final String photoUrl) {
+    public AuthenticatedUser(final String usercode, final String name, final String photoUrl, final boolean authoritative) {
         this.usercode = usercode;
         this.name = name;
         this.photoUrl = photoUrl;
+        this.authoritative = authoritative;
     }
 
     @Override
@@ -33,11 +35,16 @@ public class AuthenticatedUser implements User {
     }
 
     @Override
+    public boolean isAuthoritative() {
+        return authoritative;
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (obj instanceof AuthenticatedUser) {
             AuthenticatedUser other = (AuthenticatedUser) obj;
 
-            return getUsercode().equals(other.getUsercode());
+            return getUsercode().equals(other.getUsercode()) && isAuthoritative() == other.isAuthoritative();
         }
 
         return false;

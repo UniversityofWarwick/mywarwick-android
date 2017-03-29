@@ -73,13 +73,12 @@ public class MyWarwickJavaScriptInterface {
             return new AuthenticatedUser(
                     user.getString("usercode"),
                     user.getString("name"),
-                    photo.getString("url")
+                    photo.getString("url"),
+                    user.getBoolean("authoritative")
             );
         } else {
-            return new AnonymousUser();
+            return new AnonymousUser(user.getBoolean("authoritative"));
         }
     }
-
-
 
 }

@@ -2,6 +2,12 @@ package uk.ac.warwick.my.app.user;
 
 public class AnonymousUser implements User {
 
+    private final boolean authoritative;
+
+    public AnonymousUser(boolean authoritative) {
+        this.authoritative = authoritative;
+    }
+
     @Override
     public boolean isSignedIn() {
         return false;
@@ -23,7 +29,18 @@ public class AnonymousUser implements User {
     }
 
     @Override
+    public boolean isAuthoritative() {
+        return authoritative;
+    }
+
+    @Override
     public boolean equals(Object obj) {
-        return obj instanceof AnonymousUser;
+        if (obj instanceof AnonymousUser) {
+            AnonymousUser other = (AnonymousUser) obj;
+
+            return isAuthoritative() == other.isAuthoritative();
+        }
+
+        return false;
     }
 }
