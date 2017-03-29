@@ -280,8 +280,6 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     }
 
     private void unregisterForPushNotifications() {
-        myWarwickPreferences.deactivatePushNotificationToken();
-
         String token = myWarwickPreferences.getPushNotificationToken();
 
         if (token == null) {

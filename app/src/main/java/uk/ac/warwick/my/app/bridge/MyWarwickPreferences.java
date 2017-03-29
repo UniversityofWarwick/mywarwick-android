@@ -10,7 +10,6 @@ public class MyWarwickPreferences {
     private static final String NEEDS_RELOAD = "mywarwick_needsreload";
     private static final String PUSH_NOTIFICATION_TOKEN = "mywarwick_push_notification_token";
     private static final String SERVER = "mywarwick_server";
-    public static final String PUSH_TOKEN_ACTIVE = "mywarwick_token_active";
 
     private SharedPreferences sharedPreferences;
 
@@ -22,19 +21,10 @@ public class MyWarwickPreferences {
         return sharedPreferences.getString(PUSH_NOTIFICATION_TOKEN, null);
     }
 
-    public boolean isPushNotificationTokenActive() {
-        return sharedPreferences.getBoolean(PUSH_TOKEN_ACTIVE, false);
-    }
-
     public void setPushNotificationToken(String token) {
         sharedPreferences.edit()
                 .putString(PUSH_NOTIFICATION_TOKEN, token)
-                .putBoolean(PUSH_TOKEN_ACTIVE, true)
                 .apply();
-    }
-
-    public void deactivatePushNotificationToken() {
-        sharedPreferences.edit().putBoolean(PUSH_TOKEN_ACTIVE, false).apply();
     }
 
     public String getAppURL() {
@@ -43,7 +33,6 @@ public class MyWarwickPreferences {
             // get custom url from preference
             url = sharedPreferences.getString(CUSTOM_SERVER_ADDRESS, "");
         }
-        url = "https://swordfish.warwick.ac.uk";
         return url;
     }
 
