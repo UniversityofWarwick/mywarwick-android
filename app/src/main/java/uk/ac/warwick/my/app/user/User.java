@@ -10,4 +10,6 @@ public interface User {
 
     String getPhotoUrl();
 
+    boolean isAuthoritative();
+
 }

@@ -39,6 +39,7 @@ import uk.ac.warwick.my.app.bridge.MyWarwickListener;
 import uk.ac.warwick.my.app.bridge.MyWarwickPreferences;
 import uk.ac.warwick.my.app.bridge.MyWarwickState;
 import uk.ac.warwick.my.app.bridge.MyWarwickWebViewClient;
+import uk.ac.warwick.my.app.user.AnonymousUser;
 import uk.ac.warwick.my.app.user.SsoUrls;
 import uk.ac.warwick.my.app.user.User;
 import uk.ac.warwick.my.app.utils.DownloadImageTask;
@@ -141,10 +142,16 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
                 if (signedIn) {
                     new DownloadImageTask(photoView, cardView).execute(user.getPhotoUrl());
 
-                    registerForPushNotifications();
+                    if (user.isAuthoritative()) {
+                        registerForPushNotifications();
+                    }
                 } else {
                     photoView.setImageURI(null);
                     cardView.setVisibility(View.GONE);
+
+                    if (user != null && user.isAuthoritative()) {
+                        unregisterForPushNotifications();
+                    }
                 }
 
                 BottomBar bottomBar = getBottomBar();
@@ -254,8 +261,8 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     private void registerForPushNotifications() {
         User user = myWarwick.getUser();
 
-        if (user == null || !user.isSignedIn()) {
-            // Only do this for signed-in users
+        if (user == null || !user.isSignedIn() || !user.isAuthoritative()) {
+            // Only do this for definitely signed-in users
             return;
         }
 
@@ -266,7 +273,24 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             return;
         }
 
+        myWarwickPreferences.setPushNotificationToken(token);
+
+        Log.i(TAG, "Registering for push notifications with token " + token);
+
         invoker.invokeMyWarwickMethod(String.format("registerForFCM('%s')", token));
+    }
+
+    private void unregisterForPushNotifications() {
+        String token = myWarwickPreferences.getPushNotificationToken();
+
+        if (token == null) {
+            // Nothing to do
+            return;
+        }
+
+        Log.i(TAG, "Unregistering push notification token " + token);
+
+        invoker.invokeMyWarwickMethod(String.format("unregisterForPush('%s')", token));
     }
 
     @Override
