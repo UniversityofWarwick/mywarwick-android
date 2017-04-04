@@ -1,5 +1,8 @@
 package uk.ac.warwick.my.app.bridge;
 
+
+import android.net.Uri;
+
 import uk.ac.warwick.my.app.user.SsoUrls;
 import uk.ac.warwick.my.app.user.User;
 
@@ -15,5 +18,7 @@ public interface MyWarwickListener {
 
     // Call when the HTML fails to load because we haven't cached anything yet.
     void onUncachedPageFail();
+
+    boolean onSsoUrl(Uri url);
 
 }

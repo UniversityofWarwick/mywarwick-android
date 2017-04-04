@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -182,6 +183,22 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         Intent intent = new Intent(this, PleaseConnectActivity.class);
         this.startActivity(intent);
         this.finish();
+    }
+
+    @Override
+    public boolean onSsoUrl(Uri url) {
+        if (myWarwick.getSsoUrls() != null && myWarwick.getSsoUrls().getLoginUrl() != null) {
+            if (myWarwick.getSsoUrls().isLoginRefresh()) {
+                return false;
+            } else if (url.toString().equals(myWarwick.getSsoUrls().getLoginUrl())) {
+                startSignInActivity();
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 
     @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
