@@ -48,6 +48,7 @@ import uk.ac.warwick.my.app.utils.PushNotifications;
 public class MainActivity extends AppCompatActivity implements OnTabSelectListener, MyWarwickListener {
 
     public static final String ROOT_PATH = "/";
+    public static final String EDIT_PATH = "/edit";
     public static final String SEARCH_PATH = "/search";
     public static final String TILES_PATH = "/tiles";
     public static final String NOTIFICATIONS_PATH = "/notifications";
@@ -72,8 +73,8 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             registerForPushNotifications();
         }
     };
-    private MyWarwickJavaScriptInterface javascriptInterface;
     private JavascriptInvoker invoker;
+    private MenuItem editMenuItem;
 
     @Override
     public void onTabSelected(@IdRes int tabId) {
@@ -111,6 +112,14 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
                 if (path.equals(SEARCH_PATH) && searchItem != null) {
                     // Show the search field in the action bar on /search
                     MenuItemCompat.expandActionView(searchItem);
+                }
+
+                editMenuItem.setVisible(path.equals(ROOT_PATH) || path.equals(EDIT_PATH));
+
+                if (path.equals(ROOT_PATH)) {
+                    editMenuItem.setIcon(R.drawable.ic_mode_edit_white);
+                } else {
+                    editMenuItem.setIcon(R.drawable.ic_done_white);
                 }
             }
         });
@@ -213,7 +222,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
         this.myWarwickPreferences = new MyWarwickPreferences(PreferenceManager.getDefaultSharedPreferences(this));
         this.invoker = new JavascriptInvoker(myWarwickWebView);
-        this.javascriptInterface = new MyWarwickJavaScriptInterface(invoker, myWarwick);
+        MyWarwickJavaScriptInterface javascriptInterface = new MyWarwickJavaScriptInterface(invoker, myWarwick);
         myWarwickWebView.addJavascriptInterface(javascriptInterface, "MyWarwickAndroid");
 
         MyWarwickWebViewClient webViewClient = new MyWarwickWebViewClient(myWarwickPreferences, this);
@@ -326,8 +335,6 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         super.onStop();
         Log.d(TAG, "onStop");
     }
-
-
 
     private boolean isOpenedFromNotification() {
         Bundle extras = getIntent().getExtras();
@@ -454,6 +461,14 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             });
         }
 
+        editMenuItem = menu.findItem(R.id.action_edit);
+
+        if (EDIT_PATH.equals(myWarwick.getPath())) {
+            editMenuItem.setIcon(R.drawable.ic_done_white);
+        } else if (!ROOT_PATH.equals(myWarwick.getPath())) {
+            editMenuItem.setVisible(false);
+        }
+
         return true;
     }
 
@@ -486,6 +501,12 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             case R.id.action_settings:
                 startActivity(new Intent(this, SettingsActivity.class));
                 return true;
+            case R.id.action_edit:
+                if (myWarwick.getPath().equals(ROOT_PATH)) {
+                    appNavigate(EDIT_PATH);
+                } else {
+                    appNavigate(ROOT_PATH);
+                }
             default:
                 return super.onOptionsItemSelected(item);
         }
