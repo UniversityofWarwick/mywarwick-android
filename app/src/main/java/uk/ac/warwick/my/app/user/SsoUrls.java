@@ -5,7 +5,11 @@ import uk.ac.warwick.my.app.helper.Objects;
 
 public class SsoUrls {
 
-    private static final String MY_WARWICK_REFRESH_PARAM = "myWarwickRefreshParam";
+    private static final String MY_WARWICK_REFRESH_PARAM = "myWarwickRefresh";
+
+    public static boolean isLoginRefresh(Uri url) {
+        return url.getBooleanQueryParameter(MY_WARWICK_REFRESH_PARAM, false);
+    }
 
     private final String loginUrl;
     private final String logoutUrl;
@@ -21,11 +25,6 @@ public class SsoUrls {
 
     public String getLogoutUrl() {
         return logoutUrl;
-    }
-
-    public boolean isLoginRefresh() {
-        return getLoginUrl() != null &&
-            Uri.parse(getLoginUrl()).getBooleanQueryParameter(MY_WARWICK_REFRESH_PARAM, false);
     }
 
     @Override
