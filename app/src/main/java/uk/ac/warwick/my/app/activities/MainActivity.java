@@ -315,11 +315,15 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     protected void onStart() {
         super.onStart();
         Log.d(TAG, "onStart");
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.d(TAG, "onRestart");
 
         if (myWarwickPreferences.needsReload()) {
             Log.i(TAG, "Reloading because something has changed");
-            // try not clearing any cache, just reload.
-            //getWebView().clearCache(false);
             getWebView().reload();
             invoker.reset();
             myWarwickPreferences.setNeedsReload(false);
