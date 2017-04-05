@@ -385,11 +385,8 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
     @Override
     public void onBackPressed() {
-        if (myWarwick.getPath() != null && myWarwick.getPath().equals("/")) {
-            // If we're on the tiles view do the default
-            super.onBackPressed();
-        } else if (myWarwickWebView.canGoBack()) {
-            // Go back from editing, configuring, zoomed tile, other tabs, to tiles view
+        if (myWarwickWebView.canGoBack()) {
+            // Go back from editing, or zoomed tile, to tiles view
             myWarwickWebView.goBack();
         } else {
             // Otherwise do the default thing
