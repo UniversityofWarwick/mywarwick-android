@@ -1,7 +1,15 @@
 package uk.ac.warwick.my.app.user;
+import android.net.Uri;
+
 import uk.ac.warwick.my.app.helper.Objects;
 
 public class SsoUrls {
+
+    private static final String MY_WARWICK_REFRESH_PARAM = "myWarwickRefresh";
+
+    public static boolean isLoginRefresh(Uri url) {
+        return url.getBooleanQueryParameter(MY_WARWICK_REFRESH_PARAM, false);
+    }
 
     private final String loginUrl;
     private final String logoutUrl;

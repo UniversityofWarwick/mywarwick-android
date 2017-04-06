@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -199,6 +200,21 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         Intent intent = new Intent(this, PleaseConnectActivity.class);
         this.startActivity(intent);
         this.finish();
+    }
+
+    @Override
+    public boolean onSsoUrl(Uri url) {
+        if (SsoUrls.isLoginRefresh(url)) {
+            return false;
+        } else if (myWarwick.getSsoUrls() != null &&
+            myWarwick.getSsoUrls().getLogoutUrl() != null &&
+            url.toString().equals(myWarwick.getSsoUrls().getLogoutUrl())
+        ) {
+            return false;
+        } else {
+            startSignInActivity(url.toString());
+            return true;
+        }
     }
 
     @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
@@ -500,7 +516,9 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_sign_in:
-                startSignInActivity();
+                if (myWarwick.getSsoUrls() != null && myWarwick.getSsoUrls().getLoginUrl() != null) {
+                    startSignInActivity(myWarwick.getSsoUrls().getLoginUrl());
+                }
                 return true;
             case R.id.action_settings:
                 startActivity(new Intent(this, SettingsActivity.class));
@@ -525,17 +543,15 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         }
     }
 
-    private void startSignInActivity() {
-        if (myWarwick.getSsoUrls() != null) {
-            Intent intent = new Intent(this, WebViewActivity.class);
-            intent.putExtra(WebViewActivity.EXTRA_URL, myWarwick.getSsoUrls().getLoginUrl());
-            intent.putExtra(WebViewActivity.EXTRA_DESTINATION_HOST, myWarwickPreferences.getAppHost());
-            intent.putExtra(WebViewActivity.EXTRA_TITLE, getString(R.string.action_sign_in));
-            startActivityForResult(intent, SIGN_IN);
+    private void startSignInActivity(String url) {
+        Intent intent = new Intent(this, WebViewActivity.class);
+        intent.putExtra(WebViewActivity.EXTRA_URL, url);
+        intent.putExtra(WebViewActivity.EXTRA_DESTINATION_HOST, myWarwickPreferences.getAppHost());
+        intent.putExtra(WebViewActivity.EXTRA_TITLE, getString(R.string.action_sign_in));
+        startActivityForResult(intent, SIGN_IN);
 
-            myWarwick.setUser(null);
-            myWarwickPreferences.setNeedsReload(true);
-        }
+        myWarwick.setUser(null);
+        myWarwickPreferences.setNeedsReload(true);
     }
 
     private WebView getWebView() {
