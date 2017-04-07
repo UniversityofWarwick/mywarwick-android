@@ -91,7 +91,8 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
     @Override
     public void onTabReSelected(@IdRes int tabId) {
-        getWebView().scrollTo(0, 0);
+        String path = getPathForTabItem(tabId);
+        appNavigate(path);
     }
 
     @Override
