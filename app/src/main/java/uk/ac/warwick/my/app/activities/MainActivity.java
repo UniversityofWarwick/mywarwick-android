@@ -30,6 +30,7 @@ import android.widget.ImageView;
 
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.BottomBarTab;
+import com.roughike.bottombar.OnTabReselectListener;
 import com.roughike.bottombar.OnTabSelectListener;
 
 import uk.ac.warwick.my.app.Global;
@@ -46,7 +47,7 @@ import uk.ac.warwick.my.app.user.User;
 import uk.ac.warwick.my.app.utils.DownloadImageTask;
 import uk.ac.warwick.my.app.utils.PushNotifications;
 
-public class MainActivity extends AppCompatActivity implements OnTabSelectListener, MyWarwickListener {
+public class MainActivity extends AppCompatActivity implements OnTabSelectListener, OnTabReselectListener, MyWarwickListener {
 
     public static final String ROOT_PATH = "/";
     public static final String EDIT_PATH = "/edit";
@@ -80,13 +81,18 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     @Override
     public void onTabSelected(@IdRes int tabId) {
         String path = getPathForTabItem(tabId);
-
         // Prevent double navigation (NEWSTART-500)
         if (!path.equals(myWarwick.getPath())) {
             appNavigate(path);
         } else {
             Log.d(TAG, "Not navigating to " + path + " because we're already on it.");
         }
+    }
+
+    @Override
+    public void onTabReSelected(@IdRes int tabId) {
+        String path = getPathForTabItem(tabId);
+        appNavigate(path);
     }
 
     @Override
@@ -245,6 +251,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         myWarwickWebView.setWebViewClient(webViewClient);
 
         getBottomBar().setOnTabSelectListener(this);
+        getBottomBar().setOnTabReselectListener(this);
 
         ActionBar actionBar = getSupportActionBar();
 
