@@ -102,7 +102,10 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             public void run() {
                 setTitle(getTitleForPath(path));
 
-                getBottomBar().selectTabWithId(getTabItemForPath(path));
+                final int newTabId = getTabItemForPath(path);
+                if (getBottomBar().getCurrentTabId() != newTabId) { // don't trigger a reselect here
+                    getBottomBar().selectTabWithId(newTabId);
+                }
 
                 ActionBar actionBar = getSupportActionBar();
 
