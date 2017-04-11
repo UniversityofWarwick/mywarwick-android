@@ -25,6 +25,7 @@ android {
         targetSdkVersion 25
         versionCode buildNumber
         versionName buildNumber + buildVersionSuffix
+        testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
     }
     buildTypes {
         release {
@@ -49,6 +50,13 @@ dependencies {
     compile 'com.google.guava:guava:20.0'
 
     compile 'com.google.firebase:firebase-messaging:10.2.0'
+
+    androidTestCompile 'com.android.support.test.espresso:espresso-web:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    }
+    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    }
 }
 
 apply plugin: 'com.google.gms.google-services'
