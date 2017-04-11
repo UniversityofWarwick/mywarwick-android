@@ -74,10 +74,10 @@ public class MyWarwickJavaScriptInterface {
                     user.getString("usercode"),
                     user.getString("name"),
                     photo.getString("url"),
-                    user.getBoolean("authoritative")
+                    user.optBoolean("authoritative", true) // assume authoritative if not specified (by old web app version)
             );
         } else {
-            return new AnonymousUser(user.getBoolean("authoritative"));
+            return new AnonymousUser(user.optBoolean("authoritative", false)); // assume non-authoritative if unspecified
         }
     }
 
