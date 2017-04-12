@@ -41,7 +41,6 @@ import uk.ac.warwick.my.app.bridge.MyWarwickListener;
 import uk.ac.warwick.my.app.bridge.MyWarwickPreferences;
 import uk.ac.warwick.my.app.bridge.MyWarwickState;
 import uk.ac.warwick.my.app.bridge.MyWarwickWebViewClient;
-import uk.ac.warwick.my.app.user.AnonymousUser;
 import uk.ac.warwick.my.app.user.SsoUrls;
 import uk.ac.warwick.my.app.user.User;
 import uk.ac.warwick.my.app.utils.DownloadImageTask;
@@ -51,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
     public static final String ROOT_PATH = "/";
     public static final String EDIT_PATH = "/edit";
+    public static final String ADD_PATH = EDIT_PATH + "/add";
     public static final String SEARCH_PATH = "/search";
     public static final String TILES_PATH = "/tiles";
     public static final String NOTIFICATIONS_PATH = "/notifications";
@@ -97,20 +97,24 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
     @Override
     public void onPathChange(final String path) {
+        final MainActivity that = this;
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 setTitle(getTitleForPath(path));
 
-                final int newTabId = getTabItemForPath(path);
-                if (getBottomBar().getCurrentTabId() != newTabId) { // don't trigger a reselect here
-                    getBottomBar().selectTabWithId(newTabId);
-                }
+                // Don't call listeners when the webview changes the tab
+                BottomBar bottomBar = getBottomBar();
+                bottomBar.setOnTabSelectListener(null, false);
+                bottomBar.setOnTabReselectListener(null);
+                bottomBar.selectTabWithId(getTabItemForPath(path));
+                bottomBar.setOnTabSelectListener(that, false);
+                bottomBar.setOnTabReselectListener(that);
 
                 ActionBar actionBar = getSupportActionBar();
 
                 if (actionBar != null) {
-                    if (path.startsWith(TILES_PATH)) {
+                    if (path.startsWith(TILES_PATH) || path.startsWith(ADD_PATH)) {
                         // Display a back arrow in place of the drawer indicator
                         actionBar.setDisplayHomeAsUpEnabled(true);
                     } else {
