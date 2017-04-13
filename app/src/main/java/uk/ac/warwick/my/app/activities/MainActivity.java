@@ -97,6 +97,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
     @Override
     public void onPathChange(final String path) {
+        final String oldPath = myWarwick.getPath();
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -106,7 +107,17 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
                 BottomBar bottomBar = getBottomBar();
                 bottomBar.setOnTabSelectListener(null, false);
                 bottomBar.setOnTabReselectListener(null);
-                bottomBar.selectTabWithId(getTabItemForPath(path));
+                // Only update the tab if the new path is on a different tab
+                if (oldPath == null) {
+                    bottomBar.selectTabWithId(getTabItemForPath(path));
+                } else {
+                    String oldTabPath = getPathForTabItem(getTabItemForPath(oldPath));
+                    int newTabItem = getTabItemForPath(path);
+                    String newTabPath = getPathForTabItem(newTabItem);
+                    if (!oldTabPath.equals(newTabPath)) {
+                        bottomBar.selectTabWithId(newTabItem);
+                    }
+                }
                 bottomBar.setOnTabSelectListener(MainActivity.this, false);
                 bottomBar.setOnTabReselectListener(MainActivity.this);
 
