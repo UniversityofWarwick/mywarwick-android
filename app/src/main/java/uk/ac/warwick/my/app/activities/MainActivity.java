@@ -97,7 +97,6 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
     @Override
     public void onPathChange(final String path) {
-        final MainActivity that = this;
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -108,8 +107,8 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
                 bottomBar.setOnTabSelectListener(null, false);
                 bottomBar.setOnTabReselectListener(null);
                 bottomBar.selectTabWithId(getTabItemForPath(path));
-                bottomBar.setOnTabSelectListener(that, false);
-                bottomBar.setOnTabReselectListener(that);
+                bottomBar.setOnTabSelectListener(MainActivity.this, false);
+                bottomBar.setOnTabReselectListener(MainActivity.this);
 
                 ActionBar actionBar = getSupportActionBar();
 
