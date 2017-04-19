@@ -99,13 +99,29 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
     @Override
     public void onPathChange(final String path) {
+        final String oldPath = myWarwick.getPath();
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 setTitle(getTitleForPath(path));
 
                 // Don't call listeners when the webview changes the tab
-                selectTabQuietly(getTabItemForPath(path));
+                BottomBar bottomBar = getBottomBar();
+                bottomBar.setOnTabSelectListener(null, false);
+                bottomBar.setOnTabReselectListener(null);
+                // Only update the tab if the new path is on a different tab
+                if (oldPath == null) {
+                    bottomBar.selectTabWithId(getTabItemForPath(path));
+                } else {
+                    String oldTabPath = getPathForTabItem(getTabItemForPath(oldPath));
+                    int newTabItem = getTabItemForPath(path);
+                    String newTabPath = getPathForTabItem(newTabItem);
+                    if (!oldTabPath.equals(newTabPath)) {
+                        bottomBar.selectTabWithId(newTabItem);
+                    }
+                }
+                bottomBar.setOnTabSelectListener(MainActivity.this, false);
+                bottomBar.setOnTabReselectListener(MainActivity.this);
 
                 ActionBar actionBar = getSupportActionBar();
 
@@ -132,25 +148,6 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
                 }
             }
         });
-    }
-
-    /**
-     * Changes the selected BottomBar tab without triggering
-     * any listeners. Useful for first load, or when it's response to
-     * a change in the web view (since the listener is generally the
-     * web page, and we don't want to create a confusing loop)
-     */
-    private void selectTabQuietly(int id) {
-        BottomBar bottomBar = getBottomBar();
-        if (bottomBar != null) {
-            bottomBar.setOnTabSelectListener(null, false);
-            bottomBar.setOnTabReselectListener(null);
-            bottomBar.selectTabWithId(id);
-            bottomBar.setOnTabSelectListener(MainActivity.this, false);
-            bottomBar.setOnTabReselectListener(MainActivity.this);
-        } else {
-            Log.e(TAG, "Tried to select a tab when no BottomBar exists!");
-        }
     }
 
     @Override
