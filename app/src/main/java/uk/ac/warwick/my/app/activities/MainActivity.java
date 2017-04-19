@@ -54,6 +54,8 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     public static final String SEARCH_PATH = "/search";
     public static final String TILES_PATH = "/tiles";
     public static final String NOTIFICATIONS_PATH = "/notifications";
+    public static final String ACTIVITY_PATH = "/activity";
+    public static final String NEWS_PATH = "/news";
 
     public static final int TAB_INDEX_ACTIVITIES = 2;
     public static final int TAB_INDEX_NOTIFICATIONS = 1;
@@ -138,12 +140,11 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
                     MenuItemCompat.expandActionView(searchItem);
                 }
 
-                editMenuItem.setVisible(path.equals(ROOT_PATH) || path.equals(EDIT_PATH));
-
-                if (path.equals(ROOT_PATH)) {
-                    editMenuItem.setIcon(R.drawable.ic_mode_edit_white);
-                } else {
-                    editMenuItem.setIcon(R.drawable.ic_done_white);
+                // we might be calling this in onCreate,
+                // before the menu has been created. We set up the
+                // edit button when we create it so it'll be fine
+                if (editMenuItem != null) {
+                    updateEditMenuItem(path);
                 }
             }
         });
@@ -267,7 +268,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         MyWarwickWebViewClient webViewClient = new MyWarwickWebViewClient(myWarwickPreferences, this);
         myWarwickWebView.setWebViewClient(webViewClient);
 
-        getBottomBar().setOnTabSelectListener(this);
+        getBottomBar().setOnTabSelectListener(this, false);
         getBottomBar().setOnTabReselectListener(this);
 
         ActionBar actionBar = getSupportActionBar();
@@ -503,12 +504,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         }
 
         editMenuItem = menu.findItem(R.id.action_edit);
-
-        if (EDIT_PATH.equals(myWarwick.getPath())) {
-            editMenuItem.setIcon(R.drawable.ic_done_white);
-        } else if (!ROOT_PATH.equals(myWarwick.getPath())) {
-            editMenuItem.setVisible(false);
-        }
+        updateEditMenuItem(myWarwick.getPath());
 
         return true;
     }
@@ -575,6 +571,16 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         myWarwickPreferences.setNeedsReload(true);
     }
 
+    private void updateEditMenuItem(String path) {
+        editMenuItem.setVisible(ROOT_PATH.equals(path)|| EDIT_PATH.equals(path));
+
+        if (ROOT_PATH.equals(path)) {
+            editMenuItem.setIcon(R.drawable.ic_mode_edit_white);
+        } else {
+            editMenuItem.setIcon(R.drawable.ic_done_white);
+        }
+    }
+
     private WebView getWebView() {
         return (WebView) findViewById(R.id.web_view);
     }
@@ -582,27 +588,27 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     public String getPathForTabItem(int id) {
         switch (id) {
             case R.id.tab_me:
-                return "/";
+                return ROOT_PATH;
             case R.id.tab_notifications:
-                return "/notifications";
+                return NOTIFICATIONS_PATH;
             case R.id.tab_activity:
-                return "/activity";
+                return ACTIVITY_PATH;
             case R.id.tab_news:
-                return "/news";
+                return NEWS_PATH;
             default:
-                return "/";
+                return ROOT_PATH;
         }
     }
 
     public int getTabItemForPath(String path) {
         switch (path) {
-            case "/":
+            case ROOT_PATH:
                 return R.id.tab_me;
-            case "/notifications":
+            case NOTIFICATIONS_PATH:
                 return R.id.tab_notifications;
-            case "/activity":
+            case ACTIVITY_PATH:
                 return R.id.tab_activity;
-            case "/news":
+            case NEWS_PATH:
                 return R.id.tab_news;
             default:
                 return R.id.tab_me;
@@ -611,11 +617,11 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
     public String getTitleForPath(String path) {
         switch (path) {
-            case "/notifications":
+            case NOTIFICATIONS_PATH:
                 return getString(R.string.notifications);
-            case "/activity":
+            case ACTIVITY_PATH:
                 return getString(R.string.activity);
-            case "/news":
+            case NEWS_PATH:
                 return getString(R.string.news);
             default:
                 return getString(R.string.app_name);
