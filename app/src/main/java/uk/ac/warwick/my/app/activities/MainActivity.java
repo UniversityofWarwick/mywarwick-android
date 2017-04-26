@@ -572,12 +572,14 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     }
 
     private void updateEditMenuItem(String path) {
-        editMenuItem.setVisible(ROOT_PATH.equals(path)|| EDIT_PATH.equals(path));
+        if (editMenuItem != null) {
+            editMenuItem.setVisible(ROOT_PATH.equals(path) || EDIT_PATH.equals(path));
 
-        if (ROOT_PATH.equals(path)) {
-            editMenuItem.setIcon(R.drawable.ic_mode_edit_white);
-        } else {
-            editMenuItem.setIcon(R.drawable.ic_done_white);
+            if (ROOT_PATH.equals(path)) {
+                editMenuItem.setIcon(R.drawable.ic_mode_edit_white);
+            } else {
+                editMenuItem.setIcon(R.drawable.ic_done_white);
+            }
         }
     }
 
