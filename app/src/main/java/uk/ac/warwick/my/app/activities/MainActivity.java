@@ -140,12 +140,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
                     MenuItemCompat.expandActionView(searchItem);
                 }
 
-                // we might be calling this in onCreate,
-                // before the menu has been created. We set up the
-                // edit button when we create it so it'll be fine
-                if (editMenuItem != null) {
-                    updateEditMenuItem(path);
-                }
+                updateEditMenuItem(path);
             }
         });
     }
