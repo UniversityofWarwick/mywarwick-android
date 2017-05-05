@@ -28,6 +28,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.ImageView;
 
+import com.google.firebase.crash.FirebaseCrash;
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.BottomBarTab;
 import com.roughike.bottombar.OnTabReselectListener;
@@ -100,6 +101,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     @Override
     public void onPathChange(final String path) {
         final String oldPath = myWarwick.getPath();
+        FirebaseCrash.log("onPathChange: " + oldPath);
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -288,8 +290,10 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         String appURL = myWarwickPreferences.getAppURL();
         if (isOpenedFromNotification()) {
             onPathChange(NOTIFICATIONS_PATH);
+            FirebaseCrash.log("loadUrl: " + appURL + NOTIFICATIONS_PATH);
             myWarwickWebView.loadUrl(appURL + NOTIFICATIONS_PATH);
         } else {
+            FirebaseCrash.log("loadUrl: " + appURL);
             myWarwickWebView.loadUrl(appURL);
         }
 
@@ -548,6 +552,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
     private void signOut() {
         if (myWarwick.getSsoUrls() != null) {
+            FirebaseCrash.log("loadUrl: " + myWarwick.getSsoUrls().getLogoutUrl());
             getWebView().loadUrl(myWarwick.getSsoUrls().getLogoutUrl());
 
             myWarwick.setUser(null);

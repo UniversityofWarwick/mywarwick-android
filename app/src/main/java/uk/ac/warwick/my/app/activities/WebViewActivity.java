@@ -10,6 +10,8 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.google.firebase.crash.FirebaseCrash;
+
 import uk.ac.warwick.my.app.R;
 
 /**
@@ -47,6 +49,7 @@ public class WebViewActivity extends AppCompatActivity {
         webView.setWebViewClient(destinationHost != null ? new DestinationWebViewClient(destinationHost) : new WebViewClient());
 
         String url = getIntent().getStringExtra(EXTRA_URL);
+        FirebaseCrash.log("loadUrl: " + url);
         webView.loadUrl(url);
     }
 
