@@ -68,4 +68,8 @@
     <string name="please_connect_heading">Cannot connect to My&#160;Warwick</string>
     <string name="please_connect_text">My Warwick needs to download additional content before it can be used offline. Please connect to the Internet.</string>
     <string name="edit">Edit</string>
+    <string name="deny">Deny</string>
+    <string name="allow">Allow</string>
+    <string name="locationDialogTitle">Allow My&#160;Warwick to access your location?</string>
+    <string name="locationDialogMessage">We\'ll use this to show your location on the campus map, and to provide location-related information.</string>
 </resources>

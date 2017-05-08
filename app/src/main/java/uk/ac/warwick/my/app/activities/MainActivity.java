@@ -1,19 +1,25 @@
 package uk.ac.warwick.my.app.activities;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.IdRes;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.SearchView;
@@ -24,6 +30,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.GeolocationPermissions;
+import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.ImageView;
@@ -62,6 +70,8 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     public static final int TAB_INDEX_NOTIFICATIONS = 1;
 
     public static final int SIGN_IN = 1;
+
+    private static final int LOCATION_PERMISSION_REQUEST = 0;
 
     private static final String TAG = "MainActivity";
 
@@ -228,9 +238,9 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         if (SsoUrls.isLoginRefresh(url)) {
             return false;
         } else if (myWarwick.getSsoUrls() != null &&
-            myWarwick.getSsoUrls().getLogoutUrl() != null &&
-            url.toString().equals(myWarwick.getSsoUrls().getLogoutUrl())
-        ) {
+                myWarwick.getSsoUrls().getLogoutUrl() != null &&
+                url.toString().equals(myWarwick.getSsoUrls().getLogoutUrl())
+                ) {
             return false;
         } else {
             startSignInActivity(url.toString());
@@ -249,6 +259,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         myWarwickWebView = getWebView();
         WebSettings settings = myWarwickWebView.getSettings();
         settings.setJavaScriptEnabled(true);
+        settings.setGeolocationEnabled(true);
         settings.setUserAgentString(settings.getUserAgentString() + " " + getString(R.string.user_agent));
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
@@ -263,6 +274,14 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         myWarwickWebView.addJavascriptInterface(javascriptInterface, "MyWarwickAndroid");
 
         MyWarwickWebViewClient webViewClient = new MyWarwickWebViewClient(myWarwickPreferences, this);
+        myWarwickWebView.setWebChromeClient(new WebChromeClient(){
+            @Override
+            public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback) {
+                // Allow geolocation permission for any web page rendering inside this web view, upon request
+                Log.d(TAG, "Allowed geolocation permission for " + origin);
+                callback.invoke(origin, true, false);
+            }
+        });
         myWarwickWebView.setWebViewClient(webViewClient);
 
         getBottomBar().setOnTabSelectListener(this, false);
@@ -288,6 +307,13 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         }
 
         String appURL = myWarwickPreferences.getAppURL();
+
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
+            showLocationPermissionsDialog();
+        } else {
+            requestLocationPermissions();
+        }
+
         if (isOpenedFromNotification()) {
             onPathChange(NOTIFICATIONS_PATH);
             FirebaseCrash.log("loadUrl: " + appURL + NOTIFICATIONS_PATH);
@@ -298,6 +324,43 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         }
 
         registerTokenRefreshReceiver();
+    }
+
+    private void requestLocationPermissions() {
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case LOCATION_PERMISSION_REQUEST:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.d(TAG, "Permission granted");
+                } else {
+                    Log.d(TAG, "Permission denied");
+                }
+                break;
+        }
+    }
+
+    private void showLocationPermissionsDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setTitle(R.string.locationDialogTitle);
+        builder.setMessage(R.string.locationDialogMessage);
+
+        String positiveText = getString(R.string.allow);
+        builder.setPositiveButton(positiveText, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                requestLocationPermissions();
+            }
+        });
+
+        String negativeText = getString(R.string.deny);
+        builder.setNegativeButton(negativeText, null);
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     private void registerTokenRefreshReceiver() {
