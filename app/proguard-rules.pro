@@ -2,6 +2,10 @@
    public *;
 }
 
+-keep class android.support.v7.widget.SearchView {
+    *;
+}
+
 -dontwarn javax.annotation.**
 -dontwarn java.lang.ClassValue
 -dontwarn sun.misc.Unsafe
