@@ -61,4 +61,14 @@ dependencies {
     }
 }
 
+task archiveProguardMapping(type: Sync) {
+    from 'build/outputs/mapping/release'
+    into "artifacts/build-${buildNumber}/mapping"
+}
+
+afterEvaluate {
+    archiveProguardMapping.mustRunAfter transformClassesAndResourcesWithProguardForRelease
+    assembleRelease.dependsOn archiveProguardMapping
+}
+
 apply plugin: 'com.google.gms.google-services'
