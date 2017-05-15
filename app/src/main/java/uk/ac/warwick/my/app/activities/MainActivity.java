@@ -36,6 +36,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.ImageView;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crash.FirebaseCrash;
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.BottomBarTab;
@@ -90,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     };
     private JavascriptInvoker invoker;
     private MenuItem editMenuItem;
+    private FirebaseAnalytics firebaseAnalytics;
 
     @Override
     public void onTabSelected(@IdRes int tabId) {
@@ -256,6 +258,8 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        firebaseAnalytics = FirebaseAnalytics.getInstance(this);
+
         myWarwickWebView = getWebView();
         WebSettings settings = myWarwickWebView.getSettings();
         settings.setJavaScriptEnabled(true);
@@ -350,6 +354,9 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Log.d(TAG, "Permission granted");
                 } else {
+                    Bundle bundle = new Bundle();
+                    bundle.putString("permission", Manifest.permission.ACCESS_FINE_LOCATION);
+                    firebaseAnalytics.logEvent("permission_denied", bundle);
                     Log.d(TAG, "Permission denied");
                 }
                 break;
@@ -357,6 +364,9 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     }
 
     private void showLocationPermissionsDialog() {
+        Bundle bundle = new Bundle();
+        bundle.putString("permission", Manifest.permission.ACCESS_FINE_LOCATION);
+        firebaseAnalytics.logEvent("permission_rationale", bundle);
         new AlertDialog.Builder(MainActivity.this)
                 .setTitle(R.string.location_dialog_title)
                 .setMessage(R.string.location_dialog_message)
