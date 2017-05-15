@@ -306,14 +306,22 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             });
         }
 
-        String appURL = myWarwickPreferences.getAppURL();
 
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
-            showLocationPermissionsDialog();
-        } else {
-            requestLocationPermissions();
+        if (!hasLocationPermissions()) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
+                // User pressed DENY last time - lay on the explanation before we
+                // ask them again.
+                showLocationPermissionsDialog();
+            } else {
+                requestLocationPermissions();
+            }
         }
 
+        // TODO the permissions ask is asynchronous so the page loads anyway,
+        // and might start the login page moments after we've asked for permission.
+        // It still works, just looks a bit jarring.
+
+        String appURL = myWarwickPreferences.getAppURL();
         if (isOpenedFromNotification()) {
             onPathChange(NOTIFICATIONS_PATH);
             FirebaseCrash.log("loadUrl: " + appURL + NOTIFICATIONS_PATH);
@@ -324,6 +332,11 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         }
 
         registerTokenRefreshReceiver();
+    }
+
+    private boolean hasLocationPermissions() {
+        return ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED;
     }
 
     private void requestLocationPermissions() {
@@ -344,23 +357,16 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     }
 
     private void showLocationPermissionsDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setTitle(R.string.locationDialogTitle);
-        builder.setMessage(R.string.locationDialogMessage);
-
-        String positiveText = getString(R.string.allow);
-        builder.setPositiveButton(positiveText, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                requestLocationPermissions();
-            }
-        });
-
-        String negativeText = getString(R.string.deny);
-        builder.setNegativeButton(negativeText, null);
-
-        AlertDialog dialog = builder.create();
-        dialog.show();
+        new AlertDialog.Builder(MainActivity.this)
+                .setTitle(R.string.location_dialog_title)
+                .setMessage(R.string.location_dialog_message)
+                .setCancelable(false)
+                .setPositiveButton(R.string.okay_ask, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        requestLocationPermissions();
+                    }
+                })
+                .show();
     }
 
     private void registerTokenRefreshReceiver() {
