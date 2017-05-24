@@ -1,6 +1,9 @@
 package uk.ac.warwick.my.app.activities;
 
 import android.Manifest;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.animation.PropertyValuesHolder;
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -9,6 +12,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -657,7 +662,18 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             if (ROOT_PATH.equals(path)) {
                 editMenuItem.setIcon(R.drawable.ic_mode_edit_white);
             } else {
-                editMenuItem.setIcon(R.drawable.ic_done_white);
+                editMenuItem.setIcon(R.drawable.edit_button_layer);
+                final int duration = 1000;
+                LayerDrawable layer = (LayerDrawable) editMenuItem.getIcon();
+                Drawable blueCircle = layer.getDrawable(0);
+                ObjectAnimator animatorOut = ObjectAnimator.ofPropertyValuesHolder(blueCircle, PropertyValuesHolder.ofInt("alpha", 0));
+                animatorOut.setTarget(blueCircle);
+                animatorOut.setDuration(duration);
+                ObjectAnimator animatorIn = animatorOut.clone();
+                animatorIn.setValues(PropertyValuesHolder.ofInt("alpha", 255));
+                AnimatorSet s = new AnimatorSet();
+                s.playSequentially(animatorOut, animatorIn, animatorOut.clone());
+                s.start();
             }
         }
     }
