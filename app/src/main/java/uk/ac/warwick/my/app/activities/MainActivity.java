@@ -141,7 +141,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
                 ActionBar actionBar = getSupportActionBar();
 
                 if (actionBar != null) {
-                    if (path.startsWith(TILES_PATH) || path.startsWith(ADD_PATH) || path.startsWith(MUTE_PATH)) {
+                    if (path.matches("^/.+/.+")) {
                         // Display a back arrow in place of the drawer indicator
                         actionBar.setDisplayHomeAsUpEnabled(true);
                     } else {
