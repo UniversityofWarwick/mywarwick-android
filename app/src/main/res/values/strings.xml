@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">My Warwick</string>
+    <string name="app_name_title">My Warwick</string>
 
     <string name="action_sign_in">Sign in</string>
     <string name="action_sign_out">Sign out</string>

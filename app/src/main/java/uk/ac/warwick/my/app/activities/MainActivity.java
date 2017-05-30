@@ -721,7 +721,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             case NEWS_PATH:
                 return getString(R.string.news);
             default:
-                return getString(R.string.app_name);
+                return getString(R.string.app_name_title);
         }
     }
 

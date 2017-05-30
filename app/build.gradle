@@ -32,8 +32,11 @@ android {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.myWarwickPlay
+            resValue "string", "app_name", "My Warwick"
         }
         debug {
+            applicationIdSuffix ".debug"
+            resValue "string", "app_name", "My Warwick dev"
         }
     }
 }
