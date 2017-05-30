@@ -1,5 +1,13 @@
 package uk.ac.warwick.my.app.bridge;
 
+import android.app.Activity;
+import android.util.DisplayMetrics;
+
+import com.google.firebase.crash.FirebaseCrash;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import uk.ac.warwick.my.app.helper.Objects;
 import uk.ac.warwick.my.app.user.SsoUrls;
 import uk.ac.warwick.my.app.user.User;
@@ -15,10 +23,27 @@ public class MyWarwickState {
     private String path;
     private SsoUrls ssoUrls;
     private MyWarwickListener listener;
+    private Activity activity;
     private Boolean appCached;
+    private JSONObject staticDeviceDetails;
 
-    public MyWarwickState(MyWarwickListener listener) {
+    public MyWarwickState(MyWarwickListener listener, Activity activity) {
         this.listener = listener;
+        this.activity = activity;
+        setupStaticDeviceDetails();
+    }
+
+    private void setupStaticDeviceDetails() {
+        try {
+            staticDeviceDetails = new JSONObject();
+            staticDeviceDetails.put("os", "Android");
+            staticDeviceDetails.put("os-version", System.getProperty("os.version") + " (" + android.os.Build.VERSION.INCREMENTAL + ")");
+            staticDeviceDetails.put("os-api", android.os.Build.VERSION.SDK_INT);
+            staticDeviceDetails.put("device", android.os.Build.DEVICE);
+            staticDeviceDetails.put("model", android.os.Build.MODEL + " (" + android.os.Build.PRODUCT + ")");
+        } catch (JSONException e) {
+            FirebaseCrash.report(e);
+        }
     }
 
     public SsoUrls getSsoUrls() {
@@ -74,6 +99,21 @@ public class MyWarwickState {
 
     public Boolean getAppCached() {
         return appCached;
+    }
+
+    public JSONObject getDeviceDetails() {
+        try {
+            JSONObject details = new JSONObject(staticDeviceDetails.toString());
+            DisplayMetrics metrics = new DisplayMetrics();
+            activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+            details.put("screen-width", metrics.widthPixels);
+            details.put("screen-height", metrics.heightPixels);
+            details.put("path", getPath());
+            return details;
+        } catch (JSONException e) {
+            FirebaseCrash.report(e);
+            return new JSONObject();
+        }
     }
 
 }

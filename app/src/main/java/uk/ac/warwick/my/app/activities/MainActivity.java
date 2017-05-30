@@ -36,6 +36,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.GeolocationPermissions;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -47,6 +48,8 @@ import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.BottomBarTab;
 import com.roughike.bottombar.OnTabReselectListener;
 import com.roughike.bottombar.OnTabSelectListener;
+
+import org.json.JSONException;
 
 import uk.ac.warwick.my.app.Global;
 import uk.ac.warwick.my.app.R;
@@ -76,6 +79,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     public static final int TAB_INDEX_NOTIFICATIONS = 1;
 
     public static final int SIGN_IN = 1;
+    public static final int FEEDBACK = 2;
 
     private static final int LOCATION_PERMISSION_REQUEST = 0;
 
@@ -85,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     public static final float enabledTabAlpha = 1;
 
     private WebView myWarwickWebView;
-    private MyWarwickState myWarwick = new MyWarwickState(this);
+    private MyWarwickState myWarwick = new MyWarwickState(this, this);
     private MyWarwickPreferences myWarwickPreferences;
     private MenuItem searchItem;
     private BroadcastReceiver tokenRefreshReceiver = new BroadcastReceiver() {
@@ -532,6 +536,10 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         invoker.invokeMyWarwickMethod(String.format("search('%s')", query.replace("'", "\\'")));
     }
 
+    private void appFeedback() {
+        invoker.invokeMyWarwickMethod(String.format("feedback('%s')", myWarwick.getDeviceDetails().toString()));
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -629,6 +637,10 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
                 } else {
                     appNavigate(ROOT_PATH);
                 }
+                return true;
+            case R.id.action_feedback:
+                appFeedback();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }

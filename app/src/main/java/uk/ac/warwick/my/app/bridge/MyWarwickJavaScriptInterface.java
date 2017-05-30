@@ -1,7 +1,10 @@
 package uk.ac.warwick.my.app.bridge;
 
+import android.util.ArrayMap;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
+
+import com.google.common.collect.Maps;
 
 import org.json.JSONException;
 import org.json.JSONObject;
