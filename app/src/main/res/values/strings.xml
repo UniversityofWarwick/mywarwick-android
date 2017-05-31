@@ -61,10 +61,6 @@
                     MyWarwickAndroid.setPath(path);
                 };
 
-                native.getDeviceDetails = function getDeviceDetails() {
-                    return MyWarwickAndroid.getDeviceDetails();
-                };
-
                 native.ready = function ready() {
                     MyWarwickAndroid.ready();
                 };
