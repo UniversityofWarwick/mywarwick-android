@@ -537,7 +537,10 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     }
 
     private void appFeedback() {
-        invoker.invokeMyWarwickMethod(String.format("feedback('%s')", myWarwick.getDeviceDetails().toString()));
+        invoker.invokeMyWarwickMethod(String.format(
+            "feedback('%s')",
+            myWarwick.getDeviceDetails().toString().replace("'", "\\'")
+        ));
     }
 
     @Override
