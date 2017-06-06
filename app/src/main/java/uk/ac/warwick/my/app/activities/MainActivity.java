@@ -69,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     public static final String SEARCH_PATH = "/search";
     public static final String TILES_PATH = "/tiles";
     public static final String NOTIFICATIONS_PATH = "/notifications";
+    public static final String MUTE_PATH = NOTIFICATIONS_PATH + "/mute";
     public static final String ACTIVITY_PATH = "/activity";
     public static final String NEWS_PATH = "/news";
 
@@ -145,7 +146,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
                 ActionBar actionBar = getSupportActionBar();
 
                 if (actionBar != null) {
-                    if (path.startsWith(TILES_PATH) || path.startsWith(ADD_PATH)) {
+                    if (path.matches("^/.+/.+")) {
                         // Display a back arrow in place of the drawer indicator
                         actionBar.setDisplayHomeAsUpEnabled(true);
                     } else {
@@ -626,6 +627,8 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             case R.id.action_edit:
                 if (myWarwick.getPath().equals(ROOT_PATH)) {
                     appNavigate(EDIT_PATH);
+                } else if (myWarwick.getPath().equals(NOTIFICATIONS_PATH)) {
+                    appNavigate(MUTE_PATH);
                 } else {
                     appNavigate(ROOT_PATH);
                 }
@@ -657,9 +660,9 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
     private void updateEditMenuItem(String path) {
         if (editMenuItem != null) {
-            editMenuItem.setVisible(ROOT_PATH.equals(path) || EDIT_PATH.equals(path));
+            editMenuItem.setVisible(ROOT_PATH.equals(path) || EDIT_PATH.equals(path) || NOTIFICATIONS_PATH.equals(path));
 
-            if (ROOT_PATH.equals(path)) {
+            if (ROOT_PATH.equals(path) || NOTIFICATIONS_PATH.equals(path)) {
                 editMenuItem.setIcon(R.drawable.ic_mode_edit_white);
             } else {
                 editMenuItem.setIcon(R.drawable.edit_button_layer);
@@ -701,7 +704,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         switch (path) {
             case ROOT_PATH:
                 return R.id.tab_me;
-            case NOTIFICATIONS_PATH:
+            case NOTIFICATIONS_PATH: case MUTE_PATH:
                 return R.id.tab_notifications;
             case ACTIVITY_PATH:
                 return R.id.tab_activity;
@@ -714,7 +717,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
     public String getTitleForPath(String path) {
         switch (path) {
-            case NOTIFICATIONS_PATH:
+            case NOTIFICATIONS_PATH: case MUTE_PATH:
                 return getString(R.string.notifications);
             case ACTIVITY_PATH:
                 return getString(R.string.activity);
