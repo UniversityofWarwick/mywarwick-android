@@ -159,11 +159,6 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
                     }
                 }
 
-                if (path.equals(SEARCH_PATH) && searchItem != null) {
-                    // Show the search field in the action bar on /search
-                    MenuItemCompat.expandActionView(searchItem);
-                }
-
                 updateEditMenuItem(path);
             }
         });
@@ -560,44 +555,6 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         // to revert this and hide the individual settings items instead.
         menu.findItem(R.id.action_settings).setVisible(isDebugBuild());
 
-        searchItem = menu.findItem(R.id.action_search);
-
-        if (searchItem != null) {
-            final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
-            searchView.setQueryHint(getString(R.string.search_warwick));
-
-            MenuItemCompat.setOnActionExpandListener(searchItem, new MenuItemCompat.OnActionExpandListener() {
-                @Override
-                public boolean onMenuItemActionExpand(MenuItem item) {
-                    appNavigate(SEARCH_PATH);
-                    getBottomBar().setVisibility(View.GONE);
-                    return true;
-                }
-
-                @Override
-                public boolean onMenuItemActionCollapse(MenuItem item) {
-                    // When pressing the back arrow in the search field, go back to /
-                    getBottomBar().setVisibility(View.VISIBLE);
-                    appNavigate(ROOT_PATH);
-                    return true;
-                }
-            });
-
-            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-                @Override
-                public boolean onQueryTextSubmit(String query) {
-                    searchView.clearFocus();
-                    appSearch(query);
-                    return true;
-                }
-
-                @Override
-                public boolean onQueryTextChange(String newText) {
-                    return false;
-                }
-            });
-        }
-
         editMenuItem = menu.findItem(R.id.action_edit);
         updateEditMenuItem(myWarwick.getPath());
 
@@ -710,6 +667,8 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
                 return ACTIVITY_PATH;
             case R.id.tab_news:
                 return NEWS_PATH;
+            case R.id.tab_search:
+                return SEARCH_PATH;
             default:
                 return ROOT_PATH;
         }
@@ -725,6 +684,8 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
                 return R.id.tab_activity;
             case NEWS_PATH:
                 return R.id.tab_news;
+            case SEARCH_PATH:
+                return R.id.tab_search;
             default:
                 return R.id.tab_me;
         }
@@ -738,6 +699,8 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
                 return getString(R.string.activity);
             case NEWS_PATH:
                 return getString(R.string.news);
+            case SEARCH_PATH:
+                return "Search";
             default:
                 return getString(R.string.app_name_title);
         }
