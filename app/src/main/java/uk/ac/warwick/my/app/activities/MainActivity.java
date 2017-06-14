@@ -36,7 +36,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.GeolocationPermissions;
-import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -48,8 +47,6 @@ import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.BottomBarTab;
 import com.roughike.bottombar.OnTabReselectListener;
 import com.roughike.bottombar.OnTabSelectListener;
-
-import org.json.JSONException;
 
 import uk.ac.warwick.my.app.Global;
 import uk.ac.warwick.my.app.R;
@@ -91,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
     private WebView myWarwickWebView;
     private MyWarwickState myWarwick = new MyWarwickState(this, this);
-    private MyWarwickPreferences myWarwickPreferences;
+    private MyWarwickPreferences preferences;
     private MenuItem searchItem;
     private BroadcastReceiver tokenRefreshReceiver = new BroadcastReceiver() {
         @Override
@@ -282,12 +279,20 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             }
         }
 
-        this.myWarwickPreferences = new MyWarwickPreferences(PreferenceManager.getDefaultSharedPreferences(this));
+        this.preferences = new MyWarwickPreferences(PreferenceManager.getDefaultSharedPreferences(this));
+
+        if (!preferences.isTourComplete()) {
+            preferences.setTourComplete();
+
+            Intent intent = new Intent(this, TourActivity.class);
+            startActivity(intent);
+        }
+
         this.invoker = new JavascriptInvoker(myWarwickWebView);
         MyWarwickJavaScriptInterface javascriptInterface = new MyWarwickJavaScriptInterface(invoker, myWarwick);
         myWarwickWebView.addJavascriptInterface(javascriptInterface, "MyWarwickAndroid");
 
-        MyWarwickWebViewClient webViewClient = new MyWarwickWebViewClient(myWarwickPreferences, this);
+        MyWarwickWebViewClient webViewClient = new MyWarwickWebViewClient(preferences, this);
         myWarwickWebView.setWebChromeClient(new WebChromeClient(){
             @Override
             public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback) {
@@ -335,7 +340,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         // and might start the login page moments after we've asked for permission.
         // It still works, just looks a bit jarring.
 
-        String appURL = myWarwickPreferences.getAppURL();
+        String appURL = preferences.getAppURL();
         if (isOpenedFromNotification()) {
             onPathChange(NOTIFICATIONS_PATH);
             FirebaseCrash.log("loadUrl: " + appURL + NOTIFICATIONS_PATH);
@@ -411,7 +416,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             return;
         }
 
-        myWarwickPreferences.setPushNotificationToken(token);
+        preferences.setPushNotificationToken(token);
 
         Log.i(TAG, "Registering for push notifications with token " + token);
 
@@ -419,7 +424,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     }
 
     private void unregisterForPushNotifications() {
-        String token = myWarwickPreferences.getPushNotificationToken();
+        String token = preferences.getPushNotificationToken();
 
         if (token == null) {
             // Nothing to do
@@ -451,11 +456,11 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         super.onRestart();
         Log.d(TAG, "onRestart");
 
-        if (myWarwickPreferences.needsReload()) {
+        if (preferences.needsReload()) {
             Log.i(TAG, "Reloading because something has changed");
             getWebView().reload();
             invoker.reset();
-            myWarwickPreferences.setNeedsReload(false);
+            preferences.setNeedsReload(false);
         } else {
             // Let the embedded app know that it's being brought to the foreground
             // (Only need to do this if we didn't just reload the whole page)
@@ -658,19 +663,19 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             getWebView().loadUrl(myWarwick.getSsoUrls().getLogoutUrl());
 
             myWarwick.setUser(null);
-            myWarwickPreferences.setNeedsReload(true);
+            preferences.setNeedsReload(true);
         }
     }
 
     private void startSignInActivity(String url) {
         Intent intent = new Intent(this, WebViewActivity.class);
         intent.putExtra(WebViewActivity.EXTRA_URL, url);
-        intent.putExtra(WebViewActivity.EXTRA_DESTINATION_HOST, myWarwickPreferences.getAppHost());
+        intent.putExtra(WebViewActivity.EXTRA_DESTINATION_HOST, preferences.getAppHost());
         intent.putExtra(WebViewActivity.EXTRA_TITLE, getString(R.string.action_sign_in));
         startActivityForResult(intent, SIGN_IN);
 
         myWarwick.setUser(null);
-        myWarwickPreferences.setNeedsReload(true);
+        preferences.setNeedsReload(true);
     }
 
     private void updateEditMenuItem(String path) {

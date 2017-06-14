@@ -10,6 +10,7 @@ public class MyWarwickPreferences {
     private static final String NEEDS_RELOAD = "mywarwick_needsreload";
     private static final String PUSH_NOTIFICATION_TOKEN = "mywarwick_push_notification_token";
     private static final String SERVER = "mywarwick_server";
+    private static final String TOUR_COMPLETE = "mywarwick_tour_complete";
 
     private SharedPreferences sharedPreferences;
 
@@ -50,6 +51,14 @@ public class MyWarwickPreferences {
 
     public void setNeedsReload(boolean needed) {
         sharedPreferences.edit().putBoolean(NEEDS_RELOAD, needed).apply();
+    }
+
+    public boolean isTourComplete() {
+        return sharedPreferences.getBoolean(TOUR_COMPLETE, false);
+    }
+
+    public void setTourComplete() {
+        sharedPreferences.edit().putBoolean(TOUR_COMPLETE, true).apply();
     }
 
 }
