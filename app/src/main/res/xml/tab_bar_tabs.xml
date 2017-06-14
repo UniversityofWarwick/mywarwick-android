@@ -15,4 +15,8 @@
         id="@+id/tab_news"
         icon="@drawable/news_tab_icon"
         title="@string/news" />
+    <tab
+        id="@+id/tab_search"
+        icon="@drawable/ic_search_white"
+        title="Search" />
 </tabs>
