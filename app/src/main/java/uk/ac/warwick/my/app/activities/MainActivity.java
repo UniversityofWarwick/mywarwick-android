@@ -22,12 +22,10 @@ import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
-import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
@@ -36,7 +34,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.GeolocationPermissions;
-import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -48,8 +45,6 @@ import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.BottomBarTab;
 import com.roughike.bottombar.OnTabReselectListener;
 import com.roughike.bottombar.OnTabSelectListener;
-
-import org.json.JSONException;
 
 import uk.ac.warwick.my.app.Global;
 import uk.ac.warwick.my.app.R;
@@ -68,19 +63,16 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
     public static final String ROOT_PATH = "/";
     public static final String EDIT_PATH = "/edit";
-    public static final String ADD_PATH = EDIT_PATH + "/add";
     public static final String SEARCH_PATH = "/search";
-    public static final String TILES_PATH = "/tiles";
     public static final String NOTIFICATIONS_PATH = "/notifications";
-    public static final String MUTE_PATH = NOTIFICATIONS_PATH + "/mute";
     public static final String ACTIVITY_PATH = "/activity";
     public static final String NEWS_PATH = "/news";
+    public static final String SETTINGS_PATH = "/settings";
 
     public static final int TAB_INDEX_ACTIVITIES = 2;
     public static final int TAB_INDEX_NOTIFICATIONS = 1;
 
     public static final int SIGN_IN = 1;
-    public static final int FEEDBACK = 2;
 
     private static final int LOCATION_PERMISSION_REQUEST = 0;
 
@@ -101,6 +93,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     };
     private JavascriptInvoker invoker;
     private MenuItem editMenuItem;
+    private MenuItem settingsMenuItem;
     private FirebaseAnalytics firebaseAnalytics;
 
     @Override
@@ -150,7 +143,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
                 ActionBar actionBar = getSupportActionBar();
 
                 if (actionBar != null) {
-                    if (path.matches("^/.+/.+")) {
+                    if (path.matches("^/.+/.+") || path.startsWith(SETTINGS_PATH)) {
                         // Display a back arrow in place of the drawer indicator
                         actionBar.setDisplayHomeAsUpEnabled(true);
                     } else {
@@ -160,6 +153,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
                 }
 
                 updateEditMenuItem(path);
+                updateSettingsMenuItem(path);
             }
         });
     }
@@ -528,17 +522,6 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         invoker.invokeMyWarwickMethod(String.format("navigate('%s')", path));
     }
 
-    private void appSearch(String query) {
-        invoker.invokeMyWarwickMethod(String.format("search('%s')", query.replace("'", "\\'")));
-    }
-
-    private void appFeedback() {
-        invoker.invokeMyWarwickMethod(String.format(
-            "feedback('%s')",
-            myWarwick.getDeviceDetails().toString().replace("'", "\\'")
-        ));
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -553,10 +536,12 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
         // NEWSTART-540 - When we add settings for non-debug stuff, we'll need
         // to revert this and hide the individual settings items instead.
-        menu.findItem(R.id.action_settings).setVisible(isDebugBuild());
+        menu.findItem(R.id.action_app_settings).setVisible(isDebugBuild());
 
         editMenuItem = menu.findItem(R.id.action_edit);
         updateEditMenuItem(myWarwick.getPath());
+        settingsMenuItem = menu.findItem(R.id.action_settings);
+        updateSettingsMenuItem(myWarwick.getPath());
 
         return true;
     }
@@ -589,20 +574,18 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
                     startSignInActivity(myWarwick.getSsoUrls().getLoginUrl());
                 }
                 return true;
-            case R.id.action_settings:
+            case R.id.action_app_settings:
                 startActivity(new Intent(this, SettingsActivity.class));
                 return true;
             case R.id.action_edit:
                 if (myWarwick.getPath().equals(ROOT_PATH)) {
                     appNavigate(EDIT_PATH);
-                } else if (myWarwick.getPath().equals(NOTIFICATIONS_PATH)) {
-                    appNavigate(MUTE_PATH);
                 } else {
                     appNavigate(ROOT_PATH);
                 }
                 return true;
-            case R.id.action_feedback:
-                appFeedback();
+            case R.id.action_settings:
+                appNavigate(SETTINGS_PATH);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -632,7 +615,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
     private void updateEditMenuItem(String path) {
         if (editMenuItem != null) {
-            editMenuItem.setVisible(ROOT_PATH.equals(path) || EDIT_PATH.equals(path) || NOTIFICATIONS_PATH.equals(path));
+            editMenuItem.setVisible(ROOT_PATH.equals(path) || EDIT_PATH.equals(path));
 
             if (ROOT_PATH.equals(path) || NOTIFICATIONS_PATH.equals(path)) {
                 editMenuItem.setIcon(R.drawable.ic_mode_edit_white);
@@ -650,6 +633,12 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
                 s.playSequentially(animatorOut, animatorIn, animatorOut.clone());
                 s.start();
             }
+        }
+    }
+
+    private void updateSettingsMenuItem(String path) {
+        if (settingsMenuItem != null) {
+            settingsMenuItem.setVisible(path == null || !path.startsWith(SETTINGS_PATH));
         }
     }
 
@@ -678,7 +667,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         switch (path) {
             case ROOT_PATH:
                 return R.id.tab_me;
-            case NOTIFICATIONS_PATH: case MUTE_PATH:
+            case NOTIFICATIONS_PATH:
                 return R.id.tab_notifications;
             case ACTIVITY_PATH:
                 return R.id.tab_activity;
@@ -693,7 +682,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
     public String getTitleForPath(String path) {
         switch (path) {
-            case NOTIFICATIONS_PATH: case MUTE_PATH:
+            case NOTIFICATIONS_PATH:
                 return getString(R.string.notifications);
             case ACTIVITY_PATH:
                 return getString(R.string.activity);
