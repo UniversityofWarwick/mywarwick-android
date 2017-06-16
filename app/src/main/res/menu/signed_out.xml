@@ -18,8 +18,8 @@
     </group>
 
     <item
-        android:id="@+id/action_settings"
-        android:title="@string/settings"
+        android:id="@+id/action_app_settings"
+        android:title="@string/app_settings"
         android:visible="false"
         app:showAsAction="never" />
 </menu>
