@@ -8,21 +8,15 @@
             android:title="@string/edit"
             app:showAsAction="always" />
         <item
-            android:id="@+id/action_feedback"
-            android:icon="@drawable/ic_feedback_white"
-            android:title="@string/feedback"
+            android:id="@+id/action_settings"
+            android:icon="@drawable/ic_cog"
+            android:title="@string/action_settings"
             app:showAsAction="always" />
-        <item
-            android:id="@+id/action_search"
-            android:icon="@drawable/ic_search_white"
-            android:title="@string/search"
-            app:actionViewClass="android.support.v7.widget.SearchView"
-            app:showAsAction="always|collapseActionView" />
     </group>
 
     <item
-        android:id="@+id/action_settings"
-        android:title="@string/settings"
+        android:id="@+id/action_app_settings"
+        android:title="@string/app_settings"
         android:visible="false"
         app:showAsAction="never" />
 </menu>

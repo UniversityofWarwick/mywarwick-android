@@ -32,7 +32,7 @@
                 android:minHeight="32sp"
                 android:minWidth="32sp"
                 android:contentDescription="@string/feedback"
-                android:src="@drawable/ic_feedback_white"
+                android:src="@drawable/ic_cog"
                 android:tint="@color/colorPrimary" />
 
             <TextView
