@@ -68,17 +68,18 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     public static final String ACTIVITY_PATH = "/activity";
     public static final String NEWS_PATH = "/news";
     public static final String SETTINGS_PATH = "/settings";
+    public static final String SETTINGS_OPT_IN_PATH = "/settings/optin";
 
     public static final int TAB_INDEX_ACTIVITIES = 2;
-    public static final int TAB_INDEX_NOTIFICATIONS = 1;
 
+    public static final int TAB_INDEX_NOTIFICATIONS = 1;
     public static final int SIGN_IN = 1;
+
     public static final int TOUR = 2;
 
     private static final int LOCATION_PERMISSION_REQUEST = 0;
 
     private static final String TAG = "MainActivity";
-
     public static final float disabledTabAlpha = 0.3f;
     public static final float enabledTabAlpha = 1;
 
@@ -95,6 +96,8 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     private MenuItem editMenuItem;
     private MenuItem settingsMenuItem;
     private FirebaseAnalytics firebaseAnalytics;
+
+    private boolean firstRunAfterTour = false;
 
     @Override
     public void onTabSelected(@IdRes int tabId) {
@@ -278,7 +281,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         myWarwickWebView.addJavascriptInterface(javascriptInterface, "MyWarwickAndroid");
 
         MyWarwickWebViewClient webViewClient = new MyWarwickWebViewClient(preferences, this);
-        myWarwickWebView.setWebChromeClient(new WebChromeClient(){
+        myWarwickWebView.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback) {
                 // Allow geolocation permission for any web page rendering inside this web view, upon request
@@ -337,15 +340,25 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     }
 
     private void loadWebView() {
-        String appURL = preferences.getAppURL();
-        if (isOpenedFromNotification()) {
-            onPathChange(NOTIFICATIONS_PATH);
-            FirebaseCrash.log("loadUrl: " + appURL + NOTIFICATIONS_PATH);
-            myWarwickWebView.loadUrl(appURL + NOTIFICATIONS_PATH);
+        if (firstRunAfterTour) {
+            firstRunAfterTour = false;
+            loadPath(SETTINGS_OPT_IN_PATH);
+        } else if (isOpenedFromNotification()) {
+            loadPath(NOTIFICATIONS_PATH);
         } else {
-            FirebaseCrash.log("loadUrl: " + appURL);
-            myWarwickWebView.loadUrl(appURL);
+            loadPath(ROOT_PATH);
         }
+    }
+
+    private void loadPath(String path) {
+        String root = preferences.getAppURL();
+
+        if (!path.equals(ROOT_PATH)) {
+            onPathChange(path);
+        }
+
+        FirebaseCrash.log("loadUrl: " + root + path);
+        myWarwickWebView.loadUrl(root + path);
     }
 
     private boolean hasLocationPermissions() {
@@ -566,6 +579,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
         if (requestCode == TOUR) {
             preferences.setTourComplete();
+            firstRunAfterTour = true;
 
             loadWebView();
         }
