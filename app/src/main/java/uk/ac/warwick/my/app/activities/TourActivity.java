@@ -1,8 +1,11 @@
 package uk.ac.warwick.my.app.activities;
 
+import android.Manifest;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,7 +15,10 @@ import com.github.paolorotolo.appintro.AppIntro;
 
 import uk.ac.warwick.my.app.R;
 
+
 public class TourActivity extends AppIntro {
+
+    private static final int LOCATION_PERMISSION_REQUEST = 0;
 
     private static final int[] LAYOUTS = new int[]{
             R.layout.fragment_tour_page_1,
@@ -24,6 +30,9 @@ public class TourActivity extends AppIntro {
             R.layout.fragment_tour_page_7,
             R.layout.fragment_tour_page_8,
     };
+
+    private boolean requestedPermissions = false;
+    private boolean finishAfterPermissionRequest = false;
 
     static class SlideFragment extends Fragment {
         private final int position;
@@ -64,7 +73,8 @@ public class TourActivity extends AppIntro {
     public void onSkipPressed(Fragment currentFragment) {
         super.onSkipPressed(currentFragment);
 
-        finish();
+        finishAfterPermissionRequest = true;
+        requestPermissionsOnce();
     }
 
     @Override
@@ -73,4 +83,28 @@ public class TourActivity extends AppIntro {
 
         finish();
     }
+
+    @Override
+    public void onSlideChanged(@Nullable Fragment oldFragment, @Nullable Fragment newFragment) {
+        super.onSlideChanged(oldFragment, newFragment);
+
+        requestPermissionsOnce();
+    }
+
+    private void requestPermissionsOnce() {
+        if (!requestedPermissions) {
+            requestedPermissions = true;
+
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST);
+        } else if (finishAfterPermissionRequest) {
+            finish();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == LOCATION_PERMISSION_REQUEST && finishAfterPermissionRequest)
+            finish();
+    }
+
 }
