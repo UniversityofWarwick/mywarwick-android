@@ -65,11 +65,11 @@
                     MyWarwickAndroid.ready();
                 };
 
-                native.getAppBuild() = function getAppBuild() {
+                native.getAppBuild = function getAppBuild() {
                     return MyWarwickAndroid.getAppBuild();
                 };
 
-                native.getAppVersion() = function getAppVersion() {
+                native.getAppVersion = function getAppVersion() {
                     return MyWarwickAndroid.getAppVersion();
                 };
             }
