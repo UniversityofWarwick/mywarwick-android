@@ -6,6 +6,7 @@ import android.webkit.JavascriptInterface;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import uk.ac.warwick.my.app.BuildConfig;
 import uk.ac.warwick.my.app.user.AnonymousUser;
 import uk.ac.warwick.my.app.user.AuthenticatedUser;
 import uk.ac.warwick.my.app.user.SsoUrls;
@@ -17,12 +18,22 @@ import uk.ac.warwick.my.app.user.User;
  */
 public class MyWarwickJavaScriptInterface {
 
-    private final MyWarwickState startState;
+    private final MyWarwickState state;
     private final JavascriptInvoker invoker;
 
-    public MyWarwickJavaScriptInterface(JavascriptInvoker invoker, MyWarwickState startState) {
-        this.startState = startState;
+    public MyWarwickJavaScriptInterface(JavascriptInvoker invoker, MyWarwickState state) {
+        this.state = state;
         this.invoker = invoker;
+    }
+
+    @JavascriptInterface
+    public String getAppVersion() {
+        return String.format("%s (%s)", BuildConfig.VERSION_NAME, BuildConfig.BUILD_TYPE);
+    }
+
+    @JavascriptInterface
+    public int getAppBuild() {
+        return BuildConfig.VERSION_CODE;
     }
 
     /**
@@ -40,7 +51,7 @@ public class MyWarwickJavaScriptInterface {
         try {
             JSONObject object = new JSONObject(user);
 
-            startState.setUser(getUserFromJSONObject(object));
+            state.setUser(getUserFromJSONObject(object));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -48,22 +59,22 @@ public class MyWarwickJavaScriptInterface {
 
     @JavascriptInterface
     public void setWebSignOnUrls(String signInUrl, String signOutUrl) {
-        startState.setSsoUrls(new SsoUrls(signInUrl, signOutUrl));
+        state.setSsoUrls(new SsoUrls(signInUrl, signOutUrl));
     }
 
     @JavascriptInterface
     public void setUnreadNotificationCount(int count) {
-        startState.setUnreadNotificationCount(count);
+        state.setUnreadNotificationCount(count);
     }
 
     @JavascriptInterface
     public void setPath(String path) {
-        startState.setPath(path);
+        state.setPath(path);
     }
 
     @JavascriptInterface
     public void setAppCached(Boolean cached) {
-        startState.setAppCached(cached);
+        state.setAppCached(cached);
     }
 
     private User getUserFromJSONObject(JSONObject user) throws JSONException {
