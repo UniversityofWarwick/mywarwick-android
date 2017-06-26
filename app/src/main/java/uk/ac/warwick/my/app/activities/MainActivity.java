@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     public static final String ACTIVITY_PATH = "/activity";
     public static final String NEWS_PATH = "/news";
     public static final String SETTINGS_PATH = "/settings";
-    public static final String SETTINGS_OPT_IN_PATH = "/settings/optin";
+    public static final String POST_TOUR_PATH = "/post_tour";
 
     public static final int TAB_INDEX_ACTIVITIES = 2;
 
@@ -342,7 +342,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     private void loadWebView() {
         if (firstRunAfterTour) {
             firstRunAfterTour = false;
-            loadPath(SETTINGS_OPT_IN_PATH);
+            loadPath(POST_TOUR_PATH);
         } else if (isOpenedFromNotification()) {
             loadPath(NOTIFICATIONS_PATH);
         } else {
