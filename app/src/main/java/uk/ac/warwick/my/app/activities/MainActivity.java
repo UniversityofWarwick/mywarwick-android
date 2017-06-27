@@ -122,23 +122,29 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             public void run() {
                 setTitle(getTitleForPath(path));
 
-                // Don't call listeners when the webview changes the tab
-                BottomBar bottomBar = getBottomBar();
-                bottomBar.setOnTabSelectListener(null, false);
-                bottomBar.setOnTabReselectListener(null);
-                // Only update the tab if the new path is on a different tab
-                if (oldPath == null) {
-                    bottomBar.selectTabWithId(getTabItemForPath(path));
+                if (path.startsWith(SETTINGS_PATH)) {
+                    BottomBar bottomBar = getBottomBar();
+                    bottomBar.setVisibility(View.GONE);
                 } else {
-                    String oldTabPath = getPathForTabItem(getTabItemForPath(oldPath));
-                    int newTabItem = getTabItemForPath(path);
-                    String newTabPath = getPathForTabItem(newTabItem);
-                    if (!oldTabPath.equals(newTabPath)) {
-                        bottomBar.selectTabWithId(newTabItem);
+                    // Don't call listeners when the webview changes the tab
+                    BottomBar bottomBar = getBottomBar();
+                    bottomBar.setVisibility(View.VISIBLE);
+                    bottomBar.setOnTabSelectListener(null, false);
+                    bottomBar.setOnTabReselectListener(null);
+                    // Only update the tab if the new path is on a different tab
+                    if (oldPath == null) {
+                        bottomBar.selectTabWithId(getTabItemForPath(path));
+                    } else {
+                        String oldTabPath = getPathForTabItem(getTabItemForPath(oldPath));
+                        int newTabItem = getTabItemForPath(path);
+                        String newTabPath = getPathForTabItem(newTabItem);
+                        if (!oldTabPath.equals(newTabPath)) {
+                            bottomBar.selectTabWithId(newTabItem);
+                        }
                     }
+                    bottomBar.setOnTabSelectListener(MainActivity.this, false);
+                    bottomBar.setOnTabReselectListener(MainActivity.this);
                 }
-                bottomBar.setOnTabSelectListener(MainActivity.this, false);
-                bottomBar.setOnTabReselectListener(MainActivity.this);
 
                 ActionBar actionBar = getSupportActionBar();
 
