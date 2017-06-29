@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.net.Uri;
@@ -266,6 +267,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         firebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
         myWarwickWebView = getWebView();
+        myWarwickWebView.setBackgroundColor(Color.TRANSPARENT);
         WebSettings settings = myWarwickWebView.getSettings();
         settings.setJavaScriptEnabled(true);
         settings.setGeolocationEnabled(true);
