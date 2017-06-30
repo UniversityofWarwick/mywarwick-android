@@ -81,4 +81,16 @@
     <string name="okay_ask">Okay</string>
     <string name="location_dialog_title">My&#160;Warwick would like to access your location</string>
     <string name="location_dialog_message">We\'ll use this to show your location on the campus map, and to provide location-related information.</string>
+    <string name="skip">Skip</string>
+    <string name="tour_finish">That\'s it! We hope you enjoy My Warwick. Touch \'Finish\' when you\'re done with this tour.</string>
+    <string name="tour_feedback">At any time, if you have any problems using the app, or you have an idea you\'d like to tell us, touch the feedback button to send us a message.</string>
+    <string name="tour_search">Find web pages, see buildings and rooms on the campus map, get peoples\' contact details, search the Library catalogue and more.</string>
+    <string name="tour_news">A personalised list of news items. You can select which categories of news you\'d like to see.</string>
+    <string name="tour_activity">A summary of tasks that you\'ve completed, like submitting your assignment or filling in a form.</string>
+    <string name="tour_notifications">Just-in-time reminders like Submit your coursework or Return your library books. Notifications pop up on your phone\'s lock screen like messages, with a history on this screen in the app</string>
+    <string name="tour_me">Tiles on your \'Me\' screen give you a quick summary of things that are relevant to you. You can resize and rearrange the tiles to suit your needs.</string>
+    <string name="tour_title_me">\'Me\' screen</string>
+    <string name="tour_welcome">My Warwick is your window into lots of different activities at Warwick. Here you can get coursework reminders, see traffic alerts, use our interactive map, search for people, web pages and much more. Take a tour...</string>
+    <string name="tour_title_welcome">Welcome to My Warwick</string>
+    <string name="finish">Finish</string>
 </resources>

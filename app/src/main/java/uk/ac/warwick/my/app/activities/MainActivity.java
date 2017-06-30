@@ -69,23 +69,24 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     public static final String ACTIVITY_PATH = "/activity";
     public static final String NEWS_PATH = "/news";
     public static final String SETTINGS_PATH = "/settings";
+    public static final String POST_TOUR_PATH = "/post_tour";
 
     public static final int TAB_INDEX_ACTIVITIES = 2;
-    public static final int TAB_INDEX_NOTIFICATIONS = 1;
 
+    public static final int TAB_INDEX_NOTIFICATIONS = 1;
     public static final int SIGN_IN = 1;
+
+    public static final int TOUR = 2;
 
     private static final int LOCATION_PERMISSION_REQUEST = 0;
 
     private static final String TAG = "MainActivity";
-
     public static final float disabledTabAlpha = 0.3f;
     public static final float enabledTabAlpha = 1;
 
     private WebView myWarwickWebView;
     private MyWarwickState myWarwick = new MyWarwickState(this, this);
-    private MyWarwickPreferences myWarwickPreferences;
-    private MenuItem searchItem;
+    private MyWarwickPreferences preferences;
     private BroadcastReceiver tokenRefreshReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, final Intent intent) {
@@ -96,6 +97,8 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     private MenuItem editMenuItem;
     private MenuItem settingsMenuItem;
     private FirebaseAnalytics firebaseAnalytics;
+
+    private boolean firstRunAfterTour = false;
 
     @Override
     public void onTabSelected(@IdRes int tabId) {
@@ -279,13 +282,14 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             }
         }
 
-        this.myWarwickPreferences = new MyWarwickPreferences(PreferenceManager.getDefaultSharedPreferences(this));
+        this.preferences = new MyWarwickPreferences(PreferenceManager.getDefaultSharedPreferences(this));
+
         this.invoker = new JavascriptInvoker(myWarwickWebView);
         MyWarwickJavaScriptInterface javascriptInterface = new MyWarwickJavaScriptInterface(invoker, myWarwick);
         myWarwickWebView.addJavascriptInterface(javascriptInterface, "MyWarwickAndroid");
 
-        MyWarwickWebViewClient webViewClient = new MyWarwickWebViewClient(myWarwickPreferences, this);
-        myWarwickWebView.setWebChromeClient(new WebChromeClient(){
+        MyWarwickWebViewClient webViewClient = new MyWarwickWebViewClient(preferences, this);
+        myWarwickWebView.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback) {
                 // Allow geolocation permission for any web page rendering inside this web view, upon request
@@ -328,21 +332,41 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             }
         }
 
+        registerTokenRefreshReceiver();
+
         // TODO the permissions ask is asynchronous so the page loads anyway,
         // and might start the login page moments after we've asked for permission.
         // It still works, just looks a bit jarring.
 
-        String appURL = myWarwickPreferences.getAppURL();
-        if (isOpenedFromNotification()) {
-            onPathChange(NOTIFICATIONS_PATH);
-            FirebaseCrash.log("loadUrl: " + appURL + NOTIFICATIONS_PATH);
-            myWarwickWebView.loadUrl(appURL + NOTIFICATIONS_PATH);
+        if (preferences.isTourComplete()) {
+            loadWebView();
         } else {
-            FirebaseCrash.log("loadUrl: " + appURL);
-            myWarwickWebView.loadUrl(appURL);
+            Intent intent = new Intent(this, TourActivity.class);
+
+            startActivityForResult(intent, TOUR);
+        }
+    }
+
+    private void loadWebView() {
+        if (firstRunAfterTour) {
+            firstRunAfterTour = false;
+            loadPath(POST_TOUR_PATH);
+        } else if (isOpenedFromNotification()) {
+            loadPath(NOTIFICATIONS_PATH);
+        } else {
+            loadPath(ROOT_PATH);
+        }
+    }
+
+    private void loadPath(String path) {
+        String root = preferences.getAppURL();
+
+        if (!path.equals(ROOT_PATH)) {
+            onPathChange(path);
         }
 
-        registerTokenRefreshReceiver();
+        FirebaseCrash.log("loadUrl: " + root + path);
+        myWarwickWebView.loadUrl(root + path);
     }
 
     private boolean hasLocationPermissions() {
@@ -408,7 +432,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             return;
         }
 
-        myWarwickPreferences.setPushNotificationToken(token);
+        preferences.setPushNotificationToken(token);
 
         Log.i(TAG, "Registering for push notifications with token " + token);
 
@@ -416,7 +440,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     }
 
     private void unregisterForPushNotifications() {
-        String token = myWarwickPreferences.getPushNotificationToken();
+        String token = preferences.getPushNotificationToken();
 
         if (token == null) {
             // Nothing to do
@@ -448,11 +472,11 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         super.onRestart();
         Log.d(TAG, "onRestart");
 
-        if (myWarwickPreferences.needsReload()) {
+        if (preferences.needsReload()) {
             Log.i(TAG, "Reloading because something has changed");
             getWebView().reload();
             invoker.reset();
-            myWarwickPreferences.setNeedsReload(false);
+            preferences.setNeedsReload(false);
         } else {
             // Let the embedded app know that it's being brought to the foreground
             // (Only need to do this if we didn't just reload the whole page)
@@ -560,6 +584,13 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             // We have returned from signing in - reload the web view
             getWebView().reload();
         }
+
+        if (requestCode == TOUR) {
+            preferences.setTourComplete();
+            firstRunAfterTour = true;
+
+            loadWebView();
+        }
     }
 
     @Override
@@ -606,19 +637,19 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             getWebView().loadUrl(myWarwick.getSsoUrls().getLogoutUrl());
 
             myWarwick.setUser(null);
-            myWarwickPreferences.setNeedsReload(true);
+            preferences.setNeedsReload(true);
         }
     }
 
     private void startSignInActivity(String url) {
         Intent intent = new Intent(this, WebViewActivity.class);
         intent.putExtra(WebViewActivity.EXTRA_URL, url);
-        intent.putExtra(WebViewActivity.EXTRA_DESTINATION_HOST, myWarwickPreferences.getAppHost());
+        intent.putExtra(WebViewActivity.EXTRA_DESTINATION_HOST, preferences.getAppHost());
         intent.putExtra(WebViewActivity.EXTRA_TITLE, getString(R.string.action_sign_in));
         startActivityForResult(intent, SIGN_IN);
 
         myWarwick.setUser(null);
-        myWarwickPreferences.setNeedsReload(true);
+        preferences.setNeedsReload(true);
     }
 
     private void updateEditMenuItem(String path) {
