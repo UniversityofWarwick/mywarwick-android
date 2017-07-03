@@ -13,7 +13,7 @@
         android:layout_weight="1"
         android:contentDescription="@string/feedback"
         android:padding="@dimen/tour_padding"
-        android:src="@drawable/me_screenshot" />
+        android:src="@drawable/feedback_screenshot" />
 
     <LinearLayout
         android:layout_width="match_parent"
