@@ -34,17 +34,29 @@ public class TourActivity extends AppIntro {
     private boolean requestedPermissions = false;
     private boolean finishAfterPermissionRequest = false;
 
-    static class SlideFragment extends Fragment {
-        private final int position;
+    public static class SlideFragment extends Fragment {
 
-        public SlideFragment(int position) {
-            this.position = position;
+        private static String POSITION_ARG = "position";
+
+        public static SlideFragment newInstance(int position) {
+            SlideFragment f = new SlideFragment();
+
+            // Supply index input as an argument.
+            Bundle args = new Bundle();
+            args.putInt(POSITION_ARG, position);
+            f.setArguments(args);
+
+            return f;
+        }
+
+        private int getPosition() {
+            return getArguments().getInt(POSITION_ARG, 0);
         }
 
         @Nullable
         @Override
         public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-            View view = inflater.inflate(LAYOUTS[position], container, false);
+            View view = inflater.inflate(LAYOUTS[getPosition()], container, false);
             view.setBackgroundColor(Color.WHITE);
             return view;
         }
@@ -55,7 +67,7 @@ public class TourActivity extends AppIntro {
         super.onCreate(savedInstanceState);
 
         for (int i = 0; i < LAYOUTS.length; i++) {
-            addSlide(new SlideFragment(i));
+            addSlide(SlideFragment.newInstance(i));
         }
 
         int colorPrimary = getResources().getColor(R.color.colorPrimary);
