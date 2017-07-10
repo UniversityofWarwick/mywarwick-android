@@ -13,6 +13,7 @@
         android:layout_weight="1"
         android:contentDescription="@string/news"
         android:padding="@dimen/tour_padding"
+        android:scaleType="fitCenter"
         android:src="@drawable/news_screenshot" />
 
     <LinearLayout
