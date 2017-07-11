@@ -7,7 +7,7 @@
     <string name="action_reload">Reload</string>
     <string name="action_settings">Settings</string>
     <string name="me">Me</string>
-    <string name="notifications">Notifications</string>
+    <string name="notifications">Alerts</string>
     <string name="activity">Activity</string>
     <string name="news">News</string>
     <string name="feedback">Feedback</string>
@@ -87,7 +87,7 @@
     <string name="tour_search">Find web pages, see buildings and rooms on the campus map, get peoples\' contact details, search the Library catalogue and more.</string>
     <string name="tour_news">A personalised list of news items. You can select which categories of news you\'d like to see.</string>
     <string name="tour_activity">A summary of tasks that you\'ve completed, like submitting your assignment or filling in a form.</string>
-    <string name="tour_notifications">Just-in-time reminders like Submit your coursework or Return your library books. Notifications pop up on your phone\'s lock screen like messages, with a history on this screen in the app</string>
+    <string name="tour_notifications">Just-in-time reminders like Submit your coursework or Return your library books. Alerts pop up on your phone\'s lock screen like messages, with a history on this screen in the app</string>
     <string name="tour_me">Tiles on your \'Me\' screen give you a quick summary of things that are relevant to you. You can resize and rearrange the tiles to suit your needs.</string>
     <string name="tour_title_me">\'Me\' screen</string>
     <string name="tour_welcome">My Warwick is your window into lots of different activities at Warwick. Here you can get coursework reminders, see traffic alerts, use our interactive map, search for people, web pages and much more. Take a tour...</string>
