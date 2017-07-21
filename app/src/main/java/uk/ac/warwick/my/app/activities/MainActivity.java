@@ -693,8 +693,8 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
                 return NOTIFICATIONS_PATH;
             case R.id.tab_activity:
                 return ACTIVITY_PATH;
-            case R.id.tab_news:
-                return NEWS_PATH;
+//            case R.id.tab_news:
+//                return NEWS_PATH;
             case R.id.tab_search:
                 return SEARCH_PATH;
             default:
@@ -710,8 +710,8 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
                 return R.id.tab_notifications;
             case ACTIVITY_PATH:
                 return R.id.tab_activity;
-            case NEWS_PATH:
-                return R.id.tab_news;
+//            case NEWS_PATH:
+//                return R.id.tab_news;
             case SEARCH_PATH:
                 return R.id.tab_search;
             default:
