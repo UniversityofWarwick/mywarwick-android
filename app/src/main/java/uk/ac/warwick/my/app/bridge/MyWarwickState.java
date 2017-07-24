@@ -20,6 +20,7 @@ public class MyWarwickState {
 
     private User user;
     private int unreadNotificationCount;
+    private int bgId = 1;
     private String path;
     private SsoUrls ssoUrls;
     private MyWarwickListener listener;
@@ -116,4 +117,14 @@ public class MyWarwickState {
         }
     }
 
+    public int getBgId() {
+        return this.bgId;
+    }
+
+    public void setBgId(int bgId) {
+        if (this.bgId != bgId) {
+            listener.onBackgroundChange(bgId);
+        }
+        this.bgId = bgId;
+    }
 }

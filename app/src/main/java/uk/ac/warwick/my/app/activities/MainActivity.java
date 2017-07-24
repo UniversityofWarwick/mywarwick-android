@@ -238,6 +238,18 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     }
 
     @Override
+    public void onBackgroundChange(final int newBgId) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ImageView imageView = (ImageView) findViewById(R.id.background);
+                Context ctx = imageView.getContext();
+                imageView.setImageResource(ctx.getResources().getIdentifier(String.format("bg%02d", newBgId), "drawable", ctx.getPackageName()));
+            }
+        });
+    }
+
+    @Override
     public void onUncachedPageFail() {
         Intent intent = new Intent(this, PleaseConnectActivity.class);
         this.startActivity(intent);

@@ -24,13 +24,14 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        app:layout_behavior= "@string/appbar_scrolling_view_behavior">
 
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:src="@drawable/bg01"
             android:scaleType="centerCrop"
+            android:id="@+id/background"
             />
 
         <WebView
