@@ -244,7 +244,10 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             public void run() {
                 ImageView imageView = (ImageView) findViewById(R.id.background);
                 Context ctx = imageView.getContext();
-                imageView.setImageResource(ctx.getResources().getIdentifier(String.format("bg%02d", newBgId), "drawable", ctx.getPackageName()));
+                int resourceIdentifier = ctx.getResources().getIdentifier(String.format("bg%02d", newBgId), "drawable", ctx.getPackageName());
+                if (resourceIdentifier != 0) {
+                    imageView.setImageResource(resourceIdentifier);
+                }
             }
         });
     }
