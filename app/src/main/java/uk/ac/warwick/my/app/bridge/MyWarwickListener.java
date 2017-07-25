@@ -16,6 +16,8 @@ public interface MyWarwickListener {
 
     void onSetSsoUrls(SsoUrls ssoUrls);
 
+    void onBackgroundChange(int newBgId);
+
     // Call when the HTML fails to load because we haven't cached anything yet.
     void onUncachedPageFail();
 
