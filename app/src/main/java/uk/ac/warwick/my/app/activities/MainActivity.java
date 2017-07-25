@@ -239,6 +239,11 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
     @Override
     public void onBackgroundChange(final int newBgId) {
+        preferences.setBackgroundChoice(newBgId);
+        updateBackgroundDisplayed(newBgId);
+    }
+
+    private void updateBackgroundDisplayed(final int newBgId) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -360,6 +365,8 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
             startActivityForResult(intent, TOUR);
         }
+
+        updateBackgroundDisplayed(preferences.getBackgroundChoice());
     }
 
     private void loadWebView() {
