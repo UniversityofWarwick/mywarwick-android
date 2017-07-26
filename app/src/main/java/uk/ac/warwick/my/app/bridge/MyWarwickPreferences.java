@@ -33,6 +33,9 @@ public class MyWarwickPreferences {
         if (url.equals(CUSTOM)) {
             // get custom url from preference
             url = sharedPreferences.getString(CUSTOM_SERVER_ADDRESS, "");
+            if (!url.startsWith("https://")) {
+                url = String.format("https://%s", url);
+            }
         }
         return url;
     }
