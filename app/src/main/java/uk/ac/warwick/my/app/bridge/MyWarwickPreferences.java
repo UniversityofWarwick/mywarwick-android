@@ -11,6 +11,8 @@ public class MyWarwickPreferences {
     private static final String PUSH_NOTIFICATION_TOKEN = "mywarwick_push_notification_token";
     private static final String SERVER = "mywarwick_server";
     private static final String TOUR_COMPLETE = "mywarwick_tour_complete";
+    private static final String CHOSEN_BG = "mywarwick_chosen_background";
+    private static final int DEFAULT_BACKGROUND = 1;
 
     private SharedPreferences sharedPreferences;
 
@@ -33,6 +35,9 @@ public class MyWarwickPreferences {
         if (url.equals(CUSTOM)) {
             // get custom url from preference
             url = sharedPreferences.getString(CUSTOM_SERVER_ADDRESS, "");
+            if (!url.startsWith("https://")) {
+                url = String.format("https://%s", url);
+            }
         }
         return url;
     }
@@ -59,6 +64,14 @@ public class MyWarwickPreferences {
 
     public void setTourComplete() {
         sharedPreferences.edit().putBoolean(TOUR_COMPLETE, true).apply();
+    }
+
+    public void setBackgroundChoice(int bgId) {
+        sharedPreferences.edit().putInt(CHOSEN_BG, bgId).apply();
+    }
+
+    public int getBackgroundChoice() {
+        return sharedPreferences.getInt(CHOSEN_BG, DEFAULT_BACKGROUND);
     }
 
 }

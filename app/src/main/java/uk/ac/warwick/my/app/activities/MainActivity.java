@@ -26,7 +26,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
@@ -47,7 +46,6 @@ import com.roughike.bottombar.BottomBarTab;
 import com.roughike.bottombar.OnTabReselectListener;
 import com.roughike.bottombar.OnTabSelectListener;
 
-import uk.ac.warwick.my.app.Global;
 import uk.ac.warwick.my.app.R;
 import uk.ac.warwick.my.app.bridge.JavascriptInvoker;
 import uk.ac.warwick.my.app.bridge.MyWarwickJavaScriptInterface;
@@ -238,6 +236,26 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     }
 
     @Override
+    public void onBackgroundChange(final int newBgId) {
+        preferences.setBackgroundChoice(newBgId);
+        updateBackgroundDisplayed(newBgId);
+    }
+
+    private void updateBackgroundDisplayed(final int newBgId) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ImageView imageView = (ImageView) findViewById(R.id.background);
+                Context ctx = imageView.getContext();
+                int resourceIdentifier = ctx.getResources().getIdentifier(String.format("bg%02d", newBgId), "drawable", ctx.getPackageName());
+                if (resourceIdentifier != 0) {
+                    imageView.setImageResource(resourceIdentifier);
+                }
+            }
+        });
+    }
+
+    @Override
     public void onUncachedPageFail() {
         Intent intent = new Intent(this, PleaseConnectActivity.class);
         this.startActivity(intent);
@@ -311,14 +329,6 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             View accountPhotoView = getLayoutInflater().inflate(R.layout.account_photo_view, null);
             ActionBar.LayoutParams layoutParams = new ActionBar.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.END);
             actionBar.setCustomView(accountPhotoView, layoutParams);
-
-            View cardView = accountPhotoView.findViewById(R.id.image_card_view);
-            cardView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    showAccountPopupMenu(v);
-                }
-            });
         }
 
 
@@ -345,6 +355,8 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
             startActivityForResult(intent, TOUR);
         }
+
+        updateBackgroundDisplayed(preferences.getBackgroundChoice());
     }
 
     private void loadWebView() {
@@ -496,35 +508,6 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         return extras != null && extras.containsKey("from");
     }
 
-    private void showAccountPopupMenu(View view) {
-        PopupMenu popup = new PopupMenu(this, view);
-        popup.inflate(R.menu.account);
-        popup.show();
-
-        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.action_account_settings:
-                        startAccountSettingsActivity();
-                        return true;
-                    case R.id.action_sign_out:
-                        signOut();
-                        return true;
-                    default:
-                        return false;
-                }
-            }
-        });
-    }
-
-    private void startAccountSettingsActivity() {
-        Intent intent = new Intent(this, WebViewActivity.class);
-        intent.putExtra(WebViewActivity.EXTRA_URL, "https://" + Global.getWebSignOnHost() + "/origin/account");
-        intent.putExtra(WebViewActivity.EXTRA_TITLE, getString(R.string.account_settings));
-        startActivity(intent);
-    }
-
     private View getAccountPhotoView() {
         return getSupportActionBar().getCustomView();
     }
@@ -628,16 +611,6 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
-        }
-    }
-
-    private void signOut() {
-        if (myWarwick.getSsoUrls() != null) {
-            FirebaseCrash.log("loadUrl: " + myWarwick.getSsoUrls().getLogoutUrl());
-            getWebView().loadUrl(myWarwick.getSsoUrls().getLogoutUrl());
-
-            myWarwick.setUser(null);
-            preferences.setNeedsReload(true);
         }
     }
 

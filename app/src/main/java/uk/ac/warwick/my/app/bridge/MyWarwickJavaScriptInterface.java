@@ -58,6 +58,11 @@ public class MyWarwickJavaScriptInterface {
     }
 
     @JavascriptInterface
+    public void setBackgroundToDisplay(int newBg) {
+        state.setBgId(newBg);
+    }
+
+    @JavascriptInterface
     public void setWebSignOnUrls(String signInUrl, String signOutUrl) {
         state.setSsoUrls(new SsoUrls(signInUrl, signOutUrl));
     }
