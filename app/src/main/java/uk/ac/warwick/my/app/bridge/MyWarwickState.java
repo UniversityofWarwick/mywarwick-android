@@ -116,4 +116,8 @@ public class MyWarwickState {
         }
     }
 
+    public void launchTour() {
+        listener.launchTour();
+    }
+
 }

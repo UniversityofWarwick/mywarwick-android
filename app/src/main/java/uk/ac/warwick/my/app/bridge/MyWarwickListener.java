@@ -21,4 +21,6 @@ public interface MyWarwickListener {
 
     boolean onSsoUrl(Uri url);
 
+    void launchTour();
+
 }

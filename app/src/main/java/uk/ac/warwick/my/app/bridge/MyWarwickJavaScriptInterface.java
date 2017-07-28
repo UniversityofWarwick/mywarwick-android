@@ -77,6 +77,11 @@ public class MyWarwickJavaScriptInterface {
         state.setAppCached(cached);
     }
 
+    @JavascriptInterface
+    public void launchTour() {
+        state.launchTour();
+    }
+
     private User getUserFromJSONObject(JSONObject user) throws JSONException {
         if (user.getBoolean("authenticated")) {
             JSONObject photo = user.getJSONObject("photo");

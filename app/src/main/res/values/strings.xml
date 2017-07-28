@@ -72,6 +72,10 @@
                 native.getAppVersion = function getAppVersion() {
                     return MyWarwickAndroid.getAppVersion();
                 };
+
+                native.launchTour = function launchTour() {
+                    return MyWarwickAndroid.launchTour();
+                };
             }
         })(window);
     </string>

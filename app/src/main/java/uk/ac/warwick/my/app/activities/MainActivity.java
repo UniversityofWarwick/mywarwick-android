@@ -737,4 +737,9 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     private boolean isDebugBuild() {
         return 0 != (getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE);
     }
+
+    public void launchTour() {
+        Intent intent = new Intent(this, TourActivity.class);
+        startActivityForResult(intent, TOUR);
+    }
 }
