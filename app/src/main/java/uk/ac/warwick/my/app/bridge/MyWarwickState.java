@@ -127,4 +127,8 @@ public class MyWarwickState {
         }
         this.bgId = bgId;
     }
+
+    public void launchTour() {
+        listener.launchTour();
+    }
 }
