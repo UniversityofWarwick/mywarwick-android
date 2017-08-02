@@ -76,6 +76,10 @@
                 native.launchTour = function launchTour() {
                     return MyWarwickAndroid.launchTour();
                 };
+
+                native.setBackgroundToDisplay = function setBackgroundToDisplay(bgId) {
+                    return MyWarwickAndroid.setBackgroundToDisplay(bgId);
+                };
             }
         })(window);
     </string>
