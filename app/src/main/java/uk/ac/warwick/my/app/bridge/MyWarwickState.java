@@ -20,7 +20,7 @@ public class MyWarwickState {
 
     private User user;
     private int unreadNotificationCount;
-    private int bgId = 1;
+    private int bgId = 0;
     private String path;
     private SsoUrls ssoUrls;
     private MyWarwickListener listener;
