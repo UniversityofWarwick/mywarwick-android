@@ -13,6 +13,7 @@ import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.net.Uri;
@@ -240,6 +241,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         if (preferences.getBackgroundChoice() != newBgId) {
             preferences.setBackgroundChoice(newBgId);
             updateBackgroundDisplayed(newBgId);
+            updateThemeColours(newBgId);
         }
     }
 
@@ -252,6 +254,59 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
                 int resourceIdentifier = ctx.getResources().getIdentifier(String.format("bg%02d", newBgId), "drawable", ctx.getPackageName());
                 if (resourceIdentifier != 0) {
                     imageView.setImageResource(resourceIdentifier);
+                }
+            }
+        });
+    }
+
+    private void updateThemeColours(final int newId) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ActionBar actionBar = getSupportActionBar();
+                if (actionBar != null) {
+                    switch (newId) {
+                        case 1:
+                            actionBar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.colorPrimary1)));
+                            break;
+                        case 2:
+                            actionBar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.colorPrimary2)));
+                            break;
+                        case 3:
+                            actionBar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.colorPrimary3)));
+                            break;
+                        case 4:
+                            actionBar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.colorPrimary4)));
+                            break;
+                        case 5:
+                            actionBar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.colorPrimary5)));
+                            break;
+                        default:
+                            actionBar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.colorPrimary1)));
+                            break;
+                    }
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    switch (newId) {
+                        case 1:
+                            getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark1));
+                            break;
+                        case 2:
+                            getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark2));
+                            break;
+                        case 3:
+                            getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark3));
+                            break;
+                        case 4:
+                            getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark4));
+                            break;
+                        case 5:
+                            getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark5));
+                            break;
+                        default:
+                            getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark1));
+                            break;
+                    }
                 }
             }
         });
@@ -359,6 +414,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         }
 
         updateBackgroundDisplayed(preferences.getBackgroundChoice());
+        updateThemeColours(preferences.getBackgroundChoice());
     }
 
     private void loadWebView() {
