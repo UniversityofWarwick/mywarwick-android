@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="alerts"
+        android:enabled="true"
+        android:icon="@drawable/shortcut_alerts"
+        android:shortcutShortLabel="@string/notifications"
+        android:shortcutLongLabel="@string/notifications">
+        <intent
+            android:action="uk.ac.warwick.my.app.SHORTCUT_ALERTS"
+            android:targetPackage="@string/package_name"
+            android:targetClass="uk.ac.warwick.my.app.activities.MainActivity" />
+        <categories android:name="android.shortcut.conversation" />
+    </shortcut>
+    <shortcut
+        android:shortcutId="activity"
+        android:enabled="true"
+        android:icon="@drawable/shortcut_activities"
+        android:shortcutShortLabel="@string/activity"
+        android:shortcutLongLabel="@string/activity">
+        <intent
+            android:action="uk.ac.warwick.my.app.SHORTCUT_ACTIVITY"
+            android:targetPackage="@string/package_name"
+            android:targetClass="uk.ac.warwick.my.app.activities.MainActivity" />
+        <categories android:name="android.shortcut.conversation" />
+    </shortcut>
+    <shortcut
+        android:shortcutId="search"
+        android:enabled="true"
+        android:icon="@drawable/shortcut_search"
+        android:shortcutShortLabel="@string/search"
+        android:shortcutLongLabel="@string/search">
+        <intent
+            android:action="uk.ac.warwick.my.app.SHORTCUT_SEARCH"
+            android:targetPackage="@string/package_name"
+            android:targetClass="uk.ac.warwick.my.app.activities.MainActivity" />
+        <categories android:name="android.shortcut.conversation" />
+    </shortcut>
+</shortcuts>

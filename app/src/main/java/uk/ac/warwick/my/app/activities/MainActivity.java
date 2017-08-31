@@ -69,6 +69,9 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     public static final String NEWS_PATH = "/news";
     public static final String SETTINGS_PATH = "/settings";
     public static final String POST_TOUR_PATH = "/post_tour";
+    public static final String ALERTS_SHORTCUT_ACTION = "uk.ac.warwick.my.app.SHORTCUT_ALERTS";
+    public static final String ACTIVITY_SHORTCUT_ACTION = "uk.ac.warwick.my.app.SHORTCUT_ACTIVITY";
+    public static final String SEARCH_SHORTCUT_ACTION = "uk.ac.warwick.my.app.SHORTCUT_SEARCH";
 
     public static final int TAB_INDEX_ACTIVITIES = 2;
 
@@ -423,6 +426,21 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             loadPath(POST_TOUR_PATH);
         } else if (isOpenedFromNotification()) {
             loadPath(NOTIFICATIONS_PATH);
+        } else {
+            handleShortcuts();
+        }
+    }
+
+    private void handleShortcuts() {
+        Intent intent = getIntent();
+        String action = intent.getAction();
+
+        if (ALERTS_SHORTCUT_ACTION.equals(action)) {
+            loadPath(NOTIFICATIONS_PATH);
+        } else if (ACTIVITY_SHORTCUT_ACTION.equals(action)) {
+            loadPath(ACTIVITY_PATH);
+        } else if (SEARCH_SHORTCUT_ACTION.equals(action)) {
+            loadPath(SEARCH_PATH);
         } else {
             loadPath(ROOT_PATH);
         }

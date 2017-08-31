@@ -33,10 +33,12 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.myWarwickPlay
             resValue "string", "app_name", "My Warwick"
+            resValue "string", "package_name", android.defaultConfig.applicationId
         }
         debug {
             applicationIdSuffix ".debug"
             resValue "string", "app_name", "My Warwick dev"
+            resValue "string", "package_name", android.defaultConfig.applicationId + applicationIdSuffix
         }
     }
 }
@@ -82,3 +84,27 @@ tasks.whenTaskAdded { task ->
 }
 
 apply plugin: 'com.google.gms.google-services'
+
+//region: Fix shortcuts.xml by manually replacing @string/package_name
+
+// It should work without this using the package_name string added in the buildTypes
+// but Google need to sort that out. This whole thing can be removed if they do
+
+final String PACKAGE_NAME_STRING_RES_KEY = "package_name"
+
+android.applicationVariants.all { variant ->
+
+    // Manually replace @string/package_name with `variant.applicationId`
+    variant.mergeResources.doLast {
+        println("variant = ${variant.applicationId}")
+
+        final File valuesFile = file("${buildDir}/intermediates/res/merged/${variant.dirName}/xml-v25/shortcuts.xml")
+        final String content = valuesFile.getText('UTF-8')
+        final String updatedContent = content
+                .replace("@string/${PACKAGE_NAME_STRING_RES_KEY}", variant.applicationId)
+
+        valuesFile.write(updatedContent, 'UTF-8')
+    }
+}
+
+//endregion
