@@ -25,7 +25,7 @@ public class TourActivity extends AppIntro {
             R.layout.fragment_tour_page_2,
             R.layout.fragment_tour_page_3,
             R.layout.fragment_tour_page_4,
-            R.layout.fragment_tour_page_5,
+            // R.layout.fragment_tour_page_5,
             R.layout.fragment_tour_page_6,
             R.layout.fragment_tour_page_7,
             R.layout.fragment_tour_page_8,
