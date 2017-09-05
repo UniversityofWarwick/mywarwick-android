@@ -266,53 +266,47 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                ActionBar actionBar = getSupportActionBar();
-                if (actionBar != null) {
-                    switch (newId) {
-                        case 1:
-                            actionBar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.colorPrimary1)));
-                            break;
-                        case 2:
-                            actionBar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.colorPrimary2)));
-                            break;
-                        case 3:
-                            actionBar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.colorPrimary3)));
-                            break;
-                        case 4:
-                            actionBar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.colorPrimary4)));
-                            break;
-                        case 5:
-                            actionBar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.colorPrimary5)));
-                            break;
-                        default:
-                            actionBar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.colorPrimary1)));
-                            break;
-                    }
+                if (getSupportActionBar() != null) {
+                    getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getColourForTheme(newId)));
                 }
+
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    switch (newId) {
-                        case 1:
-                            getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark1));
-                            break;
-                        case 2:
-                            getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark2));
-                            break;
-                        case 3:
-                            getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark3));
-                            break;
-                        case 4:
-                            getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark4));
-                            break;
-                        case 5:
-                            getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark5));
-                            break;
-                        default:
-                            getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark1));
-                            break;
-                    }
+                    getWindow().setStatusBarColor(getDarkColourForTheme(newId));
                 }
+
+                getBottomBar().setActiveTabColor(getColourForTheme(newId));
             }
         });
+    }
+
+    public int getColourForTheme(final int themeId) {
+        switch (themeId) {
+            case 2:
+                return getResources().getColor(R.color.colorPrimary2);
+            case 3:
+                return getResources().getColor(R.color.colorPrimary3);
+            case 4:
+                return getResources().getColor(R.color.colorPrimary4);
+            case 5:
+                return getResources().getColor(R.color.colorPrimary5);
+            default:
+                return getResources().getColor(R.color.colorPrimary1);
+        }
+    }
+
+    public int getDarkColourForTheme(final int themeId) {
+        switch (themeId) {
+            case 2:
+                return getResources().getColor(R.color.colorPrimaryDark2);
+            case 3:
+                return getResources().getColor(R.color.colorPrimaryDark3);
+            case 4:
+                return getResources().getColor(R.color.colorPrimaryDark4);
+            case 5:
+                return getResources().getColor(R.color.colorPrimaryDark5);
+            default:
+                return getResources().getColor(R.color.colorPrimaryDark1);
+        }
     }
 
     @Override
