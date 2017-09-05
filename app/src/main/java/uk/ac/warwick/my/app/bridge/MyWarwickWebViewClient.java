@@ -64,7 +64,7 @@ public class MyWarwickWebViewClient extends WebViewClient {
             return false;
         }
 
-        CustomTabsIntent intent = new CustomTabsIntent.Builder()
+        CustomTabsIntent intent = new CustomTabsIntent.Builder(activity.getCustomTabsSession())
                 .setToolbarColor(activity.getThemePrimaryColour())
                 .setCloseButtonIcon(BitmapFactory.decodeResource(activity.getResources(), R.drawable.ic_arrow_back_white_24dp))
                 .setStartAnimations(activity, R.anim.slide_in_right, R.anim.slide_out_left)
