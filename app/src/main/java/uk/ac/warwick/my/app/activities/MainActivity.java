@@ -101,6 +101,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     private FirebaseAnalytics firebaseAnalytics;
 
     private boolean firstRunAfterTour = false;
+    private int themePrimaryColour;
 
     @Override
     public void onTabSelected(@IdRes int tabId) {
@@ -263,6 +264,8 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     }
 
     private void updateThemeColours(final int newId) {
+        themePrimaryColour = getColourForTheme(newId);
+
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -784,5 +787,9 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     public void launchTour() {
         Intent intent = new Intent(this, TourActivity.class);
         startActivityForResult(intent, TOUR);
+    }
+
+    public int getThemePrimaryColour() {
+        return themePrimaryColour;
     }
 }

@@ -1,6 +1,7 @@
 package uk.ac.warwick.my.app.bridge;
 
-import android.app.Activity;
+import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.support.customtabs.CustomTabsIntent;
 import android.util.Log;
@@ -9,14 +10,15 @@ import android.webkit.WebViewClient;
 
 import uk.ac.warwick.my.app.Global;
 import uk.ac.warwick.my.app.R;
+import uk.ac.warwick.my.app.activities.MainActivity;
 
 public class MyWarwickWebViewClient extends WebViewClient {
 
     private final MyWarwickPreferences preferences;
     private final MyWarwickListener listener;
-    private final Activity activity;
+    private final MainActivity activity;
 
-    public MyWarwickWebViewClient(MyWarwickPreferences preferences, MyWarwickListener listener, Activity activity) {
+    public MyWarwickWebViewClient(MyWarwickPreferences preferences, MyWarwickListener listener, MainActivity activity) {
         this.preferences = preferences;
         this.listener = listener;
         this.activity = activity;
@@ -26,7 +28,7 @@ public class MyWarwickWebViewClient extends WebViewClient {
      * This method is deprecated on newer APIs but we are using older APIs. Note that this
      * should only be called for errors on the top level page, whereas the replacement APIs are
      * called for subresources as well, so would need to watch out for that.
-     *
+     * <p>
      * Catches failure to load a page by showing a helpful message.
      */
     @Override
@@ -62,7 +64,15 @@ public class MyWarwickWebViewClient extends WebViewClient {
             return false;
         }
 
-        CustomTabsIntent intent = new CustomTabsIntent.Builder().build();
+        CustomTabsIntent intent = new CustomTabsIntent.Builder()
+                .setToolbarColor(activity.getThemePrimaryColour())
+                .setCloseButtonIcon(BitmapFactory.decodeResource(activity.getResources(), R.drawable.ic_arrow_back_white_24dp))
+                .setStartAnimations(activity, R.anim.slide_in_right, R.anim.slide_out_left)
+                .setExitAnimations(activity, android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+                .build();
+
+        intent.intent.putExtra(Intent.EXTRA_REFERRER, view.getUrl());
+
         // If Chrome Custom Tabs is not available, the default browser will be launched instead
         intent.launchUrl(activity, url);
 
