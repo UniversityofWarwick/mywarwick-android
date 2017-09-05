@@ -6,6 +6,7 @@ import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -23,6 +24,10 @@ import android.preference.PreferenceManager;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.customtabs.CustomTabsCallback;
+import android.support.customtabs.CustomTabsClient;
+import android.support.customtabs.CustomTabsServiceConnection;
+import android.support.customtabs.CustomTabsSession;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
@@ -73,6 +78,8 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     public static final String ACTIVITY_SHORTCUT_ACTION = "uk.ac.warwick.my.app.SHORTCUT_ACTIVITY";
     public static final String SEARCH_SHORTCUT_ACTION = "uk.ac.warwick.my.app.SHORTCUT_SEARCH";
 
+    public static final String CUSTOM_TAB_PACKAGE_NAME = "com.android.chrome";
+
     public static final int TAB_INDEX_ACTIVITIES = 2;
 
     public static final int TAB_INDEX_NOTIFICATIONS = 1;
@@ -101,6 +108,9 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     private FirebaseAnalytics firebaseAnalytics;
 
     private boolean firstRunAfterTour = false;
+    private int themePrimaryColour;
+    private CustomTabsClient customTabsClient;
+    private CustomTabsSession customTabsSession;
 
     @Override
     public void onTabSelected(@IdRes int tabId) {
@@ -263,6 +273,8 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     }
 
     private void updateThemeColours(final int newId) {
+        themePrimaryColour = getColourForTheme(newId);
+
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -360,7 +372,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         MyWarwickJavaScriptInterface javascriptInterface = new MyWarwickJavaScriptInterface(invoker, myWarwick);
         myWarwickWebView.addJavascriptInterface(javascriptInterface, "MyWarwickAndroid");
 
-        MyWarwickWebViewClient webViewClient = new MyWarwickWebViewClient(preferences, this);
+        MyWarwickWebViewClient webViewClient = new MyWarwickWebViewClient(preferences, this, this);
         myWarwickWebView.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback) {
@@ -547,6 +559,8 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     protected void onStart() {
         super.onStart();
         Log.d(TAG, "onStart");
+
+        initCustomTabs();
     }
 
     @Override
@@ -784,5 +798,34 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     public void launchTour() {
         Intent intent = new Intent(this, TourActivity.class);
         startActivityForResult(intent, TOUR);
+    }
+
+    public int getThemePrimaryColour() {
+        return themePrimaryColour;
+    }
+
+    private void initCustomTabs() {
+        CustomTabsServiceConnection connection = new CustomTabsServiceConnection() {
+            @Override
+            public void onCustomTabsServiceConnected(ComponentName name, CustomTabsClient client) {
+                Log.d(TAG, "Custom Tabs service connected");
+                customTabsClient = client;
+
+                client.warmup(0);
+
+                customTabsSession = client.newSession(new CustomTabsCallback());
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+
+            }
+        };
+
+        CustomTabsClient.bindCustomTabsService(this, CUSTOM_TAB_PACKAGE_NAME, connection);
+    }
+
+    public CustomTabsSession getCustomTabsSession() {
+        return customTabsSession;
     }
 }
