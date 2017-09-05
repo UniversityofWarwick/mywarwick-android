@@ -1,7 +1,8 @@
 package uk.ac.warwick.my.app.bridge;
 
-import android.content.Intent;
+import android.app.Activity;
 import android.net.Uri;
+import android.support.customtabs.CustomTabsIntent;
 import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -13,12 +14,13 @@ public class MyWarwickWebViewClient extends WebViewClient {
 
     private final MyWarwickPreferences preferences;
     private final MyWarwickListener listener;
+    private final Activity activity;
 
-    public MyWarwickWebViewClient(MyWarwickPreferences preferences, MyWarwickListener listener) {
+    public MyWarwickWebViewClient(MyWarwickPreferences preferences, MyWarwickListener listener, Activity activity) {
         this.preferences = preferences;
         this.listener = listener;
+        this.activity = activity;
     }
-
 
     /**
      * This method is deprecated on newer APIs but we are using older APIs. Note that this
@@ -60,9 +62,10 @@ public class MyWarwickWebViewClient extends WebViewClient {
             return false;
         }
 
-        Intent intent = new Intent(Intent.ACTION_VIEW, url);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        view.getContext().startActivity(intent);
+        CustomTabsIntent intent = new CustomTabsIntent.Builder().build();
+        // If Chrome Custom Tabs is not available, the default browser will be launched instead
+        intent.launchUrl(activity, url);
+
         return true;
     }
 

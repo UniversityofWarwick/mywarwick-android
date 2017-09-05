@@ -366,7 +366,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         MyWarwickJavaScriptInterface javascriptInterface = new MyWarwickJavaScriptInterface(invoker, myWarwick);
         myWarwickWebView.addJavascriptInterface(javascriptInterface, "MyWarwickAndroid");
 
-        MyWarwickWebViewClient webViewClient = new MyWarwickWebViewClient(preferences, this);
+        MyWarwickWebViewClient webViewClient = new MyWarwickWebViewClient(preferences, this, this);
         myWarwickWebView.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback) {
