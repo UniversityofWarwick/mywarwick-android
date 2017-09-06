@@ -5,7 +5,6 @@ if (!project.hasProperty("MyWarwick.keystore")) {
 }
 
 def buildNumber = 29
-def releaseName = 1
 
 android {
     signingConfigs {
@@ -24,7 +23,7 @@ android {
         minSdkVersion 19
         targetSdkVersion 25
         versionCode buildNumber
-        versionName releaseName + ""
+        versionName buildNumber + ""
         testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
     }
     buildTypes {
