@@ -432,6 +432,8 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             loadPath(POST_TOUR_PATH);
         } else if (isOpenedFromNotification()) {
             loadPath(NOTIFICATIONS_PATH);
+        } else if (isOpenedFromSettingsUrl()) {
+            loadPath(SETTINGS_PATH);
         } else {
             handleShortcuts();
         }
@@ -590,6 +592,11 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         Bundle extras = getIntent().getExtras();
 
         return extras != null && extras.containsKey("from");
+    }
+
+    private boolean isOpenedFromSettingsUrl() {
+        Uri data = getIntent().getData();
+        return data != null && SETTINGS_PATH.equals(data.getPath());
     }
 
     private View getAccountPhotoView() {
