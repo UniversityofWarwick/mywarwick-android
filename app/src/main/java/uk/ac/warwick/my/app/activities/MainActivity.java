@@ -14,6 +14,7 @@ import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
@@ -21,6 +22,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.ColorInt;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -43,6 +45,7 @@ import android.webkit.GeolocationPermissions;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.widget.EdgeEffect;
 import android.widget.ImageView;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
@@ -51,6 +54,9 @@ import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.BottomBarTab;
 import com.roughike.bottombar.OnTabReselectListener;
 import com.roughike.bottombar.OnTabSelectListener;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 import uk.ac.warwick.my.app.R;
 import uk.ac.warwick.my.app.bridge.JavascriptInvoker;
@@ -287,6 +293,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
                 }
 
                 getBottomBar().setActiveTabColor(getColourForTheme(newId));
+                setEdgeEffectColour(myWarwickWebView, themePrimaryColour);
             }
         });
     }
@@ -318,6 +325,58 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
                 return getResources().getColor(R.color.colorPrimaryDark5);
             default:
                 return getResources().getColor(R.color.colorPrimaryDark1);
+        }
+    }
+
+    private void setEdgeEffectColour(WebView webView, int colour) {
+        try {
+            // com.android.webview.chromium.WebViewChromium
+            Method getWebViewProvider = WebView.class.getDeclaredMethod("getWebViewProvider");
+            if (!getWebViewProvider.isAccessible()) getWebViewProvider.setAccessible(true);
+            Object provider = getWebViewProvider.invoke(webView, (Object[]) null);
+            Method getViewDelegate = provider.getClass().getDeclaredMethod("getViewDelegate");
+            if (!getViewDelegate.isAccessible()) getViewDelegate.setAccessible(true);
+            Object delegate = getViewDelegate.invoke(provider, (Object[]) null);
+
+            // org.chromium.android_webview.AwContents
+            Field field = delegate.getClass().getDeclaredField("mAwContents");
+            if (!field.isAccessible()) field.setAccessible(true);
+            Object mAwContents = field.get(delegate);
+
+            // org.chromium.android_webview.OverScrollGlow
+            field = mAwContents.getClass().getDeclaredField("mOverScrollGlow");
+            if (!field.isAccessible()) field.setAccessible(true);
+            Object mOverScrollGlow = field.get(mAwContents);
+            Class<?> OverScrollGlow = mOverScrollGlow.getClass();
+
+            for (String name : new String[]{"mEdgeGlowTop", "mEdgeGlowBottom", "mEdgeGlowLeft", "mEdgeGlowRight"}) {
+                field = OverScrollGlow.getDeclaredField(name);
+                if (!field.isAccessible()) field.setAccessible(true);
+                EdgeEffect edgeEffect = (EdgeEffect) field.get(mOverScrollGlow);
+                setEdgeEffectColor(edgeEffect, colour);
+            }
+        } catch (Exception ignored) {
+            ignored.printStackTrace();
+        }
+    }
+
+    private void setEdgeEffectColor(EdgeEffect edgeEffect, @ColorInt int color) {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                edgeEffect.setColor(color);
+                return;
+            }
+            for (String name : new String[]{"mEdge", "mGlow"}) {
+                Field field = EdgeEffect.class.getDeclaredField(name);
+                if (!field.isAccessible()) {
+                    field.setAccessible(true);
+                }
+                Drawable drawable = (Drawable) field.get(edgeEffect);
+                drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+                drawable.setCallback(null); // free up any references
+            }
+        } catch (Throwable ignored) {
+            ignored.printStackTrace();
         }
     }
 
