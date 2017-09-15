@@ -80,6 +80,14 @@
                 native.setBackgroundToDisplay = function setBackgroundToDisplay(bgId) {
                     return MyWarwickAndroid.setBackgroundToDisplay(bgId);
                 };
+
+                native.openMailApp = function openMailApp(externalApp) {
+                    if (externalApp === \'mail\') {
+                        MyWarwickAndroid.openEmailApp();
+                    } else if (externalApp === \'outlook\') {
+                        MyWarwickAndroid.openOutlookApp();
+                    }
+                };
             }
         })(window);
     </string>

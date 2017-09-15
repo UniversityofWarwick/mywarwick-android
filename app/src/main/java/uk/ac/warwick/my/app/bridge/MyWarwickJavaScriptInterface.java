@@ -1,10 +1,20 @@
 package uk.ac.warwick.my.app.bridge;
 
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
+import android.widget.Toast;
+
+import com.google.common.base.Optional;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 
 import uk.ac.warwick.my.app.BuildConfig;
 import uk.ac.warwick.my.app.user.AnonymousUser;
@@ -17,6 +27,18 @@ import uk.ac.warwick.my.app.user.User;
  * and also implements some methods for making calls on the page.
  */
 public class MyWarwickJavaScriptInterface {
+
+    private static final String SAMSUNG_EMAIL_PACKAGE = "com.samsung.android.email.provider";
+    private static final String HTC_EMAIL_PACKAGE = "com.htc.android.mail";
+    private static final String GMAIL_PACKAGE = "com.google.android.gm";
+    private static final List<String> EMAIL_PACKAGES = Arrays.asList(
+        SAMSUNG_EMAIL_PACKAGE,
+        HTC_EMAIL_PACKAGE,
+        GMAIL_PACKAGE
+    );
+
+    private static final String OUTLOOK_PACKAGE = "com.microsoft.office.outlook";
+    private static final Uri OUTLOOK_URI = Uri.parse("ms-outlook://");
 
     private final MyWarwickState state;
     private final JavascriptInvoker invoker;
@@ -85,6 +107,45 @@ public class MyWarwickJavaScriptInterface {
     @JavascriptInterface
     public void launchTour() {
         state.launchTour();
+    }
+
+    @JavascriptInterface
+    public void openEmailApp() {
+        PackageManager packageManager = state.getActivity().getApplicationContext().getPackageManager();
+        String installedPackage = null;
+        Iterator<String> emailPackages = EMAIL_PACKAGES.iterator();
+        while(installedPackage == null && emailPackages.hasNext()) {
+            String packageName = emailPackages.next();
+            if (isPackageInstalled(packageName)) {
+                installedPackage = packageName;
+            }
+        }
+        if (installedPackage != null) {
+            state.getActivity().startActivity(packageManager.getLaunchIntentForPackage(installedPackage));
+        } else {
+            Toast.makeText(state.getActivity(), "Could not find an installed email app", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @JavascriptInterface
+    public void openOutlookApp() {
+        if (isPackageInstalled(OUTLOOK_PACKAGE)) {
+            Intent openOutlook = new Intent(Intent.ACTION_VIEW);
+            openOutlook.setData(OUTLOOK_URI);
+            state.getActivity().startActivity(openOutlook);
+        } else {
+            Toast.makeText(state.getActivity(), "Outlook app is not installed", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private boolean isPackageInstalled(String packageName) {
+        PackageManager packageManager = state.getActivity().getApplicationContext().getPackageManager();
+        try {
+            packageManager.getPackageInfo(packageName, 0);
+            return true;
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
+        }
     }
 
     private User getUserFromJSONObject(JSONObject user) throws JSONException {
