@@ -30,10 +30,12 @@ public class MyWarwickJavaScriptInterface {
 
     private static final String SAMSUNG_EMAIL_PACKAGE = "com.samsung.android.email.provider";
     private static final String HTC_EMAIL_PACKAGE = "com.htc.android.mail";
+    private static final String INBOX_PACKAGE = "com.google.android.apps.inbox";
     private static final String GMAIL_PACKAGE = "com.google.android.gm";
     private static final List<String> EMAIL_PACKAGES = Arrays.asList(
         SAMSUNG_EMAIL_PACKAGE,
         HTC_EMAIL_PACKAGE,
+        INBOX_PACKAGE,
         GMAIL_PACKAGE
     );
 
