@@ -73,6 +73,10 @@
                     return MyWarwickAndroid.getAppVersion();
                 };
 
+                native.loadDeviceDetails = function loadDeviceDetails() {
+                    return MyWarwickAndroid.loadDeviceDetails();
+                };
+
                 native.launchTour = function launchTour() {
                     return MyWarwickAndroid.launchTour();
                 };

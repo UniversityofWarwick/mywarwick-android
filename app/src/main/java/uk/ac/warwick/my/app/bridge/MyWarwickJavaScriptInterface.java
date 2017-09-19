@@ -60,6 +60,17 @@ public class MyWarwickJavaScriptInterface {
         return BuildConfig.VERSION_CODE;
     }
 
+    @JavascriptInterface
+    public void loadDeviceDetails() {
+        state.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                String json = state.getDeviceDetails().toString().replace("'", "\\'");
+                invoker.invokeMyWarwickMethod("feedback('" + json + "')");
+            }
+        });
+    }
+
     /**
      * Called by the web page when it is ready and the
      * MyWarwick variable is ready to be used.
