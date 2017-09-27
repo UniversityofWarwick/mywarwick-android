@@ -48,6 +48,8 @@ import android.webkit.WebView;
 import android.widget.EdgeEffect;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestManager;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crash.FirebaseCrash;
 import com.roughike.bottombar.BottomBar;
@@ -272,7 +274,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
                 Context ctx = imageView.getContext();
                 int resourceIdentifier = ctx.getResources().getIdentifier(String.format("bg%02d", newBgId), "drawable", ctx.getPackageName());
                 if (resourceIdentifier != 0) {
-                    imageView.setImageResource(resourceIdentifier);
+                    Glide.with(getApplicationContext()).asDrawable().load(resourceIdentifier).into(imageView);
                 }
             }
         });
