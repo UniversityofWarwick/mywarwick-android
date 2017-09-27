@@ -1,5 +1,6 @@
 package uk.ac.warwick.my.app.bridge;
 
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -7,6 +8,9 @@ import android.support.customtabs.CustomTabsIntent;
 import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
+
+import com.google.firebase.crash.FirebaseCrash;
 
 import uk.ac.warwick.my.app.Global;
 import uk.ac.warwick.my.app.R;
@@ -73,8 +77,24 @@ public class MyWarwickWebViewClient extends WebViewClient {
 
         intent.intent.putExtra(Intent.EXTRA_REFERRER, view.getUrl());
 
-        // If Chrome Custom Tabs is not available, the default browser will be launched instead
-        intent.launchUrl(activity, url);
+        try {
+            // If Chrome Custom Tabs is not available, the default browser will be launched instead
+            intent.launchUrl(activity, url);
+        } catch (ActivityNotFoundException e) {
+            // Didn't work; try starting a browser with a simple intent
+            Intent fallbackIntent = new Intent(Intent.ACTION_VIEW, url);
+            fallbackIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+            try {
+                view.getContext().startActivity(fallbackIntent);
+            } catch (ActivityNotFoundException e2) {
+                // Really didn't work; give up and let ourselves know
+                FirebaseCrash.log("Caught ActivityNotFoundException when trying to open a URL");
+                FirebaseCrash.report(e2);
+
+                Toast.makeText(view.getContext(), "We couldn't open this link", Toast.LENGTH_SHORT).show();
+            }
+        }
 
         return true;
     }
