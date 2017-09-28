@@ -93,8 +93,8 @@ public class MyWarwickJavaScriptInterface {
     }
 
     @JavascriptInterface
-    public void setBackgroundToDisplay(int newBg) {
-        state.setBgId(newBg);
+    public void setBackgroundToDisplay(int newBg, boolean isHighContrast) {
+        state.onBackgroundChange(newBg, isHighContrast);
     }
 
     @JavascriptInterface

@@ -81,8 +81,8 @@
                     return MyWarwickAndroid.launchTour();
                 };
 
-                native.setBackgroundToDisplay = function setBackgroundToDisplay(bgId) {
-                    return MyWarwickAndroid.setBackgroundToDisplay(bgId);
+                native.setBackgroundToDisplay = function setBackgroundToDisplay(bgId, isHighContrast) {
+                    return MyWarwickAndroid.setBackgroundToDisplay(bgId, isHighContrast);
                 };
 
                 native.openMailApp = function openMailApp(externalApp) {

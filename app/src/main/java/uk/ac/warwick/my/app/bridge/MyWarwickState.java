@@ -21,6 +21,7 @@ public class MyWarwickState {
     private User user;
     private int unreadNotificationCount;
     private int bgId = 0;
+    private boolean isHighContrast = false;
     private String path;
     private SsoUrls ssoUrls;
     private MyWarwickListener listener;
@@ -122,10 +123,21 @@ public class MyWarwickState {
     }
 
     public void setBgId(int bgId) {
-        if (this.bgId != bgId) {
-            listener.onBackgroundChange(bgId);
-        }
         this.bgId = bgId;
+    }
+
+    public boolean getisHighContrast() { return this.isHighContrast; }
+
+    public void setHighContrast(boolean isHighContrast) {
+        this.isHighContrast = isHighContrast;
+    }
+
+    protected void onBackgroundChange(int bgId, boolean isHighContrast) {
+        if (this.bgId != bgId || this.isHighContrast != isHighContrast) {
+            listener.onBackgroundChange(bgId, isHighContrast);
+        }
+        this.setBgId(bgId);
+        this.setHighContrast(isHighContrast);
     }
 
     public void launchTour() {
