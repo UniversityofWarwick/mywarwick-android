@@ -49,7 +49,6 @@ import android.widget.EdgeEffect;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.RequestManager;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crash.FirebaseCrash;
 import com.roughike.bottombar.BottomBar;
