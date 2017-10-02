@@ -12,6 +12,7 @@ import android.webkit.WebViewClient;
 
 import com.google.firebase.crash.FirebaseCrash;
 
+import uk.ac.warwick.my.app.BuildConfig;
 import uk.ac.warwick.my.app.R;
 import uk.ac.warwick.my.app.helper.Objects;
 
@@ -44,7 +45,7 @@ public class WebViewActivity extends AppCompatActivity {
         WebView webView = getWebView();
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
-        settings.setUserAgentString(settings.getUserAgentString() + " " + getString(R.string.user_agent));
+        settings.setUserAgentString(settings.getUserAgentString() + " " + getString(R.string.user_agent_prefix) + BuildConfig.VERSION_NAME);
 
         String destinationHost = getIntent().getStringExtra(EXTRA_DESTINATION_HOST);
         webView.setWebViewClient(destinationHost != null ? new DestinationWebViewClient(destinationHost) : new WebViewClient());

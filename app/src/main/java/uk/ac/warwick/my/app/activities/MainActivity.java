@@ -49,7 +49,6 @@ import android.widget.EdgeEffect;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.RequestManager;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crash.FirebaseCrash;
 import com.roughike.bottombar.BottomBar;
@@ -60,6 +59,7 @@ import com.roughike.bottombar.OnTabSelectListener;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
+import uk.ac.warwick.my.app.BuildConfig;
 import uk.ac.warwick.my.app.R;
 import uk.ac.warwick.my.app.bridge.JavascriptInvoker;
 import uk.ac.warwick.my.app.bridge.MyWarwickJavaScriptInterface;
@@ -419,7 +419,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         WebSettings settings = myWarwickWebView.getSettings();
         settings.setJavaScriptEnabled(true);
         settings.setGeolocationEnabled(true);
-        settings.setUserAgentString(settings.getUserAgentString() + " " + getString(R.string.user_agent));
+        settings.setUserAgentString(settings.getUserAgentString() + " " + getString(R.string.user_agent_prefix) + BuildConfig.VERSION_NAME);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             if (isDebugBuild()) {
