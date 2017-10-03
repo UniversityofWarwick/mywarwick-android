@@ -12,7 +12,9 @@ import android.webkit.WebViewClient;
 
 import com.google.firebase.crash.FirebaseCrash;
 
+import uk.ac.warwick.my.app.BuildConfig;
 import uk.ac.warwick.my.app.R;
+import uk.ac.warwick.my.app.helper.Objects;
 
 /**
  * Used as a full screen web page for signing in to websignon.
@@ -43,7 +45,7 @@ public class WebViewActivity extends AppCompatActivity {
         WebView webView = getWebView();
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
-        settings.setUserAgentString(settings.getUserAgentString() + " " + getString(R.string.user_agent));
+        settings.setUserAgentString(settings.getUserAgentString() + " " + getString(R.string.user_agent_prefix) + BuildConfig.VERSION_NAME);
 
         String destinationHost = getIntent().getStringExtra(EXTRA_DESTINATION_HOST);
         webView.setWebViewClient(destinationHost != null ? new DestinationWebViewClient(destinationHost) : new WebViewClient());
@@ -91,7 +93,7 @@ public class WebViewActivity extends AppCompatActivity {
         public boolean shouldOverrideUrlLoading(WebView view, String urlString) {
             Uri url = Uri.parse(urlString);
 
-            if (url.getHost().equals(destinationHost)) {
+            if (Objects.equals(url.getHost(), destinationHost)) {
                 setResult(RESULT_OK, new Intent());
                 finish();
                 return true;
