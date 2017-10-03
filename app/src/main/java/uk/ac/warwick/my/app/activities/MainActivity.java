@@ -259,27 +259,19 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
     @Override
     public void onBackgroundChange(final int bgId, final boolean isHighContrast) {
-        final int currentBgId =preferences.getBackgroundChoice();
-        final boolean currentHighContrast = preferences.getHighContrastChoice();
+        if (isHighContrast) {
+            setImageViewToColor(bgId);
+        } else {
+            updateBackgroundDisplayed(bgId);
+        }
 
-        if (currentBgId != bgId) {
+        if (preferences.getBackgroundChoice() != bgId) {
             preferences.setBackgroundChoice(bgId);
-            if (!isHighContrast ) {
-                updateBackgroundDisplayed(bgId);
-            }
-            else {
-                setImageViewToColor(bgId);
-            }
             updateThemeColours(bgId);
         }
-        if (currentHighContrast != isHighContrast ) {
+
+        if (preferences.getHighContrastChoice() != isHighContrast) {
             preferences.setHighContrastChoice(isHighContrast);
-            if (isHighContrast) {
-                setImageViewToColor(bgId);
-            }
-            else if (currentBgId == bgId) {
-                updateBackgroundDisplayed(bgId);
-            }
         }
     }
 
