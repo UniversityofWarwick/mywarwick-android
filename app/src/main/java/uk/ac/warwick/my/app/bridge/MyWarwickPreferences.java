@@ -12,7 +12,9 @@ public class MyWarwickPreferences {
     private static final String SERVER = "mywarwick_server";
     private static final String TOUR_COMPLETE = "mywarwick_tour_complete";
     private static final String CHOSEN_BG = "mywarwick_chosen_background";
+    private static final String IS_HIGH_CONTRAST_BG = "mywarwick_is_high_contrast_background";
     private static final int DEFAULT_BACKGROUND = 1;
+    private static final boolean DEFAULT_IS_HIGH_CONTRAST = false;
 
     private SharedPreferences sharedPreferences;
 
@@ -74,4 +76,12 @@ public class MyWarwickPreferences {
         return sharedPreferences.getInt(CHOSEN_BG, DEFAULT_BACKGROUND);
     }
 
+    public void setHighContrastChoice(boolean isHighContrast) {
+        sharedPreferences.edit().putBoolean(IS_HIGH_CONTRAST_BG, isHighContrast).apply();
+    }
+
+    public boolean getHighContrastChoice() {
+        return sharedPreferences.getBoolean(IS_HIGH_CONTRAST_BG, DEFAULT_IS_HIGH_CONTRAST);
+
+    }
 }
