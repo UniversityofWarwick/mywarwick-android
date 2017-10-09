@@ -62,10 +62,12 @@ public class MyWarwickWebViewClient extends WebViewClient {
         Uri url = Uri.parse(urlString);
         String host = url.getHost();
 
-        if (host.equals(Global.getWebSignOnHost())) {
-            return listener.onSsoUrl(url);
-        } else if (host.equals(preferences.getAppHost())) {
-            return false;
+        if (host != null) {
+            if (host.equals(Global.getWebSignOnHost())) {
+                return listener.onSsoUrl(url);
+            } else if (host.equals(preferences.getAppHost())) {
+                return false;
+            }
         }
 
         CustomTabsIntent intent = new CustomTabsIntent.Builder(activity.getCustomTabsSession())
