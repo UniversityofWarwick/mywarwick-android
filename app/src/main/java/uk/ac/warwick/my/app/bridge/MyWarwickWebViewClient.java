@@ -91,8 +91,11 @@ public class MyWarwickWebViewClient extends WebViewClient {
                 view.getContext().startActivity(fallbackIntent);
             } catch (ActivityNotFoundException e2) {
                 // Really didn't work; give up and let ourselves know
-                FirebaseCrash.log("Caught ActivityNotFoundException when trying to open a URL");
-                FirebaseCrash.report(e2);
+                try {
+                    FirebaseCrash.log("Caught ActivityNotFoundException when trying to open a URL");
+                    FirebaseCrash.report(e2);
+                } catch (IllegalStateException ignored) {
+                }
 
                 Toast.makeText(view.getContext(), "We couldn't open this link", Toast.LENGTH_SHORT).show();
             }
