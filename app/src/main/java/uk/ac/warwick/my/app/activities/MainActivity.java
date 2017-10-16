@@ -140,7 +140,10 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     @Override
     public void onPathChange(final String path) {
         final String oldPath = myWarwick.getPath();
-        FirebaseCrash.log("onPathChange: " + oldPath);
+        try {
+            FirebaseCrash.log("onPathChange: " + oldPath);
+        } catch (IllegalStateException ignored) {
+        }
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -541,7 +544,10 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             onPathChange(path);
         }
 
-        FirebaseCrash.log("loadUrl: " + root + path);
+        try {
+            FirebaseCrash.log("loadUrl: " + root + path);
+        } catch (IllegalStateException ignored) {
+        }
         myWarwickWebView.loadUrl(root + path);
     }
 

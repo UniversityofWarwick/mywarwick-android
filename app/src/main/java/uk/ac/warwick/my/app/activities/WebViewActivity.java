@@ -51,7 +51,10 @@ public class WebViewActivity extends AppCompatActivity {
         webView.setWebViewClient(destinationHost != null ? new DestinationWebViewClient(destinationHost) : new WebViewClient());
 
         String url = getIntent().getStringExtra(EXTRA_URL);
-        FirebaseCrash.log("loadUrl: " + url);
+        try {
+            FirebaseCrash.log("loadUrl: " + url);
+        } catch (IllegalStateException ignored) {
+        }
         webView.loadUrl(url);
     }
 
