@@ -7,8 +7,6 @@ import android.util.Log;
 import android.webkit.JavascriptInterface;
 import android.widget.Toast;
 
-import com.google.common.base.Optional;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -17,6 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import uk.ac.warwick.my.app.BuildConfig;
+import uk.ac.warwick.my.app.Global;
 import uk.ac.warwick.my.app.user.AnonymousUser;
 import uk.ac.warwick.my.app.user.AuthenticatedUser;
 import uk.ac.warwick.my.app.user.SsoUrls;
@@ -44,10 +43,12 @@ public class MyWarwickJavaScriptInterface {
 
     private final MyWarwickState state;
     private final JavascriptInvoker invoker;
+    private final MyWarwickPreferences preferences;
 
-    public MyWarwickJavaScriptInterface(JavascriptInvoker invoker, MyWarwickState state) {
+    public MyWarwickJavaScriptInterface(JavascriptInvoker invoker, MyWarwickState state, MyWarwickPreferences preferences) {
         this.state = state;
         this.invoker = invoker;
+        this.preferences = preferences;
     }
 
     @JavascriptInterface
@@ -138,6 +139,12 @@ public class MyWarwickJavaScriptInterface {
         } else {
             Toast.makeText(state.getActivity(), "Could not find an installed email app", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @JavascriptInterface
+    public void setTimetableToken(String token) {
+        Log.i(Global.TAG, "Timetable token set to " + token);
+        preferences.setTimetableToken(token);
     }
 
     @JavascriptInterface

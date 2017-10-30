@@ -5,13 +5,14 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:allowBackup="true"
         android:icon="@drawable/launcher"
-        android:roundIcon="@drawable/launcher_round"
         android:label="@string/app_name"
         android:resizeableActivity="true"
+        android:roundIcon="@drawable/launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
@@ -25,13 +26,16 @@
             </intent-filter>
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
+
                 <data android:scheme="https" />
                 <data android:host="my.warwick.ac.uk" />
                 <data android:host="my-test.warwick.ac.uk" />
                 <data android:host="my-dev.warwick.ac.uk" />
+
                 <category android:name="android.intent.category.BROWSABLE" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+
             <meta-data
                 android:name="android.app.shortcuts"
                 android:resource="@xml/shortcuts" />
@@ -67,6 +71,14 @@
             android:name="android.max_aspect"
             android:value="2.1" />
 
+        <receiver android:name=".system.BootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".system.AlarmReceiver" />
+        <receiver android:name=".system.ScheduledDownloadReceiver" />
     </application>
 
 </manifest>

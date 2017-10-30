@@ -67,6 +67,7 @@ import uk.ac.warwick.my.app.bridge.MyWarwickListener;
 import uk.ac.warwick.my.app.bridge.MyWarwickPreferences;
 import uk.ac.warwick.my.app.bridge.MyWarwickState;
 import uk.ac.warwick.my.app.bridge.MyWarwickWebViewClient;
+import uk.ac.warwick.my.app.data.EventDao;
 import uk.ac.warwick.my.app.user.SsoUrls;
 import uk.ac.warwick.my.app.user.User;
 import uk.ac.warwick.my.app.utils.DownloadImageTask;
@@ -219,6 +220,10 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
                     if (user.isAuthoritative()) {
                         registerForPushNotifications();
+
+                        if (preferences.getTimetableToken() == null) {
+                            registerForTimetable();
+                        }
                     }
                 } else {
                     photoView.setImageURI(null);
@@ -226,6 +231,11 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
                     if (user != null && user.isAuthoritative()) {
                         unregisterForPushNotifications();
+
+                        preferences.setTimetableToken(null);
+                        try (EventDao eventDao = new EventDao(getApplicationContext())) {
+                            eventDao.deleteAll();
+                        }
                     }
                 }
 
@@ -248,6 +258,10 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
                 supportInvalidateOptionsMenu();
             }
         });
+    }
+
+    private void registerForTimetable() {
+        invoker.invokeMyWarwickMethod("registerForTimetable()");
     }
 
     @Override
@@ -449,10 +463,10 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             }
         }
 
-        this.preferences = new MyWarwickPreferences(PreferenceManager.getDefaultSharedPreferences(this));
+        this.preferences = new MyWarwickPreferences(this);
 
         this.invoker = new JavascriptInvoker(myWarwickWebView);
-        MyWarwickJavaScriptInterface javascriptInterface = new MyWarwickJavaScriptInterface(invoker, myWarwick);
+        MyWarwickJavaScriptInterface javascriptInterface = new MyWarwickJavaScriptInterface(invoker, myWarwick, preferences);
         myWarwickWebView.addJavascriptInterface(javascriptInterface, "MyWarwickAndroid");
 
         MyWarwickWebViewClient webViewClient = new MyWarwickWebViewClient(preferences, this, this);

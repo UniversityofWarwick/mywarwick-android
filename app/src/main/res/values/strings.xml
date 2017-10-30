@@ -85,6 +85,10 @@
                     return MyWarwickAndroid.setBackgroundToDisplay(bgId, isHighContrast);
                 };
 
+                native.setTimetableToken = function setTimetableToken(token) {
+                    return MyWarwickAndroid.setTimetableToken(token);
+                };
+
                 native.openMailApp = function openMailApp(externalApp) {
                     if (externalApp === \'mail\') {
                         MyWarwickAndroid.openEmailApp();

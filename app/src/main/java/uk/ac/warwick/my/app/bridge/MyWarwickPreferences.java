@@ -1,7 +1,11 @@
 package uk.ac.warwick.my.app.bridge;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.preference.PreferenceManager;
+
+import uk.ac.warwick.my.app.services.EventFetcher;
 
 public class MyWarwickPreferences {
 
@@ -13,12 +17,20 @@ public class MyWarwickPreferences {
     private static final String TOUR_COMPLETE = "mywarwick_tour_complete";
     private static final String CHOSEN_BG = "mywarwick_chosen_background";
     private static final String IS_HIGH_CONTRAST_BG = "mywarwick_is_high_contrast_background";
+    private static final String TIMETABLE_TOKEN = "mywarwick_timetable_token";
     private static final int DEFAULT_BACKGROUND = 1;
     private static final boolean DEFAULT_IS_HIGH_CONTRAST = false;
 
-    private SharedPreferences sharedPreferences;
+    private final Context context;
+    private final SharedPreferences sharedPreferences;
 
-    public MyWarwickPreferences(SharedPreferences sharedPreferences) {
+    public MyWarwickPreferences(Context context) {
+        this.context = context;
+        this.sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+    }
+
+    public MyWarwickPreferences(Context context, SharedPreferences sharedPreferences) {
+        this.context = context;
         this.sharedPreferences = sharedPreferences;
     }
 
@@ -82,6 +94,17 @@ public class MyWarwickPreferences {
 
     public boolean getHighContrastChoice() {
         return sharedPreferences.getBoolean(IS_HIGH_CONTRAST_BG, DEFAULT_IS_HIGH_CONTRAST);
+    }
 
+    public void setTimetableToken(String token) {
+        sharedPreferences.edit().putString(TIMETABLE_TOKEN, token).apply();
+
+        if (token != null) {
+            new EventFetcher(context).updateEvents();
+        }
+    }
+
+    public String getTimetableToken() {
+        return sharedPreferences.getString(TIMETABLE_TOKEN, null);
     }
 }
