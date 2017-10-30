@@ -51,7 +51,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             addPreferencesFromResource(R.xml.pref_general);
             sharedPreferences = getPreferenceScreen().getSharedPreferences();
             sharedPreferences.registerOnSharedPreferenceChangeListener(this);
-            myWarwickPreferences = new MyWarwickPreferences(getContext(), sharedPreferences);
+            myWarwickPreferences = new MyWarwickPreferences(getActivity(), sharedPreferences);
             this.enableCustomAppHostTextFieldIfDesired(sharedPreferences);
         }
 
