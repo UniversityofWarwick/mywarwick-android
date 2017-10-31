@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.preference.PreferenceManager;
 
 import uk.ac.warwick.my.app.services.EventFetcher;
+import uk.ac.warwick.my.app.services.EventNotificationScheduler;
 
 public class MyWarwickPreferences {
 
@@ -18,6 +19,8 @@ public class MyWarwickPreferences {
     private static final String CHOSEN_BG = "mywarwick_chosen_background";
     private static final String IS_HIGH_CONTRAST_BG = "mywarwick_is_high_contrast_background";
     private static final String TIMETABLE_TOKEN = "mywarwick_timetable_token";
+    private static final String TIMETABLE_NOTIFICATIONS_ENABLED = "mywarwick_timetable_notifications_enabled";
+    private static final String TIMETABLE_NOTIFICATION_TIMING = "mywarwick_timetable_notification_timing";
     private static final int DEFAULT_BACKGROUND = 1;
     private static final boolean DEFAULT_IS_HIGH_CONTRAST = false;
 
@@ -106,5 +109,29 @@ public class MyWarwickPreferences {
 
     public String getTimetableToken() {
         return sharedPreferences.getString(TIMETABLE_TOKEN, null);
+    }
+
+    public void setTimetableNotificationsEnabled(boolean enabled) {
+        if (enabled != isTimetableNotificationsEnabled()) {
+            sharedPreferences.edit().putBoolean(TIMETABLE_NOTIFICATIONS_ENABLED, enabled).apply();
+
+            new EventNotificationScheduler(context).scheduleNextNotification();
+        }
+    }
+
+    public boolean isTimetableNotificationsEnabled() {
+        return sharedPreferences.getBoolean(TIMETABLE_NOTIFICATIONS_ENABLED, true);
+    }
+
+    public void setTimetableNotificationTiming(int timing) {
+        if (timing != getTimetableNotificationTiming()) {
+            sharedPreferences.edit().putInt(TIMETABLE_NOTIFICATION_TIMING, timing).apply();
+
+            new EventNotificationScheduler(context).scheduleNextNotification();
+        }
+    }
+
+    public int getTimetableNotificationTiming() {
+        return sharedPreferences.getInt(TIMETABLE_NOTIFICATION_TIMING, 15);
     }
 }

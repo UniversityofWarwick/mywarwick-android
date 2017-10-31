@@ -86,7 +86,15 @@
                 };
 
                 native.setTimetableToken = function setTimetableToken(token) {
-                    return MyWarwickAndroid.setTimetableToken(token);
+                    MyWarwickAndroid.setTimetableToken(token);
+                };
+
+                native.setTimetableNotificationsEnabled = function setTimetableNotificationsEnabled(enabled) {
+                    MyWarwickAndroid.setTimetableNotificationsEnabled(enabled);
+                };
+
+                native.setTimetableNotificationTiming = function setTimetableNotificationTiming(timing) {
+                    MyWarwickAndroid.setTimetableNotificationTiming(timing);
                 };
 
                 native.openMailApp = function openMailApp(externalApp) {

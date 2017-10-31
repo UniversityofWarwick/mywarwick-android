@@ -158,6 +158,16 @@ public class MyWarwickJavaScriptInterface {
         }
     }
 
+    @JavascriptInterface
+    public void setTimetableNotificationsEnabled(boolean enabled) {
+        preferences.setTimetableNotificationsEnabled(enabled);
+    }
+
+    @JavascriptInterface
+    public void setTimetableNotificationTiming(int timing) {
+        preferences.setTimetableNotificationTiming(timing);
+    }
+
     private boolean isPackageInstalled(String packageName) {
         PackageManager packageManager = state.getActivity().getApplicationContext().getPackageManager();
         try {
