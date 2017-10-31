@@ -8,6 +8,7 @@ import android.util.Log;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.List;
 
 import uk.ac.warwick.my.app.R;
 import uk.ac.warwick.my.app.data.Event;
@@ -25,17 +26,18 @@ public class EventNotificationService {
     }
 
     public void notify(String serverId) {
-        Event event;
         try (EventDao eventDao = new EventDao(context)) {
-            event = eventDao.findByServerId(serverId);
-        }
+            Event event = eventDao.findByServerId(serverId);
 
-        if (event == null) {
-            Log.w(TAG, "Event " + serverId + " not found in database");
-            return;
-        }
+            if (event == null) {
+                Log.w(TAG, "Event " + serverId + " not found in database");
+                return;
+            }
 
-        notify(event);
+            for (Event ev : eventDao.findAllByStart(event.getStart())) {
+                notify(ev);
+            }
+        }
     }
 
     private void notify(Event event) {
@@ -50,7 +52,7 @@ public class EventNotificationService {
                 .setShowWhen(false)
                 .build();
 
-        getNotificationManager().notify(1, notification);
+        getNotificationManager().notify(event.getId(), notification);
     }
 
     private NotificationManager getNotificationManager() {

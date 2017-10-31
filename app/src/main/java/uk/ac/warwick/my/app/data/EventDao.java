@@ -6,8 +6,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import java.io.Closeable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 public class EventDao implements Closeable {
     private final SQLiteDatabase db;
@@ -39,6 +41,30 @@ public class EventDao implements Closeable {
         ContentValues values = buildContentValues(event);
 
         db.insert(EventTable.TABLE_NAME, null, values);
+    }
+
+    public List<Event> findAllByStart(Date start) {
+        Cursor cursor = db.query(
+                EventTable.TABLE_NAME,
+                null,
+                EventTable.COLUMN_NAME_START + " = ?",
+                new String[]{String.valueOf(start.getTime())},
+                null,
+                null,
+                null
+        );
+
+        try {
+            List<Event> events = new ArrayList<>();
+
+            while (cursor.moveToNext()) {
+                events.add(buildEvent(cursor));
+            }
+
+            return events;
+        } finally {
+            cursor.close();
+        }
     }
 
     public Event findByServerId(String serverId) {
