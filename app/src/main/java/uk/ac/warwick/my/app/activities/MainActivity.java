@@ -261,7 +261,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     }
 
     private void registerForTimetable() {
-        invoker.invokeMyWarwickMethod("registerForTimetable()");
+        invoker.invokeMyWarwickMethodIfAvailable("registerForTimetable");
     }
 
     @Override
