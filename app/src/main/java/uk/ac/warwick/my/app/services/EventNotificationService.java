@@ -14,6 +14,7 @@ import uk.ac.warwick.my.app.data.Event;
 import uk.ac.warwick.my.app.data.EventDao;
 
 import static android.app.Notification.PRIORITY_MAX;
+import static android.support.v4.app.NotificationCompat.CATEGORY_EVENT;
 import static uk.ac.warwick.my.app.Global.TAG;
 
 public class EventNotificationService {
@@ -44,6 +45,9 @@ public class EventNotificationService {
                 .setContentTitle(getNotificationTitle(event))
                 .setContentText(getNotificationText(event))
                 .setColor(context.getResources().getColor(R.color.colorAccent))
+                .setCategory(CATEGORY_EVENT)
+                .setWhen(event.getStart().getTime())
+                .setShowWhen(false)
                 .build();
 
         getNotificationManager().notify(1, notification);
