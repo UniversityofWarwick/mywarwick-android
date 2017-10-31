@@ -6,12 +6,14 @@ import android.content.Context;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 import uk.ac.warwick.my.app.R;
 import uk.ac.warwick.my.app.data.Event;
 import uk.ac.warwick.my.app.data.EventDao;
 
+import static android.app.Notification.PRIORITY_MAX;
 import static uk.ac.warwick.my.app.Global.TAG;
 
 public class EventNotificationService {
@@ -35,37 +37,37 @@ public class EventNotificationService {
         notify(event);
     }
 
-    public void notify(Event event) {
+    private void notify(Event event) {
         Notification notification = new NotificationCompat.Builder(context)
+                .setPriority(PRIORITY_MAX)
                 .setSmallIcon(R.drawable.ic_warwick_notification)
                 .setContentTitle(getNotificationTitle(event))
                 .setContentText(getNotificationText(event))
+                .setColor(context.getResources().getColor(R.color.colorAccent))
                 .build();
 
-        getNotificationManager().notify(event.getId(), notification);
+        getNotificationManager().notify(1, notification);
     }
 
     private NotificationManager getNotificationManager() {
         return (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
     }
 
-    private String formatTime(Event e) {
-        return SimpleDateFormat.getTimeInstance().format(e.getStart());
-    }
-
     private String getNotificationTitle(Event e) {
-        if (e.getType() != null) {
-            if (e.getParentShortName() != null) {
-                return String.format("%s %s at %s", e.getParentShortName(), e.getType().toLowerCase(), formatTime(e));
-            }
-
-            return String.format("%s at %s", e.getType(), formatTime(e));
+        if (e.getParentShortName() == null || e.getParentShortName().isEmpty()) {
+            return e.getType();
         }
 
-        return String.format("Event at %s", formatTime(e));
+        return String.format("%s %s", e.getParentShortName(), e.getType());
     }
 
     private String getNotificationText(Event e) {
-        return "A timetabled event is starting soon.";
+        return String.format("%s, %s", e.getLocation(), formatTime(e));
+    }
+
+    private String formatTime(Event e) {
+        DateFormat timeFormat = SimpleDateFormat.getTimeInstance(DateFormat.SHORT);
+
+        return String.format("%s – %s", timeFormat.format(e.getStart()), timeFormat.format(e.getEnd()));
     }
 }
