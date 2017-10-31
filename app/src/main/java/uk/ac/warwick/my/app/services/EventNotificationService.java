@@ -3,17 +3,19 @@ package uk.ac.warwick.my.app.services;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.List;
 
 import uk.ac.warwick.my.app.R;
 import uk.ac.warwick.my.app.data.Event;
 import uk.ac.warwick.my.app.data.EventDao;
 
+import static android.app.Notification.DEFAULT_LIGHTS;
+import static android.app.Notification.DEFAULT_VIBRATE;
 import static android.app.Notification.PRIORITY_MAX;
 import static android.support.v4.app.NotificationCompat.CATEGORY_EVENT;
 import static uk.ac.warwick.my.app.Global.TAG;
@@ -50,6 +52,8 @@ public class EventNotificationService {
                 .setCategory(CATEGORY_EVENT)
                 .setWhen(event.getStart().getTime())
                 .setShowWhen(false)
+                .setDefaults(DEFAULT_LIGHTS | DEFAULT_VIBRATE)
+                .setSound(Uri.parse(String.format("android.resource://%s/%s", context.getPackageName(), R.raw.timetable_alarm)))
                 .build();
 
         getNotificationManager().notify(event.getId(), notification);
