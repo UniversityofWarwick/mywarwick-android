@@ -147,4 +147,8 @@ public class MyWarwickState {
     public Activity getActivity() {
         return activity;
     }
+
+    public boolean isUserSignedIn() {
+        return user != null && user.isSignedIn();
+    }
 }

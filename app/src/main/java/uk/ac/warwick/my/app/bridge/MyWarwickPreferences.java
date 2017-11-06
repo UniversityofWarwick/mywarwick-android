@@ -21,6 +21,7 @@ public class MyWarwickPreferences {
     private static final String TIMETABLE_TOKEN = "mywarwick_timetable_token";
     private static final String TIMETABLE_NOTIFICATIONS_ENABLED = "mywarwick_timetable_notifications_enabled";
     private static final String TIMETABLE_NOTIFICATION_TIMING = "mywarwick_timetable_notification_timing";
+    private static final String TIMETABLE_TOKEN_REFRESH = "mywarwick_timetable_token_refresh";
     private static final int DEFAULT_BACKGROUND = 1;
     private static final boolean DEFAULT_IS_HIGH_CONTRAST = false;
 
@@ -100,7 +101,10 @@ public class MyWarwickPreferences {
     }
 
     public void setTimetableToken(String token) {
-        sharedPreferences.edit().putString(TIMETABLE_TOKEN, token).apply();
+        sharedPreferences.edit()
+                .putString(TIMETABLE_TOKEN, token)
+                .remove(TIMETABLE_TOKEN_REFRESH)
+                .apply();
 
         if (token != null) {
             new EventFetcher(context).updateEvents();
@@ -133,5 +137,13 @@ public class MyWarwickPreferences {
 
     public int getTimetableNotificationTiming() {
         return sharedPreferences.getInt(TIMETABLE_NOTIFICATION_TIMING, 15);
+    }
+
+    public void setNeedsTimetableTokenRefresh(boolean refresh) {
+        sharedPreferences.edit().putBoolean(TIMETABLE_TOKEN_REFRESH, refresh).apply();
+    }
+
+    public boolean isNeedsTimetableTokenRefresh() {
+        return sharedPreferences.getBoolean(TIMETABLE_TOKEN_REFRESH, false);
     }
 }

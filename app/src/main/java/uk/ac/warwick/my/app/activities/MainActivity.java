@@ -676,6 +676,11 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
                 new EventFetcher(getApplicationContext()).updateEvents();
             }
         }).start();
+
+        if (myWarwick.isUserSignedIn() && preferences.isNeedsTimetableTokenRefresh()) {
+            Log.d(TAG, "Refreshing timetable token");
+            registerForTimetable();
+        }
     }
 
     @Override

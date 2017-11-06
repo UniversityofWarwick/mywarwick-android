@@ -68,6 +68,18 @@ public class EventFetcher {
                 throw new FetchException("Response body was null");
             }
 
+            if (!response.isSuccessful()) {
+                if (response.code() == 401 || response.code() == 403) {
+                    // Our token might be bad - request another one when we next have a chance
+                    Log.d(TAG, "Received " + response.code() + " from server: setting token refresh flag");
+                    preferences.setNeedsTimetableTokenRefresh(true);
+                }
+
+                throw new FetchException("Error response: " + response.code() + " " + response.message());
+            }
+
+            preferences.setNeedsTimetableTokenRefresh(false);
+
             JSONObject object = new JSONObject(body.string());
 
             JSONArray items = object.getJSONObject("data").getJSONArray("items");
