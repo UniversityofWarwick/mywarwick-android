@@ -59,7 +59,12 @@ public class EventNotificationScheduler {
 
     private Event getNextNotificationEvent() {
         try (EventDao eventDao = new EventDao(context)) {
-            return eventDao.getFirstEventAfterDate(new Date());
+            Calendar instance = Calendar.getInstance();
+            instance.setTime(new Date());
+            instance.add(Calendar.MINUTE, preferences.getTimetableNotificationTiming());
+            Date date = instance.getTime();
+
+            return eventDao.getFirstEventAfterDate(date);
         }
     }
 

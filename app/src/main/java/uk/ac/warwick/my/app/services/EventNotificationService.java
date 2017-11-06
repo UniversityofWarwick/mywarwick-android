@@ -2,7 +2,9 @@ package uk.ac.warwick.my.app.services;
 
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -11,6 +13,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 import uk.ac.warwick.my.app.R;
+import uk.ac.warwick.my.app.activities.MainActivity;
 import uk.ac.warwick.my.app.data.Event;
 import uk.ac.warwick.my.app.data.EventDao;
 
@@ -21,6 +24,8 @@ import static android.support.v4.app.NotificationCompat.CATEGORY_EVENT;
 import static uk.ac.warwick.my.app.Global.TAG;
 
 public class EventNotificationService {
+    public static final String NOTIFICATION_ID = "uk.ac.warwick.my.app.notification_id";
+
     private final Context context;
 
     public EventNotificationService(Context context) {
@@ -43,6 +48,11 @@ public class EventNotificationService {
     }
 
     private void notify(Event event) {
+        Integer id = event.getId();
+
+        Intent intent = new Intent(context, MainActivity.class);
+        intent.putExtra(NOTIFICATION_ID, id);
+
         Notification notification = new NotificationCompat.Builder(context)
                 .setPriority(PRIORITY_MAX)
                 .setSmallIcon(R.drawable.ic_warwick_notification)
@@ -54,9 +64,10 @@ public class EventNotificationService {
                 .setShowWhen(false)
                 .setDefaults(DEFAULT_LIGHTS | DEFAULT_VIBRATE)
                 .setSound(Uri.parse(String.format("android.resource://%s/%s", context.getPackageName(), R.raw.timetable_alarm)))
+                .setContentIntent(PendingIntent.getActivity(context, id, intent, 0))
                 .build();
 
-        getNotificationManager().notify(event.getId(), notification);
+        getNotificationManager().notify(id, notification);
     }
 
     private NotificationManager getNotificationManager() {

@@ -6,11 +6,11 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "events.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     private static final String SQL_CREATE_EVENTS = "CREATE TABLE " + EventTable.TABLE_NAME
             + " (" + EventTable._ID + " INTEGER PRIMARY KEY"
-            + ", " + EventTable.COLUMN_NAME_SERVER_ID + " VARCHAR(255) UNIQUE"
+            + ", " + EventTable.COLUMN_NAME_SERVER_ID + " VARCHAR(255)"
             + ", " + EventTable.COLUMN_NAME_TYPE + " TEXT"
             + ", " + EventTable.COLUMN_NAME_TITLE + " TEXT"
             + ", " + EventTable.COLUMN_NAME_LOCATION + " TEXT"

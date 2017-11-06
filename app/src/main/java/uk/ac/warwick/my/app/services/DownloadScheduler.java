@@ -20,7 +20,7 @@ public class DownloadScheduler {
     public void scheduleRepeatingDownload() {
         Intent intent = new Intent(context, ScheduledDownloadReceiver.class);
         PendingIntent broadcast = PendingIntent.getBroadcast(context, 0, intent, 0);
-        getAlarmManager().setInexactRepeating(0, getNextTriggerDate(new Date()).getTime(), AlarmManager.INTERVAL_DAY, broadcast);
+        getAlarmManager().setInexactRepeating(AlarmManager.RTC_WAKEUP, getNextTriggerDate(new Date()).getTime(), AlarmManager.INTERVAL_DAY, broadcast);
     }
 
     private Date getNextTriggerDate(Date date) {
