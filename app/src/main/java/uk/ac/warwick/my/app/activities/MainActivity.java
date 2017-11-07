@@ -5,6 +5,7 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.annotation.SuppressLint;
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -67,10 +68,14 @@ import uk.ac.warwick.my.app.bridge.MyWarwickListener;
 import uk.ac.warwick.my.app.bridge.MyWarwickPreferences;
 import uk.ac.warwick.my.app.bridge.MyWarwickState;
 import uk.ac.warwick.my.app.bridge.MyWarwickWebViewClient;
+import uk.ac.warwick.my.app.data.EventDao;
+import uk.ac.warwick.my.app.services.EventFetcher;
 import uk.ac.warwick.my.app.user.SsoUrls;
 import uk.ac.warwick.my.app.user.User;
 import uk.ac.warwick.my.app.utils.DownloadImageTask;
 import uk.ac.warwick.my.app.utils.PushNotifications;
+
+import static uk.ac.warwick.my.app.services.EventNotificationService.NOTIFICATION_ID;
 
 public class MainActivity extends AppCompatActivity implements OnTabSelectListener, OnTabReselectListener, MyWarwickListener {
 
@@ -219,6 +224,10 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
                     if (user.isAuthoritative()) {
                         registerForPushNotifications();
+
+                        if (preferences.getTimetableToken() == null) {
+                            registerForTimetable();
+                        }
                     }
                 } else {
                     photoView.setImageURI(null);
@@ -226,6 +235,11 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
                     if (user != null && user.isAuthoritative()) {
                         unregisterForPushNotifications();
+
+                        preferences.setTimetableToken(null);
+                        try (EventDao eventDao = new EventDao(getApplicationContext())) {
+                            eventDao.deleteAll();
+                        }
                     }
                 }
 
@@ -248,6 +262,10 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
                 supportInvalidateOptionsMenu();
             }
         });
+    }
+
+    private void registerForTimetable() {
+        invoker.invokeMyWarwickMethodIfAvailable("registerForTimetable");
     }
 
     @Override
@@ -449,10 +467,10 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             }
         }
 
-        this.preferences = new MyWarwickPreferences(PreferenceManager.getDefaultSharedPreferences(this));
+        this.preferences = new MyWarwickPreferences(this);
 
         this.invoker = new JavascriptInvoker(myWarwickWebView);
-        MyWarwickJavaScriptInterface javascriptInterface = new MyWarwickJavaScriptInterface(invoker, myWarwick);
+        MyWarwickJavaScriptInterface javascriptInterface = new MyWarwickJavaScriptInterface(invoker, myWarwick, preferences);
         myWarwickWebView.addJavascriptInterface(javascriptInterface, "MyWarwickAndroid");
 
         MyWarwickWebViewClient webViewClient = new MyWarwickWebViewClient(preferences, this, this);
@@ -649,6 +667,40 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         Log.d(TAG, "onStart");
 
         initCustomTabs();
+
+        cancelNotificationFromIntent(getIntent());
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                new EventFetcher(getApplicationContext()).updateEvents();
+            }
+        }).start();
+
+        if (myWarwick.isUserSignedIn() && preferences.isNeedsTimetableTokenRefresh()) {
+            Log.d(TAG, "Refreshing timetable token");
+            registerForTimetable();
+        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        Log.d(TAG, "onNewIntent");
+
+        cancelNotificationFromIntent(intent);
+    }
+
+    private void cancelNotificationFromIntent(Intent intent) {
+        int id = intent.getIntExtra(NOTIFICATION_ID, -1);
+
+        if (id != -1) {
+            getNotificationManager().cancel(id);
+        }
+    }
+
+    private NotificationManager getNotificationManager() {
+        return (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
     }
 
     @Override

@@ -50,25 +50,33 @@ public final class JavascriptInvoker {
         handler.post(new Runnable() {
             public void run() {
                 for (String js : pendingInvocations) {
-                    doInvokeMyWarwickMethod(js);
+                    doInvoke(js);
                 }
                 pendingInvocations.clear();
             }
         });
     }
 
+    public void invokeMyWarwickMethodIfAvailable(String methodName) {
+        invoke(String.format("('%s' in MyWarwick) && MyWarwick.%s()", methodName, methodName));
+    }
+
     public void invokeMyWarwickMethod(String js) {
+        invoke("MyWarwick." + js);
+    }
+
+    public void invoke(String js) {
         if (pageReady) {
-            doInvokeMyWarwickMethod(js);
+            doInvoke(js);
         } else {
-            Log.d("MyWarwick", "Delaying invocation of MyWarwick."+js);
+            Log.d("MyWarwick", "Delaying invocation of " + js);
             pendingInvocations.add(js);
         }
     }
 
-    private void doInvokeMyWarwickMethod(String js) {
-        Log.d("MyWarwick", "Invoking MyWarwick."+js);
-        webView.loadUrl("javascript:MyWarwick." + js);
+    private void doInvoke(String js) {
+        Log.d("MyWarwick", "Invoking " + js);
+        webView.loadUrl("javascript:" + js);
     }
 
     /**
