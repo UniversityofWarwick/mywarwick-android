@@ -59,6 +59,9 @@ import com.roughike.bottombar.OnTabSelectListener;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import uk.ac.warwick.my.app.BuildConfig;
 import uk.ac.warwick.my.app.R;
@@ -124,6 +127,26 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     private int themePrimaryColour;
     private CustomTabsClient customTabsClient;
     private CustomTabsSession customTabsSession;
+    private ScheduledExecutorService timetableEventUpdateScheduler;
+
+    private void startTimetableEventUpdateTimer() {
+        Log.d(TAG, "starting timetable event update timer.");
+        if (timetableEventUpdateScheduler == null) {
+            timetableEventUpdateScheduler = Executors.newSingleThreadScheduledExecutor();
+            timetableEventUpdateScheduler.scheduleAtFixedRate(new Runnable() {
+                @Override
+                public void run() {
+                    new EventFetcher(getApplicationContext()).updateEvents();
+                }
+            }, 0, 10, TimeUnit.SECONDS);
+        }
+    }
+
+    private void stopTimetableEventUpdateTimer() {
+        Log.d(TAG, "stopping timetable event update timer.");
+        this.timetableEventUpdateScheduler.shutdown();
+        this.timetableEventUpdateScheduler = null;
+    }
 
     @Override
     public void onTabSelected(@IdRes int tabId) {
@@ -670,12 +693,14 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
         cancelNotificationFromIntent(getIntent());
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                new EventFetcher(getApplicationContext()).updateEvents();
-            }
-        }).start();
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                new EventFetcher(getApplicationContext()).updateEvents();
+//            }
+//        }).start();
+
+        startTimetableEventUpdateTimer();
 
         if (myWarwick.isUserSignedIn() && preferences.isNeedsTimetableTokenRefresh()) {
             Log.d(TAG, "Refreshing timetable token");
@@ -723,6 +748,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     @Override
     protected void onStop() {
         super.onStop();
+        stopTimetableEventUpdateTimer();
         Log.d(TAG, "onStop");
     }
 
