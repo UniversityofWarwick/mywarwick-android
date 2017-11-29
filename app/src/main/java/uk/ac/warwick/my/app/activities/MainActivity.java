@@ -147,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
                 try {
                 Log.d(TAG, "timetableEventUpdateJob is running.");
                 new EventFetcher(getApplicationContext()).updateEvents();
-                    Thread.sleep(10000);
+                    Thread.sleep(60000);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     Log.e(TAG, "timetableEventUpdateJob encountered error", e);
