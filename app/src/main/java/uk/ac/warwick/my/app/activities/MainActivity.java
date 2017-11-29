@@ -124,6 +124,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     private int themePrimaryColour;
     private CustomTabsClient customTabsClient;
     private CustomTabsSession customTabsSession;
+    private CustomTabsServiceConnection tabsConnection;
 
     @Override
     public void onTabSelected(@IdRes int tabId) {
@@ -724,6 +725,9 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     protected void onStop() {
         super.onStop();
         Log.d(TAG, "onStop");
+
+        // matches init call in onStart
+        deinitCustomTabs();
     }
 
     private boolean isOpenedFromNotification() {
@@ -949,8 +953,15 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         return themePrimaryColour;
     }
 
+    private void deinitCustomTabs() {
+        if (tabsConnection != null) {
+            unbindService(tabsConnection);
+            tabsConnection = null;
+        }
+    }
+
     private void initCustomTabs() {
-        CustomTabsServiceConnection connection = new CustomTabsServiceConnection() {
+        tabsConnection = new CustomTabsServiceConnection() {
             @Override
             public void onCustomTabsServiceConnected(ComponentName name, CustomTabsClient client) {
                 Log.d(TAG, "Custom Tabs service connected");
@@ -963,11 +974,14 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
             @Override
             public void onServiceDisconnected(ComponentName name) {
+                Log.e(TAG, "Custom Tabs service disconnected/crashed");
 
+                customTabsClient = null;
+                customTabsSession = null;
             }
         };
 
-        CustomTabsClient.bindCustomTabsService(this, CUSTOM_TAB_PACKAGE_NAME, connection);
+        CustomTabsClient.bindCustomTabsService(this, CUSTOM_TAB_PACKAGE_NAME, tabsConnection);
     }
 
     public CustomTabsSession getCustomTabsSession() {
