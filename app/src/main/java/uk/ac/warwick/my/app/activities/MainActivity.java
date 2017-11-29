@@ -138,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
                 public void run() {
                     new EventFetcher(getApplicationContext()).updateEvents();
                 }
-            }, 0, 10, TimeUnit.SECONDS);
+            }, 0, 60, TimeUnit.SECONDS);
         }
     }
 
