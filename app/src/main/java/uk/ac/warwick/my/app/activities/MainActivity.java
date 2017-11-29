@@ -137,14 +137,14 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             timetableEventUpdateScheduler.scheduleAtFixedRate(new Runnable() {
                 @Override
                 public void run() {
-                    Log.d(TAG, "starting timetable event update.");
+                    Log.d(TAG, "Starting timetable event update.");
                     new EventFetcher(getApplicationContext()).updateEvents();
                 }
             }, 0, 60, TimeUnit.SECONDS);
         }
     }
     private void stopTimetableEventUpdateTimer() {
-        Log.d(TAG, "stopping timetable event update timer.");
+        Log.d(TAG, "Stopping timetable event update timer.");
         this.timetableEventUpdateScheduler.shutdown();
         this.timetableEventUpdateScheduler = null;
     }
