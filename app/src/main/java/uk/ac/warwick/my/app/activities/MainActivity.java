@@ -132,12 +132,12 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     private CustomTabsServiceConnection tabsConnection;
 
     private void startTimetableEventUpdateTimer() {
-        Log.d(TAG, "starting timetable event update timer.");
         if (timetableEventUpdateScheduler == null) {
             timetableEventUpdateScheduler = Executors.newSingleThreadScheduledExecutor();
             timetableEventUpdateScheduler.scheduleAtFixedRate(new Runnable() {
                 @Override
                 public void run() {
+                    Log.d(TAG, "starting timetable event update.");
                     new EventFetcher(getApplicationContext()).updateEvents();
                 }
             }, 0, 60, TimeUnit.SECONDS);
