@@ -129,6 +129,8 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     private CustomTabsSession customTabsSession;
     private ScheduledExecutorService timetableEventUpdateScheduler;
 
+    private CustomTabsServiceConnection tabsConnection;
+
     private void startTimetableEventUpdateTimer() {
         Log.d(TAG, "starting timetable event update timer.");
         if (timetableEventUpdateScheduler == null) {
@@ -141,7 +143,6 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             }, 0, 60, TimeUnit.SECONDS);
         }
     }
-
     private void stopTimetableEventUpdateTimer() {
         Log.d(TAG, "stopping timetable event update timer.");
         this.timetableEventUpdateScheduler.shutdown();
@@ -693,13 +694,6 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
         cancelNotificationFromIntent(getIntent());
 
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                new EventFetcher(getApplicationContext()).updateEvents();
-//            }
-//        }).start();
-
         startTimetableEventUpdateTimer();
 
         if (myWarwick.isUserSignedIn() && preferences.isNeedsTimetableTokenRefresh()) {
@@ -750,6 +744,9 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         super.onStop();
         stopTimetableEventUpdateTimer();
         Log.d(TAG, "onStop");
+
+        // matches init call in onStart
+        deinitCustomTabs();
     }
 
     private boolean isOpenedFromNotification() {
@@ -975,8 +972,15 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         return themePrimaryColour;
     }
 
+    private void deinitCustomTabs() {
+        if (tabsConnection != null) {
+            unbindService(tabsConnection);
+            tabsConnection = null;
+        }
+    }
+
     private void initCustomTabs() {
-        CustomTabsServiceConnection connection = new CustomTabsServiceConnection() {
+        tabsConnection = new CustomTabsServiceConnection() {
             @Override
             public void onCustomTabsServiceConnected(ComponentName name, CustomTabsClient client) {
                 Log.d(TAG, "Custom Tabs service connected");
@@ -989,11 +993,14 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
             @Override
             public void onServiceDisconnected(ComponentName name) {
+                Log.e(TAG, "Custom Tabs service disconnected/crashed");
 
+                customTabsClient = null;
+                customTabsSession = null;
             }
         };
 
-        CustomTabsClient.bindCustomTabsService(this, CUSTOM_TAB_PACKAGE_NAME, connection);
+        CustomTabsClient.bindCustomTabsService(this, CUSTOM_TAB_PACKAGE_NAME, tabsConnection);
     }
 
     public CustomTabsSession getCustomTabsSession() {
