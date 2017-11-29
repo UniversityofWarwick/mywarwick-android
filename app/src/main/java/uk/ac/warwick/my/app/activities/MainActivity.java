@@ -59,8 +59,9 @@ import com.roughike.bottombar.OnTabSelectListener;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import uk.ac.warwick.my.app.BuildConfig;
 import uk.ac.warwick.my.app.R;
@@ -126,36 +127,26 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     private int themePrimaryColour;
     private CustomTabsClient customTabsClient;
     private CustomTabsSession customTabsSession;
+    private ScheduledExecutorService timetableEventUpdateScheduler;
 
-    private ExecutorService executorService;
-
-    private MyRunnable timetableEventUpdateJob = new MyRunnable() {
-        volatile boolean shutdown = true;
-
-        @Override
-        public void stop() {
-            shutdown = true;
-        }
-
-        @Override
-        public void start() {
-            shutdown = false;
-        }
-
-        public void run() {
-            while (!shutdown) {
-                try {
-                Log.d(TAG, "timetableEventUpdateJob is running.");
-                new EventFetcher(getApplicationContext()).updateEvents();
-                    Thread.sleep(60000);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    Log.e(TAG, "timetableEventUpdateJob encountered error", e);
-                    e.printStackTrace();
+    private void startTimetableEventUpdateTimer() {
+        Log.d(TAG, "starting timetable event update timer.");
+        if (timetableEventUpdateScheduler == null) {
+            timetableEventUpdateScheduler = Executors.newSingleThreadScheduledExecutor();
+            timetableEventUpdateScheduler.scheduleAtFixedRate(new Runnable() {
+                @Override
+                public void run() {
+                    new EventFetcher(getApplicationContext()).updateEvents();
                 }
-            }
+            }, 0, 10, TimeUnit.SECONDS);
         }
-    };
+    }
+
+    private void stopTimetableEventUpdateTimer() {
+        Log.d(TAG, "stopping timetable event update timer.");
+        this.timetableEventUpdateScheduler.shutdown();
+        this.timetableEventUpdateScheduler = null;
+    }
 
     @Override
     public void onTabSelected(@IdRes int tabId) {
@@ -702,28 +693,20 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
         cancelNotificationFromIntent(getIntent());
 
-        startTimetableEventUpdate();
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                new EventFetcher(getApplicationContext()).updateEvents();
+//            }
+//        }).start();
+
+        startTimetableEventUpdateTimer();
 
         if (myWarwick.isUserSignedIn() && preferences.isNeedsTimetableTokenRefresh()) {
             Log.d(TAG, "Refreshing timetable token");
             registerForTimetable();
         }
     }
-
-    private void startTimetableEventUpdate() {
-        Log.d(TAG, "timer started!!!");
-        if (executorService == null) {
-            executorService = Executors.newSingleThreadExecutor();
-            this.executorService.execute(this.timetableEventUpdateJob);
-        }
-        this.timetableEventUpdateJob.start();
-    }
-
-    private void stopTimetableEventUpdate() {
-        Log.d(TAG, "timer stopped!!!");
-        this.timetableEventUpdateJob.stop();
-    }
-
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -765,7 +748,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     @Override
     protected void onStop() {
         super.onStop();
-        this.stopTimetableEventUpdate();
+        stopTimetableEventUpdateTimer();
         Log.d(TAG, "onStop");
     }
 
@@ -851,14 +834,12 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     @Override
     protected void onResume() {
         super.onResume();
-
         Log.d(TAG, "onResume");
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        this.timetableEventUpdateJob.stop();
         Log.d(TAG, "onPause");
     }
 
