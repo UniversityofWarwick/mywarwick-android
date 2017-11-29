@@ -1,10 +1,12 @@
 package uk.ac.warwick.my.app.bridge;
 
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.support.customtabs.CustomTabsIntent;
+import android.support.customtabs.CustomTabsSession;
 import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -17,6 +19,8 @@ import uk.ac.warwick.my.app.R;
 import uk.ac.warwick.my.app.activities.MainActivity;
 
 public class MyWarwickWebViewClient extends WebViewClient {
+
+    private static final String TAG = "MyWarwickWebViewClient";
 
     private final MyWarwickPreferences preferences;
     private final MyWarwickListener listener;
@@ -70,38 +74,48 @@ public class MyWarwickWebViewClient extends WebViewClient {
             }
         }
 
-        CustomTabsIntent intent = new CustomTabsIntent.Builder(activity.getCustomTabsSession())
-                .setToolbarColor(activity.getThemePrimaryColour())
-                .setCloseButtonIcon(BitmapFactory.decodeResource(activity.getResources(), R.drawable.ic_arrow_back_white_24dp))
-                .setStartAnimations(activity, R.anim.slide_in_right, R.anim.slide_out_left)
-                .setExitAnimations(activity, android.R.anim.slide_in_left, android.R.anim.slide_out_right)
-                .build();
+        CustomTabsSession tabsSession = activity.getCustomTabsSession();
+        if (tabsSession != null) {
+            CustomTabsIntent intent = new CustomTabsIntent.Builder(activity.getCustomTabsSession())
+                    .setToolbarColor(activity.getThemePrimaryColour())
+                    .setCloseButtonIcon(BitmapFactory.decodeResource(activity.getResources(), R.drawable.ic_arrow_back_white_24dp))
+                    .setStartAnimations(activity, R.anim.slide_in_right, R.anim.slide_out_left)
+                    .setExitAnimations(activity, android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+                    .build();
 
-        intent.intent.putExtra(Intent.EXTRA_REFERRER, view.getUrl());
-
-        try {
-            // If Chrome Custom Tabs is not available, the default browser will be launched instead
-            intent.launchUrl(activity, url);
-        } catch (ActivityNotFoundException e) {
-            // Didn't work; try starting a browser with a simple intent
-            Intent fallbackIntent = new Intent(Intent.ACTION_VIEW, url);
-            fallbackIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.intent.putExtra(Intent.EXTRA_REFERRER, view.getUrl());
 
             try {
-                view.getContext().startActivity(fallbackIntent);
-            } catch (ActivityNotFoundException e2) {
-                // Really didn't work; give up and let ourselves know
-                try {
-                    FirebaseCrash.log("Caught ActivityNotFoundException when trying to open a URL");
-                    FirebaseCrash.report(e2);
-                } catch (IllegalStateException ignored) {
-                }
-
-                Toast.makeText(view.getContext(), "We couldn't open this link", Toast.LENGTH_SHORT).show();
+                // If Chrome Custom Tabs is not available, the default browser will be launched instead
+                intent.launchUrl(activity, url);
+            } catch (ActivityNotFoundException e) {
+                // Didn't work; try starting a browser with a simple intent
+                openPlainViewActivity(view.getContext(), url);
             }
+        } else {
+            Log.d(TAG, "Opening plain browser because no Custom Tabs client found (crashed?)");
+            openPlainViewActivity(view.getContext(), url);
         }
 
         return true;
+    }
+
+    private void openPlainViewActivity(Context context, Uri url) {
+        Intent fallbackIntent = new Intent(Intent.ACTION_VIEW, url);
+        fallbackIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        try {
+            context.startActivity(fallbackIntent);
+        } catch (ActivityNotFoundException e2) {
+            // Really didn't work; give up and let ourselves know
+            try {
+                FirebaseCrash.log("Caught ActivityNotFoundException when trying to open a URL");
+                FirebaseCrash.report(e2);
+            } catch (IllegalStateException ignored) {
+            }
+
+            Toast.makeText(context, "We couldn't open this link", Toast.LENGTH_SHORT).show();
+        }
     }
 
 }
