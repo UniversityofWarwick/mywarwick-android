@@ -30,7 +30,12 @@ import static uk.ac.warwick.my.app.Global.TAG;
 
 public class EventFetcher {
     @SuppressLint("SimpleDateFormat")
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+    private static final ThreadLocal<SimpleDateFormat> dateFormat = new ThreadLocal<SimpleDateFormat>() {
+        @Override
+        protected SimpleDateFormat initialValue() {
+            return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        }
+    };
 
     private static final String X_TIMETABLE_TOKEN = "X-Timetable-Token";
 
@@ -39,7 +44,7 @@ public class EventFetcher {
     private final MyWarwickPreferences preferences;
 
     public EventFetcher(Context context) {
-        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        dateFormat.get().setTimeZone(TimeZone.getTimeZone("UTC"));
         this.context = context;
         this.preferences = new MyWarwickPreferences(context);
         http = new OkHttpClient.Builder()
@@ -130,8 +135,8 @@ public class EventFetcher {
         event.setServerId(obj.getString("id"));
         event.setType(obj.getString("type"));
         event.setTitle(obj.getString("title"));
-        event.setStart(dateFormat.parse(obj.getString("start")));
-        event.setEnd(dateFormat.parse(obj.getString("end")));
+        event.setStart(dateFormat.get().parse(obj.getString("start")));
+        event.setEnd(dateFormat.get().parse(obj.getString("end")));
 
         JSONObject location = obj.optJSONObject("location");
         if (location != null) {
