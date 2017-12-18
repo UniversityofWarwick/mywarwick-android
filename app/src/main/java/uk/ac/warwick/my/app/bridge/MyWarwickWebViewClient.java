@@ -88,7 +88,7 @@ public class MyWarwickWebViewClient extends WebViewClient {
             try {
                 // If Chrome Custom Tabs is not available, the default browser will be launched instead
                 intent.launchUrl(activity, url);
-            } catch (ActivityNotFoundException e) {
+            } catch (IllegalArgumentException | ActivityNotFoundException e) {
                 // Didn't work; try starting a browser with a simple intent
                 openPlainViewActivity(view.getContext(), url);
             }
