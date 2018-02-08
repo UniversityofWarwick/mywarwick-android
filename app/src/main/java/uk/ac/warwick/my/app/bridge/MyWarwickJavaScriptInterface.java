@@ -3,6 +3,7 @@ package uk.ac.warwick.my.app.bridge;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.support.annotation.Keep;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 import android.widget.Toast;
@@ -25,6 +26,7 @@ import uk.ac.warwick.my.app.user.User;
  * Provides an interface for the WebView page to call back to the app,
  * and also implements some methods for making calls on the page.
  */
+@Keep
 public class MyWarwickJavaScriptInterface {
 
     private static final String SAMSUNG_EMAIL_PACKAGE = "com.samsung.android.email.provider";

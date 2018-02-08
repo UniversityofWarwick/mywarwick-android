@@ -41,7 +41,7 @@ android {
     buildTypes {
         release {
             minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), file('proguard-rules.pro')
             signingConfig signingConfigs.myWarwickPlay
             resValue "string", "app_name", "My Warwick"
             resValue "string", "package_name", android.defaultConfig.applicationId
@@ -50,38 +50,38 @@ android {
             applicationIdSuffix ".debug"
             resValue "string", "app_name", "My Warwick dev"
             resValue "string", "package_name", android.defaultConfig.applicationId + applicationIdSuffix
+            minifyEnabled false
         }
     }
+
 }
 
 dependencies {
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.mockito:mockito-core:1.10.19'
-
     implementation 'com.android.support:appcompat-v7:26.1.0'
     implementation 'com.android.support:design:26.1.0'
     implementation 'com.android.support:customtabs:26.1.0'
     implementation 'com.android.support:cardview-v7:26.1.0'
-
     implementation 'com.google.firebase:firebase-crash:11.8.0'
     implementation 'com.google.firebase:firebase-messaging:11.8.0'
-
     implementation 'com.roughike:bottom-bar:2.3.1'
-    implementation 'com.google.guava:guava:24.0-android'
-
+    implementation 'com.google.guava:guava:24.0-android', {
+        exclude group: 'com.google.code.findbugs'
+    }
     implementation 'com.github.apl-devs:appintro:v4.2.0'
-
     implementation 'com.squareup.okhttp3:okhttp:3.9.0'
-
     implementation 'com.github.bumptech.glide:glide:4.0.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.0.0'
-
     androidTestImplementation 'com.android.support.test.espresso:espresso-web:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     }
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     }
+
+    // This is in Android, but a stub implementation.
+    testImplementation 'org.json:json:20171018'
 }
 
 task archiveProguardMapping(type: Sync) {
