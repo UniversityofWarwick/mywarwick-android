@@ -33,7 +33,7 @@ public class EventFetcher {
     private static final ThreadLocal<SimpleDateFormat> dateFormat = new ThreadLocal<SimpleDateFormat>() {
         @Override
         protected SimpleDateFormat initialValue() {
-            return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+            return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX");
         }
     };
 
@@ -44,9 +44,13 @@ public class EventFetcher {
     private final MyWarwickPreferences preferences;
 
     public EventFetcher(Context context) {
+        this(context, new MyWarwickPreferences(context));
+    }
+
+    public EventFetcher(Context context, MyWarwickPreferences preferences) {
         dateFormat.get().setTimeZone(TimeZone.getTimeZone("UTC"));
         this.context = context;
-        this.preferences = new MyWarwickPreferences(context);
+        this.preferences = preferences;
         http = new OkHttpClient.Builder()
                 .build();
     }
@@ -129,12 +133,12 @@ public class EventFetcher {
         }
     }
 
-    private Event buildEvent(JSONObject obj) throws JSONException, ParseException {
+    Event buildEvent(JSONObject obj) throws JSONException, ParseException {
         Event event = new Event();
 
         event.setServerId(obj.getString("id"));
         event.setType(obj.getString("type"));
-        event.setTitle(obj.getString("title"));
+        event.setTitle(obj.optString("title"));
         event.setStart(dateFormat.get().parse(obj.getString("start")));
         event.setEnd(dateFormat.get().parse(obj.getString("end")));
 
