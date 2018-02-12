@@ -128,6 +128,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     private CustomTabsClient customTabsClient;
     private CustomTabsSession customTabsSession;
     private ScheduledExecutorService timetableEventUpdateScheduler;
+    private AlertDialog locationPermissionsDialog;
 
     private CustomTabsServiceConnection tabsConnection;
 
@@ -622,16 +623,24 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         Bundle bundle = new Bundle();
         bundle.putString("permission", Manifest.permission.ACCESS_FINE_LOCATION);
         firebaseAnalytics.logEvent("permission_rationale", bundle);
-        new AlertDialog.Builder(MainActivity.this)
-                .setTitle(R.string.location_dialog_title)
-                .setMessage(R.string.location_dialog_message)
-                .setCancelable(false)
-                .setPositiveButton(R.string.okay_ask, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        requestLocationPermissions();
-                    }
-                })
-                .show();
+        if (locationPermissionsDialog == null) {
+            locationPermissionsDialog = new AlertDialog.Builder(MainActivity.this)
+                    .setTitle(R.string.location_dialog_title)
+                    .setMessage(R.string.location_dialog_message)
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.okay_ask, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            requestLocationPermissions();
+                        }
+                    }).create();
+        }
+        locationPermissionsDialog.show();
+    }
+
+    private void dismissLocationPermissionDialog() {
+        if (locationPermissionsDialog != null && locationPermissionsDialog.isShowing()) {
+            locationPermissionsDialog.dismiss();
+        }
     }
 
     private void registerTokenRefreshReceiver() {
@@ -678,6 +687,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
     @Override
     protected void onDestroy() {
+        dismissLocationPermissionDialog();
         unregisterReceiver(tokenRefreshReceiver);
         invoker.reset();
         invoker.clear();
