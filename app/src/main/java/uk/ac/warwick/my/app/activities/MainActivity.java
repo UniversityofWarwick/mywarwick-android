@@ -64,6 +64,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import uk.ac.warwick.my.app.BuildConfig;
+import uk.ac.warwick.my.app.Global;
 import uk.ac.warwick.my.app.R;
 import uk.ac.warwick.my.app.bridge.JavascriptInvoker;
 import uk.ac.warwick.my.app.bridge.MyWarwickJavaScriptInterface;
@@ -93,8 +94,6 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     public static final String ALERTS_SHORTCUT_ACTION = "uk.ac.warwick.my.app.SHORTCUT_ALERTS";
     public static final String ACTIVITY_SHORTCUT_ACTION = "uk.ac.warwick.my.app.SHORTCUT_ACTIVITY";
     public static final String SEARCH_SHORTCUT_ACTION = "uk.ac.warwick.my.app.SHORTCUT_SEARCH";
-
-    public static final String CUSTOM_TAB_PACKAGE_NAME = "com.android.chrome";
 
     public static final int TAB_INDEX_ACTIVITIES = 2;
 
@@ -1010,7 +1009,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             }
         };
 
-        CustomTabsClient.bindCustomTabsService(this, CUSTOM_TAB_PACKAGE_NAME, tabsConnection);
+        CustomTabsClient.bindCustomTabsService(this, Global.CUSTOM_TAB_PACKAGE_NAME, tabsConnection);
     }
 
     public CustomTabsSession getCustomTabsSession() {
