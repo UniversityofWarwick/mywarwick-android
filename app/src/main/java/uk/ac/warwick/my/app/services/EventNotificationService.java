@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat;
 
 import uk.ac.warwick.my.app.R;
 import uk.ac.warwick.my.app.activities.MainActivity;
+import uk.ac.warwick.my.app.bridge.MyWarwickPreferences;
 import uk.ac.warwick.my.app.data.Event;
 import uk.ac.warwick.my.app.data.EventDao;
 
@@ -28,8 +29,11 @@ public class EventNotificationService {
 
     private final Context context;
 
+    private final MyWarwickPreferences preferences;
+
     public EventNotificationService(Context context) {
         this.context = context;
+        this.preferences = new MyWarwickPreferences(context);
     }
 
     public void notify(String serverId) {
@@ -53,7 +57,7 @@ public class EventNotificationService {
         Intent intent = new Intent(context, MainActivity.class);
         intent.putExtra(NOTIFICATION_ID, id);
 
-        Notification notification = new NotificationCompat.Builder(context)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
                 .setPriority(PRIORITY_MAX)
                 .setSmallIcon(R.drawable.ic_warwick_notification)
                 .setContentTitle(getNotificationTitle(event))
@@ -63,10 +67,13 @@ public class EventNotificationService {
                 .setWhen(event.getStart().getTime())
                 .setShowWhen(false)
                 .setDefaults(DEFAULT_LIGHTS | DEFAULT_VIBRATE)
-                .setSound(Uri.parse(String.format("android.resource://%s/%s", context.getPackageName(), R.raw.timetable_alarm)))
-                .setContentIntent(PendingIntent.getActivity(context, id, intent, 0))
-                .build();
+                .setContentIntent(PendingIntent.getActivity(context, id, intent, 0));
 
+        if (preferences.isTimetableNotificationsSoundEnabled()) {
+            builder.setSound(Uri.parse(String.format("android.resource://%s/%s", context.getPackageName(), R.raw.timetable_alarm)));
+        }
+
+        Notification notification = builder.build();
         getNotificationManager().notify(id, notification);
     }
 

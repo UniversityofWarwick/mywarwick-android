@@ -170,6 +170,11 @@ public class MyWarwickJavaScriptInterface {
         preferences.setTimetableNotificationTiming(timing);
     }
 
+    @JavascriptInterface
+    public void setTimetableNotificationsSoundEnabled(boolean enabled) {
+        preferences.setTimetableNotificationsSoundEnabled(enabled);
+    }
+
     private boolean isPackageInstalled(String packageName) {
         PackageManager packageManager = state.getActivity().getApplicationContext().getPackageManager();
         try {
