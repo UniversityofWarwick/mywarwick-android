@@ -21,6 +21,7 @@ public class MyWarwickPreferences {
     private static final String TIMETABLE_TOKEN = "mywarwick_timetable_token";
     private static final String TIMETABLE_NOTIFICATIONS_ENABLED = "mywarwick_timetable_notifications_enabled";
     private static final String TIMETABLE_NOTIFICATION_TIMING = "mywarwick_timetable_notification_timing";
+    private static final String TIMETABLE_NOTIFICATIONS_SOUND_ENABLED = "mywarwick_timetable_notifications_sound_enabled";
     private static final String TIMETABLE_TOKEN_REFRESH = "mywarwick_timetable_token_refresh";
     private static final int DEFAULT_BACKGROUND = 1;
     private static final boolean DEFAULT_IS_HIGH_CONTRAST = false;
@@ -137,6 +138,16 @@ public class MyWarwickPreferences {
 
     public int getTimetableNotificationTiming() {
         return sharedPreferences.getInt(TIMETABLE_NOTIFICATION_TIMING, 15);
+    }
+
+    public void setTimetableNotificationsSoundEnabled(boolean enabled) {
+        if (enabled != isTimetableNotificationsSoundEnabled()) {
+            sharedPreferences.edit().putBoolean(TIMETABLE_NOTIFICATIONS_SOUND_ENABLED, enabled).apply();
+        }
+    }
+
+    public boolean isTimetableNotificationsSoundEnabled() {
+        return sharedPreferences.getBoolean(TIMETABLE_NOTIFICATIONS_SOUND_ENABLED, true);
     }
 
     public void setNeedsTimetableTokenRefresh(boolean refresh) {

@@ -97,6 +97,10 @@
                     MyWarwickAndroid.setTimetableNotificationTiming(timing);
                 };
 
+                native.setTimetableNotificationsSoundEnabled = function setTimetableNotificationsSoundEnabled(enabled) {
+                    MyWarwickAndroid.setTimetableNotificationsSoundEnabled(enabled);
+                };
+
                 native.openMailApp = function openMailApp(externalApp) {
                     if (externalApp === \'mail\') {
                         MyWarwickAndroid.openEmailApp();
