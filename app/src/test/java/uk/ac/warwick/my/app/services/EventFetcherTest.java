@@ -38,11 +38,12 @@ public class EventFetcherTest {
         JSONObject json = new JSONObject()
                 .put("id", "1")
                 .put("type", "meeting")
+                // Normally has millis; just testing that they're optional.
                 .put("start", "2017-10-13T12:00:00Z")
-                .put("end", "2017-10-13T13:00:00Z");
+                .put("end", "2017-10-13T13:00:00.123Z");
         Event event = fetcher.buildEvent(json);
-        assertEquals(Date.from(Instant.parse("2017-10-13T12:00:00Z")), event.getStart());
-        assertEquals(Date.from(Instant.parse("2017-10-13T13:00:00Z")), event.getEnd());
+        assertEquals(Date.from(Instant.parse("2017-10-13T12:00:00.000Z")), event.getStart());
+        assertEquals(Date.from(Instant.parse("2017-10-13T13:00:00.123Z")), event.getEnd());
         assertEquals("", event.getTitle());
         assertEquals("1", event.getServerId());
         assertEquals("meeting", event.getType());

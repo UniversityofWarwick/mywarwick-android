@@ -622,7 +622,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         Bundle bundle = new Bundle();
         bundle.putString("permission", Manifest.permission.ACCESS_FINE_LOCATION);
         firebaseAnalytics.logEvent("permission_rationale", bundle);
-        new AlertDialog.Builder(MainActivity.this)
+        AlertDialog dialog = new AlertDialog.Builder(MainActivity.this)
                 .setTitle(R.string.location_dialog_title)
                 .setMessage(R.string.location_dialog_message)
                 .setCancelable(false)
