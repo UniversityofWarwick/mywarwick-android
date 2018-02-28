@@ -1,11 +1,13 @@
 package uk.ac.warwick.my.app.services;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -26,6 +28,9 @@ import static uk.ac.warwick.my.app.Global.TAG;
 
 public class EventNotificationService {
     public static final String NOTIFICATION_ID = "uk.ac.warwick.my.app.notification_id";
+
+    private static final String TIMETABLE_EVENT_CHANNEL_ID = "timetable_event";
+    private static final String TIMETABLE_EVENT_CHANNEL_NAME = "Timetable events";
 
     private final Context context;
 
@@ -57,7 +62,7 @@ public class EventNotificationService {
         Intent intent = new Intent(context, MainActivity.class);
         intent.putExtra(NOTIFICATION_ID, id);
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, TIMETABLE_EVENT_CHANNEL_ID)
                 .setPriority(PRIORITY_MAX)
                 .setSmallIcon(R.drawable.ic_warwick_notification)
                 .setContentTitle(getNotificationTitle(event))
@@ -73,8 +78,18 @@ public class EventNotificationService {
             builder.setSound(Uri.parse(String.format("android.resource://%s/%s", context.getPackageName(), R.raw.timetable_alarm)));
         }
 
+        NotificationManager notificationManager = getNotificationManager();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(
+                    TIMETABLE_EVENT_CHANNEL_ID,
+                    TIMETABLE_EVENT_CHANNEL_NAME,
+                    NotificationManager.IMPORTANCE_DEFAULT);
+            notificationManager.createNotificationChannel(channel);
+        }
+
         Notification notification = builder.build();
-        getNotificationManager().notify(id, notification);
+        notificationManager.notify(id, notification);
     }
 
     private NotificationManager getNotificationManager() {
