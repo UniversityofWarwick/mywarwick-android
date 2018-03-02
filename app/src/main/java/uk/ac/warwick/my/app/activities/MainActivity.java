@@ -80,6 +80,7 @@ import uk.ac.warwick.my.app.utils.DownloadImageTask;
 import uk.ac.warwick.my.app.utils.PushNotifications;
 
 import static uk.ac.warwick.my.app.services.EventNotificationService.NOTIFICATION_ID;
+import static uk.ac.warwick.my.app.services.NotificationChannelsService.buildNotificationChannels;
 
 public class MainActivity extends AppCompatActivity implements OnTabSelectListener, OnTabReselectListener, MyWarwickListener {
 
@@ -708,6 +709,10 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         if (myWarwick.isUserSignedIn() && preferences.isNeedsTimetableTokenRefresh()) {
             Log.d(TAG, "Refreshing timetable token");
             registerForTimetable();
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            buildNotificationChannels((NotificationManager) getSystemService(NOTIFICATION_SERVICE));
         }
     }
 

@@ -1,7 +1,6 @@
 package uk.ac.warwick.my.app.services;
 
 import android.app.Notification;
-import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -25,12 +24,10 @@ import static android.app.Notification.DEFAULT_VIBRATE;
 import static android.app.Notification.PRIORITY_MAX;
 import static android.support.v4.app.NotificationCompat.CATEGORY_EVENT;
 import static uk.ac.warwick.my.app.Global.TAG;
+import static uk.ac.warwick.my.app.services.NotificationChannelsService.TIMETABLE_EVENTS_CHANNEL_ID;
 
 public class EventNotificationService {
     public static final String NOTIFICATION_ID = "uk.ac.warwick.my.app.notification_id";
-
-    private static final String TIMETABLE_EVENT_CHANNEL_ID = "timetable_event";
-    private static final String TIMETABLE_EVENT_CHANNEL_NAME = "Timetable events";
 
     private final Context context;
 
@@ -62,34 +59,32 @@ public class EventNotificationService {
         Intent intent = new Intent(context, MainActivity.class);
         intent.putExtra(NOTIFICATION_ID, id);
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, TIMETABLE_EVENT_CHANNEL_ID)
-                .setPriority(PRIORITY_MAX)
-                .setSmallIcon(R.drawable.ic_warwick_notification)
-                .setContentTitle(getNotificationTitle(event))
-                .setContentText(getNotificationText(event))
-                .setColor(context.getResources().getColor(R.color.colorAccent))
-                .setCategory(CATEGORY_EVENT)
-                .setWhen(event.getStart().getTime())
-                .setShowWhen(false)
-                .setDefaults(DEFAULT_LIGHTS | DEFAULT_VIBRATE)
-                .setContentIntent(PendingIntent.getActivity(context, id, intent, 0));
+        NotificationCompat.Builder builder;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            builder = new NotificationCompat.Builder(context, TIMETABLE_EVENTS_CHANNEL_ID);
+        } else {
+            builder = new NotificationCompat.Builder(context);
+        }
+
+         builder
+             .setPriority(PRIORITY_MAX)
+             .setSmallIcon(R.drawable.ic_warwick_notification)
+             .setContentTitle(getNotificationTitle(event))
+             .setContentText(getNotificationText(event))
+             .setColor(context.getResources().getColor(R.color.colorAccent))
+             .setCategory(CATEGORY_EVENT)
+             .setWhen(event.getStart().getTime())
+             .setShowWhen(false)
+             .setDefaults(DEFAULT_LIGHTS | DEFAULT_VIBRATE)
+             .setContentIntent(PendingIntent.getActivity(context, id, intent, 0));
 
         if (preferences.isTimetableNotificationsSoundEnabled()) {
             builder.setSound(Uri.parse(String.format("android.resource://%s/%s", context.getPackageName(), R.raw.timetable_alarm)));
         }
 
-        NotificationManager notificationManager = getNotificationManager();
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(
-                    TIMETABLE_EVENT_CHANNEL_ID,
-                    TIMETABLE_EVENT_CHANNEL_NAME,
-                    NotificationManager.IMPORTANCE_DEFAULT);
-            notificationManager.createNotificationChannel(channel);
-        }
-
         Notification notification = builder.build();
-        notificationManager.notify(id, notification);
+        getNotificationManager().notify(id, notification);
     }
 
     private NotificationManager getNotificationManager() {
