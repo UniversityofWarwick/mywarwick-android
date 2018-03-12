@@ -50,8 +50,8 @@ import android.widget.EdgeEffect;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.crashlytics.android.Crashlytics;
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.google.firebase.crash.FirebaseCrash;
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.BottomBarTab;
 import com.roughike.bottombar.OnTabReselectListener;
@@ -170,7 +170,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     public void onPathChange(final String path) {
         final String oldPath = myWarwick.getPath();
         try {
-            FirebaseCrash.log("onPathChange: " + oldPath);
+            Crashlytics.log("onPathChange: " + oldPath);
         } catch (IllegalStateException ignored) {
         }
         runOnUiThread(new Runnable() {
@@ -587,7 +587,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         }
 
         try {
-            FirebaseCrash.log("loadUrl: " + root + path);
+            Crashlytics.log("loadUrl: " + root + path);
         } catch (IllegalStateException ignored) {
         }
         myWarwickWebView.loadUrl(root + path);
