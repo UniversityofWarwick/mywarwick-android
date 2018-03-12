@@ -1,8 +1,9 @@
 package uk.ac.warwick.my.app.services;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.Log;
+
+import com.google.firebase.crash.FirebaseCrash;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -10,11 +11,9 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.TimeZone;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -24,16 +23,16 @@ import uk.ac.warwick.my.app.BuildConfig;
 import uk.ac.warwick.my.app.bridge.MyWarwickPreferences;
 import uk.ac.warwick.my.app.data.Event;
 import uk.ac.warwick.my.app.data.EventDao;
+import uk.ac.warwick.my.app.utils.ISO8601RoughParser;
 
 import static com.google.common.net.HttpHeaders.USER_AGENT;
 import static uk.ac.warwick.my.app.Global.TAG;
 
 public class EventFetcher {
-    @SuppressLint("SimpleDateFormat")
-    private static final ThreadLocal<SimpleDateFormat> dateFormat = new ThreadLocal<SimpleDateFormat>() {
-        @Override
-        protected SimpleDateFormat initialValue() {
-            return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX");
+
+    private static final ThreadLocal<ISO8601RoughParser> dateFormat = new ThreadLocal<ISO8601RoughParser>() {
+        protected ISO8601RoughParser initialValue() {
+            return new ISO8601RoughParser();
         }
     };
 
@@ -48,7 +47,6 @@ public class EventFetcher {
     }
 
     public EventFetcher(Context context, MyWarwickPreferences preferences) {
-        dateFormat.get().setTimeZone(TimeZone.getTimeZone("UTC"));
         this.context = context;
         this.preferences = preferences;
         http = new OkHttpClient.Builder()
@@ -130,6 +128,11 @@ public class EventFetcher {
             new EventNotificationScheduler(context).scheduleNextNotification();
         } catch (FetchException e) {
             Log.e(TAG, "Error updating events", e);
+            try {
+                FirebaseCrash.report(new Exception("Error updating events", e));
+            } catch (IllegalStateException e2) {
+                Log.e(TAG, "Error reporting error!", e2);
+            }
         }
     }
 
