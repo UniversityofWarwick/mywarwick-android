@@ -70,11 +70,14 @@ public class MessageHandler extends FirebaseMessagingService {
             String body = messageData.get("body");
             int priority = getPriorityCode(messageData.get("priority"));
 
-            if (apiLevelSupportsNotificationChannels && channelExists(channelId)) {
-                buildAndSend(new NotificationCompat.Builder(this, channelId), priority, title, body, id);
+            NotificationCompat.Builder builder;
+            if (apiLevelSupportsNotificationChannels) {
+                builder = new NotificationCompat.Builder(this, channelExists(channelId) ? channelId : getString(R.string.default_notification_channel_id));
             } else {
-                buildAndSend(new NotificationCompat.Builder(this, getString(R.string.default_notification_channel_id)), priority, title, body, id);
+                builder = new NotificationCompat.Builder(this);
             }
+
+            buildAndSend(builder, priority, title, body, id);
 
         } catch (NullPointerException e) {
             FirebaseCrash.report(e);
