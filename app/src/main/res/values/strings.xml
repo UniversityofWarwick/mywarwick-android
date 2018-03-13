@@ -36,6 +36,8 @@
     <string name="app_settings">App settings</string>
     <string name="custom_server_address">Custom server address</string>
 
+    <string name="default_notification_channel_id">alerts</string>
+
     <string name="bridge">
         (function androidBridge(global) {
             if (global.MyWarwickNative) {

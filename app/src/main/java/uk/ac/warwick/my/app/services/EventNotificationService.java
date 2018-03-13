@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -23,6 +24,7 @@ import static android.app.Notification.DEFAULT_VIBRATE;
 import static android.app.Notification.PRIORITY_MAX;
 import static android.support.v4.app.NotificationCompat.CATEGORY_EVENT;
 import static uk.ac.warwick.my.app.Global.TAG;
+import static uk.ac.warwick.my.app.services.NotificationChannelsService.TIMETABLE_EVENTS_CHANNEL_ID;
 
 public class EventNotificationService {
     public static final String NOTIFICATION_ID = "uk.ac.warwick.my.app.notification_id";
@@ -57,17 +59,25 @@ public class EventNotificationService {
         Intent intent = new Intent(context, MainActivity.class);
         intent.putExtra(NOTIFICATION_ID, id);
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
-                .setPriority(PRIORITY_MAX)
-                .setSmallIcon(R.drawable.ic_warwick_notification)
-                .setContentTitle(getNotificationTitle(event))
-                .setContentText(getNotificationText(event))
-                .setColor(context.getResources().getColor(R.color.colorAccent))
-                .setCategory(CATEGORY_EVENT)
-                .setWhen(event.getStart().getTime())
-                .setShowWhen(false)
-                .setDefaults(DEFAULT_LIGHTS | DEFAULT_VIBRATE)
-                .setContentIntent(PendingIntent.getActivity(context, id, intent, 0));
+        NotificationCompat.Builder builder;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            builder = new NotificationCompat.Builder(context, TIMETABLE_EVENTS_CHANNEL_ID);
+        } else {
+            builder = new NotificationCompat.Builder(context);
+        }
+
+         builder
+             .setPriority(PRIORITY_MAX)
+             .setSmallIcon(R.drawable.ic_warwick_notification)
+             .setContentTitle(getNotificationTitle(event))
+             .setContentText(getNotificationText(event))
+             .setColor(context.getResources().getColor(R.color.colorAccent))
+             .setCategory(CATEGORY_EVENT)
+             .setWhen(event.getStart().getTime())
+             .setShowWhen(false)
+             .setDefaults(DEFAULT_LIGHTS | DEFAULT_VIBRATE)
+             .setContentIntent(PendingIntent.getActivity(context, id, intent, 0));
 
         if (preferences.isTimetableNotificationsSoundEnabled()) {
             builder.setSound(Uri.parse(String.format("android.resource://%s/%s", context.getPackageName(), R.raw.timetable_alarm)));
