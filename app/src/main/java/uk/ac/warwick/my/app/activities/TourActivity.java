@@ -53,7 +53,7 @@ public class TourActivity extends AppIntro {
             return getArguments().getInt(POSITION_ARG, 0);
         }
 
-        @Nullable
+        @NonNull
         @Override
         public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
             View view = inflater.inflate(LAYOUTS[getPosition()], container, false);

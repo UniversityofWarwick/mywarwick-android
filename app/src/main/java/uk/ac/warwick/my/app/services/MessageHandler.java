@@ -5,9 +5,11 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -20,36 +22,44 @@ import static android.app.Notification.DEFAULT_LIGHTS;
 import static android.app.Notification.DEFAULT_VIBRATE;
 import static android.app.Notification.PRIORITY_DEFAULT;
 import static android.app.Notification.PRIORITY_MAX;
-import static android.support.v4.app.NotificationManagerCompat.IMPORTANCE_DEFAULT;
-import static android.support.v4.app.NotificationManagerCompat.IMPORTANCE_HIGH;
 import static uk.ac.warwick.my.app.services.NotificationChannelsService.channelExists;
 
 public class MessageHandler extends FirebaseMessagingService {
 
-    private final static boolean apiLevelSupportsNotificationChannels = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
-
     public MessageHandler() {
     }
 
-    private void buildAndSend(NotificationCompat.Builder builder, int priority, String title, String body, String id) throws NullPointerException {
-        ((NotificationManager) builder.mContext.getSystemService(Context.NOTIFICATION_SERVICE)).notify(id, 0,
+    private void buildAndSend(Context context, NotificationCompat.Builder builder, int priority, String title, String body, String id) throws NullPointerException {
+        NotificationManager notificationManager = getNotificationManager(context);
+        if (notificationManager != null) {
+            notificationManager.notify(id, 0,
                 builder
-                        .setPriority(priority)
-                        .setSmallIcon(R.drawable.ic_warwick_notification)
-                        .setContentTitle(title)
-                        .setContentText(body)
-                        .setColor(this.getResources().getColor(R.color.colorAccent))
-                        .setDefaults(DEFAULT_LIGHTS | DEFAULT_VIBRATE)
-                        .setContentIntent(PendingIntent.getActivity(builder.mContext, 0, new Intent(builder.mContext, MainActivity.class), 0))
-                        .build()
-        );
+                    .setPriority(priority)
+                    .setSmallIcon(R.drawable.ic_warwick_notification)
+                    .setContentTitle(title)
+                    .setContentText(body)
+                    .setColor(this.getResources().getColor(R.color.colorAccent))
+                    .setDefaults(DEFAULT_LIGHTS | DEFAULT_VIBRATE)
+                    .setContentIntent(PendingIntent.getActivity(builder.mContext, 0, new Intent(builder.mContext, MainActivity.class), 0))
+                    .build()
+            );
+        }
     }
 
+    /**
+     * Sets priority which is only used for pre-Oreo devices.
+     * On Oreo+ channels completely replace this.
+     */
     private int getPriorityCode(String priorityStr) {
         if (priorityStr != null && priorityStr.equals("high")) {
-            return apiLevelSupportsNotificationChannels ? IMPORTANCE_HIGH : PRIORITY_MAX;
+            return PRIORITY_MAX;
         }
-        return apiLevelSupportsNotificationChannels ? IMPORTANCE_DEFAULT : PRIORITY_DEFAULT;
+        return PRIORITY_DEFAULT;
+    }
+
+    @Nullable
+    private NotificationManager getNotificationManager(@NonNull Context context) {
+        return (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
     }
 
     @Override
@@ -59,6 +69,9 @@ public class MessageHandler extends FirebaseMessagingService {
         Map<String, String> messageData = message.getData();
 
         String channelId = messageData.get("android_channel_id");
+        if (!channelExists(channelId)) {
+            channelId = getString(R.string.default_notification_channel_id);
+        }
 
         try {
             String id = messageData.get("id");
@@ -70,17 +83,13 @@ public class MessageHandler extends FirebaseMessagingService {
             String body = messageData.get("body");
             int priority = getPriorityCode(messageData.get("priority"));
 
-            NotificationCompat.Builder builder;
-            if (apiLevelSupportsNotificationChannels) {
-                builder = new NotificationCompat.Builder(this, channelExists(channelId) ? channelId : getString(R.string.default_notification_channel_id));
-            } else {
-                builder = new NotificationCompat.Builder(this);
-            }
+            // Set a channel, which is ignored for anything before Oreo
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channelId);
 
-            buildAndSend(builder, priority, title, body, id);
+            buildAndSend(this, builder, priority, title, body, id);
 
         } catch (NullPointerException e) {
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
         }
     }
 }

@@ -84,6 +84,7 @@ dependencies {
 
     // This is in Android, but a stub implementation.
     testImplementation 'org.json:json:20171018'
+
 }
 
 task archiveProguardMapping(type: Sync) {

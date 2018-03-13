@@ -128,7 +128,8 @@
     <string name="tour_notifications">Just-in-time reminders like Submit your coursework or Return your library books. Alerts pop up on your phone\'s lock screen like messages, with a history on this screen in the app</string>
     <string name="tour_me">Tiles on your \'Me\' screen give you a quick summary of things that are relevant to you. You can resize and rearrange the tiles to suit your needs.</string>
     <string name="tour_title_me">\'Me\' screen</string>
-    <string name="tour_welcome">My Warwick is your window into lots of different activities at Warwick. Here you can get coursework reminders, see traffic alerts, use our interactive map, search for people, web pages and much more. Take a tour...</string>
+    <string name="tour_welcome">My Warwick is your window into lots of different activities at Warwick. Here you can get coursework reminders, see traffic alerts, use our interactive map, search for people, web pages and much more. Take a tour…</string>
     <string name="tour_title_welcome">Welcome to My Warwick</string>
     <string name="finish">Finish</string>
+    <string name="account_photo_description">A picture of you</string>
 </resources>

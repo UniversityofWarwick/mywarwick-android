@@ -59,6 +59,7 @@ import com.roughike.bottombar.OnTabSelectListener;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Locale;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -186,8 +187,8 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
                     // Don't call listeners when the webview changes the tab
                     BottomBar bottomBar = getBottomBar();
                     bottomBar.setVisibility(View.VISIBLE);
-                    bottomBar.setOnTabSelectListener(null, false);
-                    bottomBar.setOnTabReselectListener(null);
+                    bottomBar.removeOnTabSelectListener();
+                    bottomBar.removeOnTabReselectListener();
                     // Only update the tab if the new path is on a different tab
                     if (oldPath == null) {
                         bottomBar.selectTabWithId(getTabItemForPath(path));
@@ -240,7 +241,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             public void run() {
                 View accountPhotoView = getAccountPhotoView();
                 View cardView = accountPhotoView.findViewById(R.id.image_card_view);
-                ImageView photoView = (ImageView) accountPhotoView.findViewById(R.id.image_view);
+                ImageView photoView = accountPhotoView.findViewById(R.id.image_view);
 
                 final boolean signedIn = (user != null && user.isSignedIn());
 
@@ -325,7 +326,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                ImageView imageView = (ImageView) findViewById(R.id.background);
+                ImageView imageView = findViewById(R.id.background);
                 imageView.setImageDrawable(new ColorDrawable(getColourForTheme(bgId)));
             }
         });
@@ -335,9 +336,9 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                ImageView imageView = (ImageView) findViewById(R.id.background);
+                ImageView imageView = findViewById(R.id.background);
                 Context ctx = imageView.getContext();
-                int resourceIdentifier = ctx.getResources().getIdentifier(String.format("bg%02d", newBgId), "drawable", ctx.getPackageName());
+                int resourceIdentifier = ctx.getResources().getIdentifier(String.format(Locale.ROOT,"bg%02d", newBgId), "drawable", ctx.getPackageName());
                 if (resourceIdentifier != 0) {
                     Glide.with(getApplicationContext()).asDrawable().load(resourceIdentifier).into(imageView);
                 }
@@ -398,6 +399,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     private void setEdgeEffectColour(WebView webView, int colour) {
         try {
             // com.android.webview.chromium.WebViewChromium
+            @SuppressLint("PrivateApi")
             Method getWebViewProvider = WebView.class.getDeclaredMethod("getWebViewProvider");
             if (!getWebViewProvider.isAccessible()) getWebViewProvider.setAccessible(true);
             Object provider = getWebViewProvider.invoke(webView, (Object[]) null);
@@ -474,7 +476,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         firebaseAnalytics = FirebaseAnalytics.getInstance(this);
@@ -518,6 +520,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
         if (actionBar != null) {
             actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM | ActionBar.DISPLAY_SHOW_TITLE);
+            @SuppressLint("InflateParams") // we need to pass layout params, and have no access to the root.
             View accountPhotoView = getLayoutInflater().inflate(R.layout.account_photo_view, null);
             ActionBar.LayoutParams layoutParams = new ActionBar.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.END);
             actionBar.setCustomView(accountPhotoView, layoutParams);
@@ -774,8 +777,13 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         return data != null && SETTINGS_PATH.equals(data.getPath());
     }
 
+    @NonNull
     private View getAccountPhotoView() {
-        return getSupportActionBar().getCustomView();
+        if (getSupportActionBar() != null) {
+            return getSupportActionBar().getCustomView();
+        } else {
+            throw new IllegalStateException("support action bar missing");
+        }
     }
 
     private BottomBar getBottomBar() {
