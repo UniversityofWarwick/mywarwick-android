@@ -1,10 +1,11 @@
 package uk.ac.warwick.my.app.services;
 
-import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.os.Build;
 
-@SuppressLint("NewAPI")
+@TargetApi(Build.VERSION_CODES.O)
 public class NotificationChannelsService {
 
     final static String TIMETABLE_EVENTS_CHANNEL_ID = "timetable_events";
