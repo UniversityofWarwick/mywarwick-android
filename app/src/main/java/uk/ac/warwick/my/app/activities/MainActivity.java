@@ -234,6 +234,10 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         });
     }
 
+    /**
+     * Called whenever the user changes in the known state. This will include initial
+     * startup, as the app launches not knowing anything about the user
+     */
     @Override
     public void onUserChange(@Nullable final User user) {
         runOnUiThread(new Runnable() {
@@ -252,6 +256,9 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
                         registerForPushNotifications();
 
                         if (preferences.getTimetableToken() == null) {
+                            registerForTimetable();
+                        } else if (preferences.isNeedsTimetableTokenRefresh()) {
+                            Log.d(TAG, "Refreshing timetable token");
                             registerForTimetable();
                         }
                     }
@@ -709,11 +716,6 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
         startTimetableEventUpdateTimer();
 
-        if (myWarwick.isUserSignedIn() && preferences.isNeedsTimetableTokenRefresh()) {
-            Log.d(TAG, "Refreshing timetable token");
-            registerForTimetable();
-        }
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             buildNotificationChannels((NotificationManager) getSystemService(NOTIFICATION_SERVICE));
         }
@@ -753,6 +755,13 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             // Let the embedded app know that it's being brought to the foreground
             // (Only need to do this if we didn't just reload the whole page)
             invoker.invokeMyWarwickMethod("onApplicationDidBecomeActive()");
+
+            // Refresh token when opening backgrounded app.
+            // Fresh app load is handled in onUserChange.
+            if (myWarwick.isUserSignedIn() && preferences.isNeedsTimetableTokenRefresh()) {
+                Log.d(TAG, "Refreshing timetable token");
+                registerForTimetable();
+            }
         }
     }
 
