@@ -69,8 +69,12 @@ public class MessageHandler extends FirebaseMessagingService {
         Map<String, String> messageData = message.getData();
 
         String channelId = messageData.get("android_channel_id");
-        if (!channelExists(channelId)) {
-            channelId = getString(R.string.default_notification_channel_id);
+
+        // channelExists() func is available only to Oreo and above
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (!channelExists(channelId)) {
+                channelId = getString(R.string.default_notification_channel_id);
+            }
         }
 
         try {
