@@ -29,12 +29,12 @@ android {
         }
     }
 
-    compileSdkVersion 26
+    compileSdkVersion 27
 
     defaultConfig {
         applicationId "uk.ac.warwick.my.app"
         minSdkVersion 19
-        targetSdkVersion 26
+        targetSdkVersion 27
         versionCode buildNumber
         versionName buildNumber + ""
         testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
@@ -60,10 +60,10 @@ android {
 dependencies {
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.mockito:mockito-core:1.10.19'
-    implementation 'com.android.support:appcompat-v7:26.1.0'
-    implementation 'com.android.support:design:26.1.0'
-    implementation 'com.android.support:customtabs:26.1.0'
-    implementation 'com.android.support:cardview-v7:26.1.0'
+    implementation 'com.android.support:appcompat-v7:27.1.0'
+    implementation 'com.android.support:design:27.1.0'
+    implementation 'com.android.support:customtabs:27.1.0'
+    implementation 'com.android.support:cardview-v7:27.1.0'
     implementation 'com.crashlytics.sdk.android:crashlytics:2.9.1'
     implementation 'com.google.firebase:firebase-core:11.8.0'
     implementation 'com.google.firebase:firebase-messaging:11.8.0'
