@@ -80,4 +80,20 @@ public class EventFetcherTest {
         assertEquals("1", event.getServerId());
         assertEquals("meeting", event.getType());
     }
+
+    @Test
+    public void buildObjectCET() throws Exception {
+        JSONObject json = new JSONObject()
+                .put("id", "1")
+                .put("type", "meeting")
+                // Normally has millis; just testing that they're optional.
+                .put("start", "2017-12-13T13:00:00+01:00")
+                .put("end", "2017-12-13T14:00:00.123+0100");
+        Event event = fetcher.buildEvent(json);
+        assertEquals(Date.from(Instant.parse("2017-12-13T12:00:00.000Z")), event.getStart());
+        assertEquals(Date.from(Instant.parse("2017-12-13T13:00:00.123Z")), event.getEnd());
+        assertEquals("", event.getTitle());
+        assertEquals("1", event.getServerId());
+        assertEquals("meeting", event.getType());
+    }
 }
