@@ -18,10 +18,7 @@ import java.util.Map;
 import uk.ac.warwick.my.app.R;
 import uk.ac.warwick.my.app.activities.MainActivity;
 
-import static android.app.Notification.DEFAULT_LIGHTS;
-import static android.app.Notification.DEFAULT_VIBRATE;
-import static android.app.Notification.PRIORITY_DEFAULT;
-import static android.app.Notification.PRIORITY_MAX;
+import static android.app.Notification.*;
 import static uk.ac.warwick.my.app.services.NotificationChannelsService.channelExists;
 
 public class MessageHandler extends FirebaseMessagingService {
@@ -39,7 +36,7 @@ public class MessageHandler extends FirebaseMessagingService {
                     .setContentTitle(title)
                     .setContentText(body)
                     .setColor(this.getResources().getColor(R.color.colorAccent))
-                    .setDefaults(DEFAULT_LIGHTS | DEFAULT_VIBRATE)
+                    .setDefaults(DEFAULT_LIGHTS | DEFAULT_VIBRATE | DEFAULT_SOUND)
                     .setStyle(new NotificationCompat.BigTextStyle()) // allow multiline body
                     .setContentIntent(PendingIntent.getActivity(builder.mContext, 0, new Intent(builder.mContext, MainActivity.class), 0))
                     .build()
