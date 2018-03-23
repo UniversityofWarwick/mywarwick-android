@@ -40,6 +40,7 @@ public class MessageHandler extends FirebaseMessagingService {
                     .setContentText(body)
                     .setColor(this.getResources().getColor(R.color.colorAccent))
                     .setDefaults(DEFAULT_LIGHTS | DEFAULT_VIBRATE)
+                    .setStyle(new NotificationCompat.BigTextStyle()) // allow multiline body
                     .setContentIntent(PendingIntent.getActivity(builder.mContext, 0, new Intent(builder.mContext, MainActivity.class), 0))
                     .build()
             );
