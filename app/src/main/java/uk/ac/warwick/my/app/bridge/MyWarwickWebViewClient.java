@@ -1,14 +1,18 @@
 package uk.ac.warwick.my.app.bridge;
 
+import android.annotation.TargetApi;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.customtabs.CustomTabsSession;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
@@ -102,6 +106,18 @@ public class MyWarwickWebViewClient extends WebViewClient {
         Log.d("MyWarwick", "Page loaded: " + url);
         String js = view.getContext().getString(R.string.bridge);
         view.loadUrl("javascript:" + js);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) flushCookies();
+        else syncCookies();
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private void flushCookies() {
+        CookieManager.getInstance().flush();
+    }
+
+    private void syncCookies() {
+        CookieSyncManager.getInstance().sync();
     }
 
     @Override
