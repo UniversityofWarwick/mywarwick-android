@@ -75,6 +75,8 @@ import uk.ac.warwick.my.app.bridge.MyWarwickState;
 import uk.ac.warwick.my.app.bridge.MyWarwickWebViewClient;
 import uk.ac.warwick.my.app.data.EventDao;
 import uk.ac.warwick.my.app.services.EventFetcher;
+import uk.ac.warwick.my.app.services.PushRegistrationAPI;
+import uk.ac.warwick.my.app.user.AnonymousUser;
 import uk.ac.warwick.my.app.user.SsoUrls;
 import uk.ac.warwick.my.app.user.User;
 import uk.ac.warwick.my.app.utils.DownloadImageTask;
@@ -692,7 +694,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
         Log.i(TAG, "Unregistering push notification token " + token);
 
-        invoker.invokeMyWarwickMethod(String.format("unregisterForPush('%s')", token));
+        new PushRegistrationAPI(preferences).unregister(token);
     }
 
     @Override
@@ -904,7 +906,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         intent.putExtra(WebViewActivity.EXTRA_TITLE, getString(R.string.action_sign_in));
         startActivityForResult(intent, SIGN_IN);
 
-        myWarwick.setUser(null);
+        myWarwick.setUser(new AnonymousUser(true));
         preferences.setNeedsReload(true);
     }
 
