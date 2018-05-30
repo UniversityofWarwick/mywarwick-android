@@ -13,7 +13,8 @@ public class NotificationChannelsService {
     private final static NotificationChannel[] channels = new NotificationChannel[]{
             new NotificationChannel(TIMETABLE_EVENTS_CHANNEL_ID, "Timetable events", NotificationManager.IMPORTANCE_DEFAULT),
             new NotificationChannel("two_step_codes", "Two-step codes", NotificationManager.IMPORTANCE_HIGH),
-            new NotificationChannel("alerts", "Alerts", NotificationManager.IMPORTANCE_DEFAULT)
+            new NotificationChannel("alerts", "Alerts", NotificationManager.IMPORTANCE_DEFAULT),
+            new NotificationChannel("urgent_alerts", "Urgent alerts", NotificationManager.IMPORTANCE_HIGH)
     };
 
     static boolean channelExists(String channelId) {
