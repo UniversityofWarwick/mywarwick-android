@@ -13,17 +13,21 @@ import com.crashlytics.android.Crashlytics;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
+import java.util.Date;
 import java.util.Map;
 
 import uk.ac.warwick.my.app.R;
 import uk.ac.warwick.my.app.activities.MainActivity;
+import uk.ac.warwick.my.app.bridge.MyWarwickPreferences;
 
 import static android.app.Notification.*;
 import static uk.ac.warwick.my.app.services.NotificationChannelsService.channelExists;
 
 public class MessageHandler extends FirebaseMessagingService {
+    private final MyWarwickPreferences preferences;
 
-    public MessageHandler() {
+    public MessageHandler(final MyWarwickPreferences preferences) {
+    this.preferences = preferences;
     }
 
     private void buildAndSend(Context context, NotificationCompat.Builder builder, int priority, String title, String body, String id) throws NullPointerException {
@@ -58,6 +62,11 @@ public class MessageHandler extends FirebaseMessagingService {
     @Nullable
     private NotificationManager getNotificationManager(@NonNull Context context) {
         return (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+    }
+
+    @Nullable
+    public Date getDoNotDisturbEnd() {
+        preferences.getDnD
     }
 
     @Override

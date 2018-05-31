@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 
+import java.time.Period;
+
 import uk.ac.warwick.my.app.services.EventFetcher;
 import uk.ac.warwick.my.app.services.EventNotificationScheduler;
 
