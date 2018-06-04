@@ -189,6 +189,8 @@ public class MyWarwickJavaScriptInterface {
                 Log.d(TAG, "Setting feature: " + key + " -> " + features.getBoolean(key));
                 preferences.setFeature(key, features.getBoolean(key));
             }
+            // rebuild menu with new feature set
+            state.getActivity().invalidateOptionsMenu();
         } catch (JSONException e) {
             Crashlytics.logException(e);
         }

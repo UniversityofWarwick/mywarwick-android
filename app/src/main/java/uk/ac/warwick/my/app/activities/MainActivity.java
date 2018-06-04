@@ -950,19 +950,11 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
     private void updateSettingsMenuItem(String path) {
         if (settingsMenuItem != null) {
-            settingsMenuItem.setVisible(
-                    path == null ||
-                            path.equals(ROOT_PATH) ||
-                            (path.startsWith(EDIT_PATH) && !preferences.featureEnabled(MyWarwickFeatures.EDIT_TILES_BTN)) ||
-                            path.startsWith(SEARCH_PATH) ||
-                            path.startsWith(NOTIFICATIONS_PATH) ||
-                            path.startsWith(ACTIVITY_PATH) ||
-                            path.startsWith(NEWS_PATH) ||
-                            path.startsWith(POST_TOUR_PATH) ||
-                            path.startsWith(ALERTS_SHORTCUT_ACTION) ||
-                            path.startsWith(ACTIVITY_SHORTCUT_ACTION) ||
-                            path.startsWith(SEARCH_SHORTCUT_ACTION)
-            );
+            if (path != null && path.startsWith(EDIT_PATH) && preferences.featureEnabled(MyWarwickFeatures.EDIT_TILES_BTN)) {
+                settingsMenuItem.setVisible(false);
+            } else {
+                settingsMenuItem.setVisible(path == null || !path.startsWith(SETTINGS_PATH));
+            }
         }
     }
 
