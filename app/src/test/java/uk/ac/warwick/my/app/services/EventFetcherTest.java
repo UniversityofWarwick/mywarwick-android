@@ -24,13 +24,16 @@ public class EventFetcherTest {
     private SharedPreferences prefs;
 
     @Mock
+    private SharedPreferences features;
+
+    @Mock
     private Context ctx;
 
     private EventFetcher fetcher;
 
     @Before
     public void before() {
-         fetcher = new EventFetcher(ctx, new MyWarwickPreferences(ctx, prefs));
+         fetcher = new EventFetcher(ctx, new MyWarwickPreferences(ctx, prefs, features));
     }
 
     @Test
