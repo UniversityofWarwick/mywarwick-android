@@ -10,6 +10,8 @@ import uk.ac.warwick.my.app.services.EventNotificationScheduler;
 
 public class MyWarwickPreferences {
 
+    public static final String FEATURES_PREFS = "features";
+
     private static final String CUSTOM = "__custom__";
     private static final String CUSTOM_SERVER_ADDRESS = "custom_server_address";
     private static final String NEEDS_RELOAD = "mywarwick_needsreload";
@@ -36,15 +38,28 @@ public class MyWarwickPreferences {
 
     private final Context context;
     private final SharedPreferences sharedPreferences;
+    private final SharedPreferences featurePreferences;
 
     public MyWarwickPreferences(Context context) {
         this.context = context;
         this.sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        this.featurePreferences = context.getSharedPreferences(FEATURES_PREFS, Context.MODE_PRIVATE);
     }
 
-    public MyWarwickPreferences(Context context, SharedPreferences sharedPreferences) {
+    public MyWarwickPreferences(Context context, SharedPreferences sharedPreferences, SharedPreferences featurePreferences) {
         this.context = context;
         this.sharedPreferences = sharedPreferences;
+        this.featurePreferences = featurePreferences;
+    }
+
+    public void setFeature(String name, boolean value) {
+        featurePreferences.edit()
+                .putBoolean(name, value)
+                .apply();
+    }
+
+    public boolean featureEnabled(String name) {
+        return featurePreferences.getBoolean(name, false);
     }
 
     public String getPushNotificationToken() {

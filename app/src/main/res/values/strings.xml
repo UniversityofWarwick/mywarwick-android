@@ -103,6 +103,10 @@
                     MyWarwickAndroid.setTimetableNotificationsSoundEnabled(enabled);
                 };
 
+                native.setFeatures = function setFeatures(jsonFeatures) {
+                    MyWarwickAndroid.setFeatures(jsonFeatures);
+                };
+
                 native.getDoNotDisturb = function getDoNotDisturb() {
                     return MyWarwickAndroid.getDoNotDisturb();
                 };
