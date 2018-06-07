@@ -68,6 +68,7 @@ import uk.ac.warwick.my.app.BuildConfig;
 import uk.ac.warwick.my.app.Global;
 import uk.ac.warwick.my.app.R;
 import uk.ac.warwick.my.app.bridge.JavascriptInvoker;
+import uk.ac.warwick.my.app.bridge.MyWarwickFeatures;
 import uk.ac.warwick.my.app.bridge.MyWarwickJavaScriptInterface;
 import uk.ac.warwick.my.app.bridge.MyWarwickListener;
 import uk.ac.warwick.my.app.bridge.MyWarwickPreferences;
@@ -209,7 +210,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
                 ActionBar actionBar = getSupportActionBar();
 
                 if (actionBar != null) {
-                    if (path.matches("^/.+/.+") || path.startsWith(SETTINGS_PATH)) {
+                    if (path.matches("^/.+/.+") || path.startsWith(SETTINGS_PATH) || (path.startsWith(EDIT_PATH) && preferences.featureEnabled(MyWarwickFeatures.EDIT_TILES_BTN))) {
                         // Display a back arrow in place of the drawer indicator
                         actionBar.setDisplayHomeAsUpEnabled(true);
                     } else {
@@ -838,11 +839,19 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         // to revert this and hide the individual settings items instead.
         menu.findItem(R.id.action_app_settings).setVisible(isDebugBuild());
 
-        editMenuItem = menu.findItem(R.id.action_edit);
+        editMenuItem = menu.findItem(R.id.action_edit)
+                .setVisible(!preferences.featureEnabled(MyWarwickFeatures.EDIT_TILES_BTN));
         updateEditMenuItem(myWarwick.getPath());
         settingsMenuItem = menu.findItem(R.id.action_settings);
         updateSettingsMenuItem(myWarwick.getPath());
 
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        updateEditMenuItem(myWarwick.getPath());
+        menu.findItem(R.id.action_edit).setVisible(!preferences.featureEnabled(MyWarwickFeatures.EDIT_TILES_BTN));
         return true;
     }
 
@@ -875,6 +884,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        boolean isRemoveEditBtnFeature = preferences.featureEnabled(MyWarwickFeatures.EDIT_TILES_BTN);
         switch (item.getItemId()) {
             case R.id.action_sign_in:
                 if (myWarwick.getSsoUrls() != null && myWarwick.getSsoUrls().getLoginUrl() != null) {
@@ -887,6 +897,8 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             case R.id.action_edit:
                 if (myWarwick.getPath().equals(ROOT_PATH)) {
                     appNavigate(EDIT_PATH);
+                } else if (preferences.featureEnabled(MyWarwickFeatures.EDIT_TILES_BTN)){
+                    appNavigate(SETTINGS_PATH);
                 } else {
                     appNavigate(ROOT_PATH);
                 }
@@ -912,10 +924,13 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
     private void updateEditMenuItem(String path) {
         if (editMenuItem != null) {
-            editMenuItem.setVisible(ROOT_PATH.equals(path) || EDIT_PATH.equals(path));
+            boolean isRemoveEditBtnFeature = preferences.featureEnabled(MyWarwickFeatures.EDIT_TILES_BTN);
+            editMenuItem.setVisible(!isRemoveEditBtnFeature && (ROOT_PATH.equals(path) || EDIT_PATH.equals(path)));
 
             if (ROOT_PATH.equals(path) || NOTIFICATIONS_PATH.equals(path)) {
-                editMenuItem.setIcon(R.drawable.ic_mode_edit_white);
+                if (!isRemoveEditBtnFeature) {
+                    editMenuItem.setIcon(R.drawable.ic_mode_edit_white);
+                }
             } else {
                 editMenuItem.setIcon(R.drawable.edit_button_layer);
                 final int duration = 1000;
@@ -935,7 +950,11 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
     private void updateSettingsMenuItem(String path) {
         if (settingsMenuItem != null) {
-            settingsMenuItem.setVisible(path == null || !path.startsWith(SETTINGS_PATH));
+            if (path != null && path.startsWith(EDIT_PATH) && preferences.featureEnabled(MyWarwickFeatures.EDIT_TILES_BTN)) {
+                settingsMenuItem.setVisible(false);
+            } else {
+                settingsMenuItem.setVisible(path == null || !path.startsWith(SETTINGS_PATH));
+            }
         }
     }
 

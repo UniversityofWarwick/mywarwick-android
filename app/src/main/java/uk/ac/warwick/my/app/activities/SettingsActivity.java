@@ -6,6 +6,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import uk.ac.warwick.my.app.Global;
@@ -51,7 +52,15 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             addPreferencesFromResource(R.xml.pref_general);
             sharedPreferences = getPreferenceScreen().getSharedPreferences();
             sharedPreferences.registerOnSharedPreferenceChangeListener(this);
-            myWarwickPreferences = new MyWarwickPreferences(getActivity(), sharedPreferences);
+            SharedPreferences features = null;
+            if (getActivity() != null) {
+                features = getActivity().getSharedPreferences(MyWarwickPreferences.FEATURES_PREFS, MODE_PRIVATE);
+            }
+            myWarwickPreferences = new MyWarwickPreferences(
+                    getActivity(),
+                    sharedPreferences,
+                    features
+            );
             this.enableCustomAppHostTextFieldIfDesired(sharedPreferences);
         }
 

@@ -8,6 +8,8 @@ import android.util.Log;
 import android.webkit.JavascriptInterface;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -46,6 +48,8 @@ public class MyWarwickJavaScriptInterface {
     private final MyWarwickState state;
     private final JavascriptInvoker invoker;
     private final MyWarwickPreferences preferences;
+
+    private static final String TAG = MyWarwickJavaScriptInterface.class.getName();
 
     public MyWarwickJavaScriptInterface(JavascriptInvoker invoker, MyWarwickState state, MyWarwickPreferences preferences) {
         this.state = state;
@@ -173,6 +177,23 @@ public class MyWarwickJavaScriptInterface {
     @JavascriptInterface
     public void setTimetableNotificationsSoundEnabled(boolean enabled) {
         preferences.setTimetableNotificationsSoundEnabled(enabled);
+    }
+
+    @JavascriptInterface
+    public void setFeatures(String jsonFeatures) {
+        try {
+            JSONObject features = new JSONObject(jsonFeatures);
+            Iterator<String> keys = features.keys();
+            while(keys.hasNext()) {
+                String key = keys.next();
+                Log.d(TAG, "Setting feature: " + key + " -> " + features.getBoolean(key));
+                preferences.setFeature(key, features.getBoolean(key));
+            }
+            // rebuild menu with new feature set
+            state.getActivity().invalidateOptionsMenu();
+        } catch (JSONException e) {
+            Crashlytics.logException(e);
+        }
     }
 
     private boolean isPackageInstalled(String packageName) {
