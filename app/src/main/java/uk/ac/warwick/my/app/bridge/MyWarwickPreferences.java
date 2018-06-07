@@ -27,11 +27,11 @@ public class MyWarwickPreferences {
     private static final String TIMETABLE_NOTIFICATIONS_SOUND_ENABLED = "mywarwick_timetable_notifications_sound_enabled";
     private static final String TIMETABLE_TOKEN_REFRESH = "mywarwick_timetable_token_refresh";
 
-    private static final String DO_NOT_DISTURB_ENABLED = "mywarwick_no_not_disturb_enabled";
-    private static final String DO_NOT_DISTURB_WKDAY_START_HR = "mywarwick_no_not_disturb_wkday_start_hr";
-    private static final String DO_NOT_DISTURB_WKDAY_END_HR = "mywarwick_no_not_disturb_wkday_end_hr";
-    private static final String DO_NOT_DISTURB_WKEND_START_HR = "mywarwick_no_not_disturb_wkend_start_hr";
-    private static final String DO_NOT_DISTURB_WKEND_END_HR = "mywarwick_no_not_disturb_wkend_end_hr";
+    private static final String DO_NOT_DISTURB_ENABLED = "mywarwick_do_not_disturb_enabled";
+    private static final String DO_NOT_DISTURB_WKDAY_START_HR = "mywarwick_do_not_disturb_wkday_start_hr";
+    private static final String DO_NOT_DISTURB_WKDAY_END_HR = "mywarwick_do_not_disturb_wkday_end_hr";
+    private static final String DO_NOT_DISTURB_WKEND_START_HR = "mywarwick_do_not_disturb_wkend_start_hr";
+    private static final String DO_NOT_DISTURB_WKEND_END_HR = "mywarwick_do_not_disturb_wkend_end_hr";
 
     private static final int DEFAULT_BACKGROUND = 1;
     private static final boolean DEFAULT_IS_HIGH_CONTRAST = false;
