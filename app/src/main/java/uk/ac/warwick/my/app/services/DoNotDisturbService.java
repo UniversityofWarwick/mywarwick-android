@@ -37,6 +37,7 @@ public class DoNotDisturbService {
         String[] startTime = start.split(":");
         String[] endTime = end.split(":");
 
+        // TODO: minute value from HH:mm string is currently ignored
         int startHr = Integer.parseInt(startTime[0]);
         int endHr = Integer.parseInt(endTime[0]);
         int nowHr = calClone.get(Calendar.HOUR_OF_DAY);
@@ -56,13 +57,7 @@ public class DoNotDisturbService {
     @Nullable
     public Date getDoNotDisturbEnd(Calendar today) {
         if (preferences.getDoNotDisturbEnabled()) {
-            switch (today.get(Calendar.DAY_OF_WEEK)) {
-                case Calendar.SATURDAY:
-                case Calendar.SUNDAY:
-                    return reschedule(today, preferences.getDnDWeekendStart(), preferences.getDnDWeekendEnd());
-                default:
-                    return reschedule(today, preferences.getDnDWeekdayStart(), preferences.getDnDWeekdayEnd());
-            }
+            return reschedule(today, preferences.getDnDWeekendStart(), preferences.getDnDWeekendEnd());
         }
         return null;
     }
