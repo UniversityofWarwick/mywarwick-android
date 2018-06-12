@@ -2,13 +2,17 @@ package uk.ac.warwick.my.app.services;
 
 import android.support.annotation.Nullable;
 
+import com.crashlytics.android.Crashlytics;
+
 import java.util.Calendar;
 import java.util.Date;
+import java.util.regex.Pattern;
 
 import uk.ac.warwick.my.app.bridge.MyWarwickPreferences;
 
 public class DoNotDisturbService {
     private final MyWarwickPreferences preferences;
+    private static final Pattern timeRegex = Pattern.compile("^([01][0-9]|2[0-3]):[0-5][0-9]$");
 
     DoNotDisturbService(final MyWarwickPreferences preferences) {
         this.preferences = preferences;
@@ -25,19 +29,26 @@ public class DoNotDisturbService {
     }
 
     @Nullable
-    private Date reschedule(Calendar cal, int startHr, int endHr) {
-        int nowHr = cal.get(Calendar.HOUR_OF_DAY);
+    private Date reschedule(Calendar cal, String start, String end) {
+        if (!start.matches(timeRegex.pattern()) || !end.matches(timeRegex.pattern())) {
+            Crashlytics.logException(new IllegalArgumentException("Expected times in 24 hour format (\"HH:mm\") but was " + start + " and " + end));
+        }
+        Calendar calClone = (Calendar) cal.clone();
+        String[] startTime = start.split(":");
+        String[] endTime = end.split(":");
+
+        int startHr = Integer.parseInt(startTime[0]);
+        int endHr = Integer.parseInt(endTime[0]);
+        int nowHr = calClone.get(Calendar.HOUR_OF_DAY);
 
         if (endHr < startHr) { // time period spans two days
-            if (nowHr >= startHr && nowHr <= 23) {
+            if (nowHr >= startHr) {
                 return dateRoundedToHour(endHr, 1);
             } else if (nowHr < endHr) {
                 return dateRoundedToHour(endHr, 0);
             }
-        } else { // time period inside single day
-            if (nowHr >= startHr && nowHr < endHr) {
+        } else if (nowHr >= startHr && nowHr < endHr) { // time period inside single day
                 return dateRoundedToHour(endHr, 0);
-            }
         }
         return null;
     }

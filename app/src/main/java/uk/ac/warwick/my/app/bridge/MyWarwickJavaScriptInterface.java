@@ -214,10 +214,10 @@ public class MyWarwickJavaScriptInterface {
                 JSONObject weekday = json.getJSONObject(DND_WEEKDAY);
                 JSONObject weekend = json.getJSONObject(DND_WEEKEND);
                 preferences.setDoNotDisturbPeriods(
-                        weekday.getInt(DND_START),
-                        weekday.getInt(DND_END),
-                        weekend.getInt(DND_START),
-                        weekend.getInt(DND_END)
+                        weekday.getString(DND_START),
+                        weekday.getString(DND_END),
+                        weekend.getString(DND_START),
+                        weekend.getString(DND_END)
                 );
             }
         } catch (JSONException e) {

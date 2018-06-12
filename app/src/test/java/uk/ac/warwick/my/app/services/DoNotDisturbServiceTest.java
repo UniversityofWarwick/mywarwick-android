@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -28,7 +29,7 @@ public class DoNotDisturbServiceTest {
         service = new DoNotDisturbService(prefs);
     }
 
-    private void mockDoNotDisturb(int start, int end, boolean dndEnabled) {
+    private void mockDoNotDisturb(String start, String end, boolean dndEnabled) {
         Mockito.when(prefs.getDoNotDisturbEnabled()).thenReturn(dndEnabled);
         Mockito.when(prefs.getDnDWeekendStart()).thenReturn(start);
         Mockito.when(prefs.getDnDWeekendEnd()).thenReturn(end);
@@ -37,15 +38,16 @@ public class DoNotDisturbServiceTest {
     }
 
     private static Calendar setHr(Calendar cal, int hour) {
-        // Thursday 7 June 2018
-        cal.set(2018, 5, 7, hour, 0);
+        cal.set(Calendar.HOUR_OF_DAY, hour);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
         return cal;
     }
 
-    private static int getHourFromDate(Date date) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-        return cal.get(Calendar.HOUR_OF_DAY);
+    private static String getTimeFromDate(Date date) {
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+        return sdf.format(date);
     }
 
     private static int getDayOfWeekFromDate(Date date) {
@@ -54,7 +56,7 @@ public class DoNotDisturbServiceTest {
         return cal.get(Calendar.DAY_OF_WEEK);
     }
 
-    private void runTest(int nowHr, int startHr, int endHr, boolean assertNextDay, boolean assertNullDate) {
+    private void runTest(int nowHr, String startHr, String endHr, boolean assertNextDay, boolean assertNullDate) {
         mockDoNotDisturb(startHr, endHr, true);
 
         Calendar cal = setHr(Calendar.getInstance(), nowHr);
@@ -66,7 +68,7 @@ public class DoNotDisturbServiceTest {
             int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
             int expectedOutputDay = assertNextDay ? (dayOfWeek % 7) + 1 : dayOfWeek;
 
-            assertEquals("Expected correct hour in rescheduled date", endHr, getHourFromDate(date));
+            assertEquals("Expected correct hour in rescheduled date", endHr, getTimeFromDate(date));
             assertEquals("Expected correct day of week in rescheduled date", expectedOutputDay, getDayOfWeekFromDate(date));
         }
     }
@@ -74,9 +76,9 @@ public class DoNotDisturbServiceTest {
     @Test
     public void dndIsDisabled() {
         int nowHr = 2;
-        int startHr = 1;
-        int endHr = 3;
-        mockDoNotDisturb(startHr, endHr, false);
+        String startTime = "01:00";
+        String endTime = "03:00";
+        mockDoNotDisturb(startTime, endTime, false);
 
         Calendar cal = setHr(Calendar.getInstance(), nowHr);
         assertNull("Expected date to be null when DnD is disabled", service.getDoNotDisturbEnd(cal));
@@ -84,41 +86,41 @@ public class DoNotDisturbServiceTest {
 
     @Test
     public void doNotReschedule() {
-        runTest(19, 12, 18, false, true);
+        runTest(19, "12:00", "18:00", false, true);
     }
 
     @Test
     public void sameDayReschedule() {
-        runTest(15, 12, 18, false, false);
+        runTest(15, "12:00", "18:00", false, false);
     }
 
     @Test
     public void testZeroEndHourWithResched() {
-        runTest(23, 21, 0, true, false);
+        runTest(23, "21:00", "00:00", true, false);
     }
 
     @Test
     public void testZeroEndHourNoResched() {
-        runTest(1, 21, 0, false, true);
+        runTest(1, "21:00", "00:00", false, true);
     }
 
     @Test
     public void testZeroStartHourWithResched() {
-        runTest(0, 0, 7, false, false);
+        runTest(0, "00:00", "07:00", false, false);
     }
 
     @Test
     public void testZeroStartHourNoResched() {
-        runTest(23, 0, 7, false, true);
+        runTest(23, "00:00", "07:00", false, true);
     }
 
     @Test
     public void spanDaysRescheduleSameDay() {
-        runTest(4, 21, 7, false, false);
+        runTest(4, "21:00", "07:00", false, false);
     }
 
     @Test
     public void spanDaysRescheduleNextDay() {
-        runTest(23, 21, 7, true, false);
+        runTest(23, "21:00", "07:00", true, false);
     }
 }

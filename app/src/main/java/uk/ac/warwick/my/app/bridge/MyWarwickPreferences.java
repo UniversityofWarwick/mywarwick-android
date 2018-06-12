@@ -185,12 +185,12 @@ public class MyWarwickPreferences {
         sharedPreferences.edit().putBoolean(DO_NOT_DISTURB_ENABLED, isEnabled).apply();
     }
 
-    public void setDoNotDisturbPeriods(int wkStart, int wkEnd, int wkndStart, int wkndEnd) {
+    public void setDoNotDisturbPeriods(String wkStart, String wkEnd, String wkndStart, String wkndEnd) {
         sharedPreferences.edit()
-                .putInt(DO_NOT_DISTURB_WKDAY_START_HR, wkStart)
-                .putInt(DO_NOT_DISTURB_WKDAY_END_HR, wkEnd)
-                .putInt(DO_NOT_DISTURB_WKEND_START_HR, wkndStart)
-                .putInt(DO_NOT_DISTURB_WKEND_END_HR, wkndEnd)
+                .putString(DO_NOT_DISTURB_WKDAY_START_HR, wkStart)
+                .putString(DO_NOT_DISTURB_WKDAY_END_HR, wkEnd)
+                .putString(DO_NOT_DISTURB_WKEND_START_HR, wkndStart)
+                .putString(DO_NOT_DISTURB_WKEND_END_HR, wkndEnd)
                 .apply();
     }
 
@@ -198,19 +198,19 @@ public class MyWarwickPreferences {
         return sharedPreferences.getBoolean(DO_NOT_DISTURB_ENABLED, false);
     }
 
-    public int getDnDWeekdayStart() {
-        return sharedPreferences.getInt(DO_NOT_DISTURB_WKDAY_START_HR, 21);
+    public String getDnDWeekdayStart() {
+        return sharedPreferences.getString(DO_NOT_DISTURB_WKDAY_START_HR, "21:00");
     }
 
-    public int getDnDWeekdayEnd() {
-        return sharedPreferences.getInt(DO_NOT_DISTURB_WKDAY_END_HR, 7);
+    public String getDnDWeekdayEnd() {
+        return sharedPreferences.getString(DO_NOT_DISTURB_WKDAY_END_HR, "07:00");
     }
 
-    public int getDnDWeekendStart() {
-        return sharedPreferences.getInt(DO_NOT_DISTURB_WKEND_START_HR, 21);
+    public String getDnDWeekendStart() {
+        return sharedPreferences.getString(DO_NOT_DISTURB_WKEND_START_HR, "21:00");
     }
 
-    public int getDnDWeekendEnd() {
-        return sharedPreferences.getInt(DO_NOT_DISTURB_WKEND_END_HR, 7);
+    public String getDnDWeekendEnd() {
+        return sharedPreferences.getString(DO_NOT_DISTURB_WKEND_END_HR, "07:00");
     }
 }
