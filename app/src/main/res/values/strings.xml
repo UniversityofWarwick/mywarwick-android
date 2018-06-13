@@ -107,6 +107,14 @@
                     MyWarwickAndroid.setFeatures(jsonFeatures);
                 };
 
+                native.getDoNotDisturb = function getDoNotDisturb() {
+                    return MyWarwickAndroid.getDoNotDisturb();
+                };
+
+                native.setDoNotDisturb = function setDoNotDisturb(jsonString) {
+                    MyWarwickAndroid.setDoNotDisturb(jsonString);
+                };
+
                 native.openMailApp = function openMailApp(externalApp) {
                     if (externalApp === \'mail\') {
                         MyWarwickAndroid.openEmailApp();

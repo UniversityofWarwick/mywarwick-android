@@ -12,6 +12,7 @@ import com.crashlytics.android.Crashlytics;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONStringer;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -44,6 +45,13 @@ public class MyWarwickJavaScriptInterface {
 
     private static final String OUTLOOK_PACKAGE = "com.microsoft.office.outlook";
     private static final Uri OUTLOOK_URI = Uri.parse("ms-outlook://");
+
+    private static final String DND_WEEKEND = "weekend";
+    private static final String DND_WEEKDAY = "weekday";
+    private static final String DND_ENABLED = "enabled";
+    private static final String DND_START = "start";
+    private static final String DND_END = "end";
+
 
     private final MyWarwickState state;
     private final JavascriptInvoker invoker;
@@ -196,6 +204,47 @@ public class MyWarwickJavaScriptInterface {
         }
     }
 
+    @JavascriptInterface
+    public void setDoNotDisturb(String jsonDnD) {
+        try {
+            JSONObject json = new JSONObject(jsonDnD);
+            boolean enabled = json.optBoolean(DND_ENABLED, false);
+            preferences.setDoNotDisturbEnabled(enabled);
+            if (enabled) {
+                JSONObject weekday = json.getJSONObject(DND_WEEKDAY);
+                JSONObject weekend = json.getJSONObject(DND_WEEKEND);
+                preferences.setDoNotDisturbPeriods(
+                        weekday.getString(DND_START),
+                        weekday.getString(DND_END),
+                        weekend.getString(DND_START),
+                        weekend.getString(DND_END)
+                );
+            }
+        } catch (JSONException e) {
+            Crashlytics.logException(e);
+        }
+    }
+
+    @JavascriptInterface
+    public String getDoNotDisturb() {
+        JSONObject obj = new JSONObject();
+        try {
+            return obj.put(DND_ENABLED, preferences.getDoNotDisturbEnabled())
+                    .put(DND_WEEKEND, new JSONObject()
+                            .put(DND_START, preferences.getDnDWeekendStart())
+                            .put(DND_END, preferences.getDnDWeekendEnd())
+                    )
+                    .put(DND_WEEKDAY, new JSONObject()
+                            .put(DND_START, preferences.getDnDWeekdayStart())
+                            .put(DND_END, preferences.getDnDWeekdayEnd())
+                    )
+                    .toString();
+        } catch (JSONException e) {
+            Crashlytics.logException(e);
+        }
+        return obj.toString();
+    }
+
     private boolean isPackageInstalled(String packageName) {
         PackageManager packageManager = state.getActivity().getApplicationContext().getPackageManager();
         try {
@@ -220,5 +269,4 @@ public class MyWarwickJavaScriptInterface {
             return new AnonymousUser(user.optBoolean("authoritative", false)); // assume non-authoritative if unspecified
         }
     }
-
 }
