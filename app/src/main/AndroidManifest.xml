@@ -89,7 +89,6 @@
 
         <receiver android:name=".system.AlarmReceiver" />
         <receiver android:name=".system.ScheduledDownloadReceiver" />
-        <receiver android:name=".system.ScheduledNotificationReceiver" />
     </application>
 
 </manifest>

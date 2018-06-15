@@ -20,19 +20,11 @@ public class MyWarwickPreferences {
     private static final String TOUR_COMPLETE = "mywarwick_tour_complete";
     private static final String CHOSEN_BG = "mywarwick_chosen_background";
     private static final String IS_HIGH_CONTRAST_BG = "mywarwick_is_high_contrast_background";
-
     private static final String TIMETABLE_TOKEN = "mywarwick_timetable_token";
     private static final String TIMETABLE_NOTIFICATIONS_ENABLED = "mywarwick_timetable_notifications_enabled";
     private static final String TIMETABLE_NOTIFICATION_TIMING = "mywarwick_timetable_notification_timing";
     private static final String TIMETABLE_NOTIFICATIONS_SOUND_ENABLED = "mywarwick_timetable_notifications_sound_enabled";
     private static final String TIMETABLE_TOKEN_REFRESH = "mywarwick_timetable_token_refresh";
-
-    private static final String DO_NOT_DISTURB_ENABLED = "mywarwick_do_not_disturb_enabled";
-    private static final String DO_NOT_DISTURB_WKDAY_START_HR = "mywarwick_do_not_disturb_wkday_start_hr";
-    private static final String DO_NOT_DISTURB_WKDAY_END_HR = "mywarwick_do_not_disturb_wkday_end_hr";
-    private static final String DO_NOT_DISTURB_WKEND_START_HR = "mywarwick_do_not_disturb_wkend_start_hr";
-    private static final String DO_NOT_DISTURB_WKEND_END_HR = "mywarwick_do_not_disturb_wkend_end_hr";
-
     private static final int DEFAULT_BACKGROUND = 1;
     private static final boolean DEFAULT_IS_HIGH_CONTRAST = false;
 
@@ -179,38 +171,5 @@ public class MyWarwickPreferences {
 
     public boolean isNeedsTimetableTokenRefresh() {
         return sharedPreferences.getBoolean(TIMETABLE_TOKEN_REFRESH, false);
-    }
-
-    public void setDoNotDisturbEnabled(boolean isEnabled) {
-        sharedPreferences.edit().putBoolean(DO_NOT_DISTURB_ENABLED, isEnabled).apply();
-    }
-
-    public void setDoNotDisturbPeriods(String wkStart, String wkEnd, String wkndStart, String wkndEnd) {
-        sharedPreferences.edit()
-                .putString(DO_NOT_DISTURB_WKDAY_START_HR, wkStart)
-                .putString(DO_NOT_DISTURB_WKDAY_END_HR, wkEnd)
-                .putString(DO_NOT_DISTURB_WKEND_START_HR, wkndStart)
-                .putString(DO_NOT_DISTURB_WKEND_END_HR, wkndEnd)
-                .apply();
-    }
-
-    public boolean getDoNotDisturbEnabled() {
-        return sharedPreferences.getBoolean(DO_NOT_DISTURB_ENABLED, false);
-    }
-
-    public String getDnDWeekdayStart() {
-        return sharedPreferences.getString(DO_NOT_DISTURB_WKDAY_START_HR, "21:00");
-    }
-
-    public String getDnDWeekdayEnd() {
-        return sharedPreferences.getString(DO_NOT_DISTURB_WKDAY_END_HR, "07:00");
-    }
-
-    public String getDnDWeekendStart() {
-        return sharedPreferences.getString(DO_NOT_DISTURB_WKEND_START_HR, "21:00");
-    }
-
-    public String getDnDWeekendEnd() {
-        return sharedPreferences.getString(DO_NOT_DISTURB_WKEND_END_HR, "07:00");
     }
 }
