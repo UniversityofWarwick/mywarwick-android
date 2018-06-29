@@ -551,7 +551,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         // It still works, just looks a bit jarring.
 
         if (preferences.isTourComplete()) {
-            loadWebView();
+            loadWebView(true);
         } else {
             Intent intent = new Intent(this, TourActivity.class);
 
@@ -562,7 +562,12 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         updateThemeColours(preferences.getBackgroundChoice());
     }
 
-    private void loadWebView() {
+    /**
+     * Load a path within the webview based on flags and intents.
+     *
+     * @param firstLoad whether to load the Me view if nothing else matches, or do nothing.
+     */
+    private void loadWebView(boolean firstLoad) {
         if (firstRunAfterTour) {
             firstRunAfterTour = false;
             loadPath(POST_TOUR_PATH);
@@ -571,11 +576,11 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         } else if (isOpenedFromSettingsUrl()) {
             loadPath(SETTINGS_PATH);
         } else {
-            handleShortcuts();
+            handleShortcuts(firstLoad);
         }
     }
 
-    private void handleShortcuts() {
+    private void handleShortcuts(boolean firstLoad) {
         Intent intent = getIntent();
         String action = intent.getAction();
 
@@ -585,7 +590,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             loadPath(ACTIVITY_PATH);
         } else if (SEARCH_SHORTCUT_ACTION.equals(action)) {
             loadPath(SEARCH_PATH);
-        } else {
+        } else if (firstLoad) {
             loadPath(ROOT_PATH);
         }
     }
@@ -727,6 +732,10 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         Log.d(TAG, "onNewIntent");
 
         cancelNotificationFromIntent(intent);
+
+        // Handles intents from notifications etc. if MainActivity was already running
+        // (Otherwise handled in onCreate)
+        loadWebView(false);
     }
 
     private void cancelNotificationFromIntent(Intent intent) {
@@ -855,7 +864,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             preferences.setTourComplete();
             firstRunAfterTour = true;
 
-            loadWebView();
+            loadWebView(true);
         }
     }
 
