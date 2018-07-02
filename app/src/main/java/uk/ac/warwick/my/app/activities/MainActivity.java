@@ -840,9 +840,6 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         menu.findItem(R.id.action_app_settings).setVisible(isDebugBuild());
 
         editMenuItem = menu.findItem(R.id.action_edit);
-        if (editMenuItem != null) {
-            editMenuItem.setVisible(!preferences.featureEnabled(MyWarwickFeatures.EDIT_TILES_BTN));
-        }
         updateEditMenuItem(myWarwick.getPath());
         settingsMenuItem = menu.findItem(R.id.action_settings);
         updateSettingsMenuItem(myWarwick.getPath());
@@ -852,11 +849,8 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
+        editMenuItem = menu.findItem(R.id.action_edit);
         updateEditMenuItem(myWarwick.getPath());
-        MenuItem menuItem = menu.findItem(R.id.action_edit);
-        if (menuItem != null) {
-            menuItem.setVisible(!preferences.featureEnabled(MyWarwickFeatures.EDIT_TILES_BTN));
-        }
         return true;
     }
 
