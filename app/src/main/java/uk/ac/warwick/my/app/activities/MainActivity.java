@@ -839,8 +839,10 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         // to revert this and hide the individual settings items instead.
         menu.findItem(R.id.action_app_settings).setVisible(isDebugBuild());
 
-        editMenuItem = menu.findItem(R.id.action_edit)
-                .setVisible(!preferences.featureEnabled(MyWarwickFeatures.EDIT_TILES_BTN));
+        editMenuItem = menu.findItem(R.id.action_edit);
+        if (editMenuItem != null) {
+            editMenuItem.setVisible(!preferences.featureEnabled(MyWarwickFeatures.EDIT_TILES_BTN));
+        }
         updateEditMenuItem(myWarwick.getPath());
         settingsMenuItem = menu.findItem(R.id.action_settings);
         updateSettingsMenuItem(myWarwick.getPath());
@@ -851,7 +853,10 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         updateEditMenuItem(myWarwick.getPath());
-        menu.findItem(R.id.action_edit).setVisible(!preferences.featureEnabled(MyWarwickFeatures.EDIT_TILES_BTN));
+        MenuItem menuItem = menu.findItem(R.id.action_edit);
+        if (menuItem != null) {
+            menuItem.setVisible(!preferences.featureEnabled(MyWarwickFeatures.EDIT_TILES_BTN));
+        }
         return true;
     }
 
