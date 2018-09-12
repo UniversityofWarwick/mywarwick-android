@@ -103,6 +103,10 @@
                     MyWarwickAndroid.setTimetableNotificationsSoundEnabled(enabled);
                 };
 
+                native.setFeatures = function setFeatures(jsonFeatures) {
+                    MyWarwickAndroid.setFeatures(jsonFeatures);
+                };
+
                 native.openMailApp = function openMailApp(externalApp) {
                     if (externalApp === \'mail\') {
                         MyWarwickAndroid.openEmailApp();

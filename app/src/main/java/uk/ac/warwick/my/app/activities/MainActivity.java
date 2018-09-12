@@ -68,6 +68,7 @@ import uk.ac.warwick.my.app.BuildConfig;
 import uk.ac.warwick.my.app.Global;
 import uk.ac.warwick.my.app.R;
 import uk.ac.warwick.my.app.bridge.JavascriptInvoker;
+import uk.ac.warwick.my.app.bridge.MyWarwickFeatures;
 import uk.ac.warwick.my.app.bridge.MyWarwickJavaScriptInterface;
 import uk.ac.warwick.my.app.bridge.MyWarwickListener;
 import uk.ac.warwick.my.app.bridge.MyWarwickPreferences;
@@ -209,7 +210,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
                 ActionBar actionBar = getSupportActionBar();
 
                 if (actionBar != null) {
-                    if (path.matches("^/.+/.+") || path.startsWith(SETTINGS_PATH)) {
+                    if (path.matches("^/.+/.+") || path.startsWith(SETTINGS_PATH) || (path.startsWith(EDIT_PATH) && preferences.featureEnabled(MyWarwickFeatures.EDIT_TILES_BTN))) {
                         // Display a back arrow in place of the drawer indicator
                         actionBar.setDisplayHomeAsUpEnabled(true);
                     } else {
@@ -553,7 +554,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         // It still works, just looks a bit jarring.
 
         if (preferences.isTourComplete()) {
-            loadWebView();
+            loadWebView(getIntent(), true);
         } else {
             Intent intent = new Intent(this, TourActivity.class);
 
@@ -564,21 +565,25 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         updateThemeColours(preferences.getBackgroundChoice());
     }
 
-    private void loadWebView() {
+    /**
+     * Load a path within the webview based on flags and intents.
+     *
+     * @param firstLoad whether to load the Me view if nothing else matches, or do nothing.
+     */
+    private void loadWebView(Intent intent, boolean firstLoad) {
         if (firstRunAfterTour) {
             firstRunAfterTour = false;
             loadPath(POST_TOUR_PATH);
-        } else if (isOpenedFromNotification()) {
+        } else if (isOpenedFromNotification(intent)) {
             loadPath(NOTIFICATIONS_PATH);
-        } else if (isOpenedFromSettingsUrl()) {
+        } else if (isOpenedFromSettingsUrl(intent)) {
             loadPath(SETTINGS_PATH);
         } else {
-            handleShortcuts();
+            handleShortcuts(intent, firstLoad);
         }
     }
 
-    private void handleShortcuts() {
-        Intent intent = getIntent();
+    private void handleShortcuts(Intent intent, boolean firstLoad) {
         String action = intent.getAction();
 
         if (ALERTS_SHORTCUT_ACTION.equals(action)) {
@@ -587,7 +592,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             loadPath(ACTIVITY_PATH);
         } else if (SEARCH_SHORTCUT_ACTION.equals(action)) {
             loadPath(SEARCH_PATH);
-        } else {
+        } else if (firstLoad) {
             loadPath(ROOT_PATH);
         }
     }
@@ -729,6 +734,10 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         Log.d(TAG, "onNewIntent");
 
         cancelNotificationFromIntent(intent);
+
+        // Handles intents from notifications etc. if MainActivity was already running
+        // (Otherwise handled in onCreate)
+        loadWebView(intent, false);
     }
 
     private void cancelNotificationFromIntent(Intent intent) {
@@ -777,14 +786,14 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         deinitCustomTabs();
     }
 
-    private boolean isOpenedFromNotification() {
-        Bundle extras = getIntent().getExtras();
+    private boolean isOpenedFromNotification(Intent intent) {
+        Bundle extras = intent.getExtras();
 
         return extras != null && extras.containsKey("from");
     }
 
-    private boolean isOpenedFromSettingsUrl() {
-        Uri data = getIntent().getData();
+    private boolean isOpenedFromSettingsUrl(Intent intent) {
+        Uri data = intent.getData();
         return data != null && SETTINGS_PATH.equals(data.getPath());
     }
 
@@ -847,6 +856,13 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        editMenuItem = menu.findItem(R.id.action_edit);
+        updateEditMenuItem(myWarwick.getPath());
+        return true;
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == SIGN_IN && resultCode == RESULT_OK) {
             // We have returned from signing in - reload the web view
@@ -857,7 +873,9 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             preferences.setTourComplete();
             firstRunAfterTour = true;
 
-            loadWebView();
+            // maybe `data` is the correct intent, but in practice we hit the
+            // `firstRunAfterTour` case first which doesn't care about the intent anyway.
+            loadWebView(getIntent(), true);
         }
     }
 
@@ -875,6 +893,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        boolean isRemoveEditBtnFeature = preferences.featureEnabled(MyWarwickFeatures.EDIT_TILES_BTN);
         switch (item.getItemId()) {
             case R.id.action_sign_in:
                 if (myWarwick.getSsoUrls() != null && myWarwick.getSsoUrls().getLoginUrl() != null) {
@@ -887,6 +906,8 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             case R.id.action_edit:
                 if (myWarwick.getPath().equals(ROOT_PATH)) {
                     appNavigate(EDIT_PATH);
+                } else if (preferences.featureEnabled(MyWarwickFeatures.EDIT_TILES_BTN)){
+                    appNavigate(SETTINGS_PATH);
                 } else {
                     appNavigate(ROOT_PATH);
                 }
@@ -912,10 +933,13 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
     private void updateEditMenuItem(String path) {
         if (editMenuItem != null) {
-            editMenuItem.setVisible(ROOT_PATH.equals(path) || EDIT_PATH.equals(path));
+            boolean isRemoveEditBtnFeature = preferences.featureEnabled(MyWarwickFeatures.EDIT_TILES_BTN);
+            editMenuItem.setVisible(!isRemoveEditBtnFeature && (ROOT_PATH.equals(path) || EDIT_PATH.equals(path)));
 
             if (ROOT_PATH.equals(path) || NOTIFICATIONS_PATH.equals(path)) {
-                editMenuItem.setIcon(R.drawable.ic_mode_edit_white);
+                if (!isRemoveEditBtnFeature) {
+                    editMenuItem.setIcon(R.drawable.ic_mode_edit_white);
+                }
             } else {
                 editMenuItem.setIcon(R.drawable.edit_button_layer);
                 final int duration = 1000;
@@ -935,7 +959,11 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
     private void updateSettingsMenuItem(String path) {
         if (settingsMenuItem != null) {
-            settingsMenuItem.setVisible(path == null || !path.startsWith(SETTINGS_PATH));
+            if (path != null && path.startsWith(EDIT_PATH) && preferences.featureEnabled(MyWarwickFeatures.EDIT_TILES_BTN)) {
+                settingsMenuItem.setVisible(false);
+            } else {
+                settingsMenuItem.setVisible(path == null || !path.startsWith(SETTINGS_PATH));
+            }
         }
     }
 
