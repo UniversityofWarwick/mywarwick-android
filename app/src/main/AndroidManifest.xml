@@ -46,11 +46,6 @@
             android:name=".activities.SettingsActivity"
             android:label="@string/title_activity_settings" />
 
-        <service android:name=".services.MyInstanceIdService">
-            <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
-            </intent-filter>
-        </service>
         <service android:name=".services.MessageHandler">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
