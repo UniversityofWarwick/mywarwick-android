@@ -6,12 +6,10 @@ import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.annotation.SuppressLint;
 import android.app.NotificationManager;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -51,7 +49,9 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.crashlytics.android.Crashlytics;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.iid.InstanceIdResult;
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.BottomBarTab;
 import com.roughike.bottombar.OnTabReselectListener;
@@ -116,12 +116,6 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     private WebView myWarwickWebView;
     private MyWarwickState myWarwick = new MyWarwickState(this, this);
     private MyWarwickPreferences preferences;
-    private BroadcastReceiver tokenRefreshReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, final Intent intent) {
-            registerForPushNotifications();
-        }
-    };
     private JavascriptInvoker invoker;
     private MenuItem editMenuItem;
     private MenuItem settingsMenuItem;
@@ -129,7 +123,6 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
     private boolean firstRunAfterTour = false;
     private int themePrimaryColour;
-    private CustomTabsClient customTabsClient;
     private CustomTabsSession customTabsSession;
     private ScheduledExecutorService timetableEventUpdateScheduler;
     private AlertDialog locationPermissionsDialog;
@@ -547,8 +540,6 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             }
         }
 
-        registerTokenRefreshReceiver();
-
         // TODO the permissions ask is asynchronous so the page loads anyway,
         // and might start the login page moments after we've asked for permission.
         // It still works, just looks a bit jarring.
@@ -660,13 +651,6 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         }
     }
 
-    private void registerTokenRefreshReceiver() {
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(PushNotifications.TOKEN_REFRESH);
-
-        registerReceiver(tokenRefreshReceiver, intentFilter);
-    }
-
     private void registerForPushNotifications() {
         User user = myWarwick.getUser();
 
@@ -675,18 +659,18 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             return;
         }
 
-        String token = PushNotifications.getToken();
+        PushNotifications.getToken(this, new OnSuccessListener<InstanceIdResult>() {
+            @Override
+            public void onSuccess(InstanceIdResult instanceIdResult) {
+                String token = instanceIdResult.getToken();
 
-        if (token == null) {
-            // The token might not have been generated yet
-            return;
-        }
+                preferences.setPushNotificationToken(token);
 
-        preferences.setPushNotificationToken(token);
+                Log.i(TAG, "Registering for push notifications with token " + token);
 
-        Log.i(TAG, "Registering for push notifications with token " + token);
-
-        invoker.invokeMyWarwickMethod(String.format("registerForFCM('%s')", token));
+                invoker.invokeMyWarwickMethod(String.format("registerForFCM('%s')", token));
+            }
+        });
     }
 
     private void unregisterForPushNotifications() {
@@ -705,7 +689,6 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     @Override
     protected void onDestroy() {
         dismissLocationPermissionDialog();
-        unregisterReceiver(tokenRefreshReceiver);
         invoker.reset();
         invoker.clear();
         Log.d(TAG, "onDestroy");
@@ -893,7 +876,6 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        boolean isRemoveEditBtnFeature = preferences.featureEnabled(MyWarwickFeatures.EDIT_TILES_BTN);
         switch (item.getItemId()) {
             case R.id.action_sign_in:
                 if (myWarwick.getSsoUrls() != null && myWarwick.getSsoUrls().getLoginUrl() != null) {
@@ -1045,7 +1027,6 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             @Override
             public void onCustomTabsServiceConnected(ComponentName name, CustomTabsClient client) {
                 Log.d(TAG, "Custom Tabs service connected");
-                customTabsClient = client;
 
                 client.warmup(0);
 
@@ -1056,7 +1037,6 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             public void onServiceDisconnected(ComponentName name) {
                 Log.e(TAG, "Custom Tabs service disconnected/crashed");
 
-                customTabsClient = null;
                 customTabsSession = null;
             }
         };
