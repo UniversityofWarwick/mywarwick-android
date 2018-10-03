@@ -38,6 +38,11 @@ public class EventNotificationService {
         this.preferences = new MyWarwickPreferences(context);
     }
 
+    public EventNotificationService(Context context, MyWarwickPreferences prefs) {
+        this.context = context;
+        this.preferences = prefs;
+    }
+
     public void notify(String serverId) {
         try (EventDao eventDao = new EventDao(context)) {
             Event event = eventDao.findByServerId(serverId);
@@ -52,7 +57,6 @@ public class EventNotificationService {
             }
         }
     }
-
     private void notify(Event event) {
         Integer id = event.getId();
 
@@ -99,8 +103,9 @@ public class EventNotificationService {
         return String.format("%s %s", e.getParentShortName(), e.getType());
     }
 
-    private String getNotificationText(Event e) {
-        return String.format("%s, %s", e.getLocation(), formatTime(e));
+    String getNotificationText(Event e) {
+        String locationPart = e.getLocation() == null ? "" : e.getLocation() + ", ";
+        return String.format("%s%s", locationPart, formatTime(e));
     }
 
     private String formatTime(Event e) {
