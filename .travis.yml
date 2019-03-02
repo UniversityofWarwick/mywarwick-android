@@ -10,6 +10,7 @@ script:
   - echo "MyWarwick.keystore=/dev/null" >> app/gradle.properties
   - echo "MyWarwick.keyAlias=" >> app/gradle.properties
   - echo "MyWarwick.keyPass=" >> app/gradle.properties
+  - cp app/google-services.json.example app/google-services.json
   - ./gradlew build connectedCheck
 
 before_cache:
