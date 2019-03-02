@@ -6,6 +6,12 @@ android:
     - android-26
     - extra-google-m2repository
 
+script:
+  - echo "MyWarwick.keystore=/dev/null" >> app/gradle.properties
+  - echo "MyWarwick.keyAlias=" >> app/gradle.properties
+  - echo "MyWarwick.keyPass=" >> app/gradle.properties
+  - ./gradlew build connectedCheck
+
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
