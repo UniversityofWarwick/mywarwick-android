@@ -95,4 +95,9 @@ public class MessageHandler extends FirebaseMessagingService {
             Crashlytics.logException(e);
         }
     }
+
+    @Override
+    public void onNewToken(String s) {
+        super.onNewToken(s);
+    }
 }
