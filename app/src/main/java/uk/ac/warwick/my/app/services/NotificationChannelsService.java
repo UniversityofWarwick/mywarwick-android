@@ -9,10 +9,11 @@ import android.os.Build;
 public class NotificationChannelsService {
 
     final static String TIMETABLE_EVENTS_CHANNEL_ID = "timetable_events";
+    public final static String TWO_STEP_CODES_CHANNEL_ID = "two_step_codes";
 
     private final static NotificationChannel[] channels = new NotificationChannel[]{
             new NotificationChannel(TIMETABLE_EVENTS_CHANNEL_ID, "Timetable events", NotificationManager.IMPORTANCE_DEFAULT),
-            new NotificationChannel("two_step_codes", "Two-step codes", NotificationManager.IMPORTANCE_HIGH),
+            new NotificationChannel(TWO_STEP_CODES_CHANNEL_ID, "Two-step codes", NotificationManager.IMPORTANCE_HIGH),
             new NotificationChannel("alerts", "Alerts", NotificationManager.IMPORTANCE_DEFAULT),
             new NotificationChannel("urgent_alerts", "Urgent alerts", NotificationManager.IMPORTANCE_HIGH)
     };

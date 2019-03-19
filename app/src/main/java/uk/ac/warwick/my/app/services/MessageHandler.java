@@ -4,6 +4,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -14,24 +15,30 @@ import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import uk.ac.warwick.my.app.R;
 import uk.ac.warwick.my.app.activities.MainActivity;
 
 import static android.app.Notification.*;
 import static android.app.PendingIntent.FLAG_CANCEL_CURRENT;
+import static uk.ac.warwick.my.app.services.NotificationChannelsService.TWO_STEP_CODES_CHANNEL_ID;
 import static uk.ac.warwick.my.app.services.NotificationChannelsService.channelExists;
 
 public class MessageHandler extends FirebaseMessagingService {
 
+    public static final String COPY_CODE_ACTION = "uk.ac.warwick.ACTION_COPY_2SA_CODE";
+    final Pattern twoStepCodePattern = Pattern.compile("[0-9]{6}");
+
     public MessageHandler() {
     }
 
-    private void buildAndSend(Context context, NotificationCompat.Builder builder, int priority, String title, String body, String id) throws NullPointerException {
+
+    private void buildAndSend(Context context, NotificationCompat.Builder builder, int priority, String title, String body, String id, String channel) throws NullPointerException {
         NotificationManager notificationManager = getNotificationManager(context);
         if (notificationManager != null) {
-            notificationManager.notify(id, 0,
-                builder
+            NotificationCompat.Builder partialBuild = builder
                     .setPriority(priority)
                     .setSmallIcon(R.drawable.ic_warwick_notification)
                     .setContentTitle(title)
@@ -39,10 +46,30 @@ public class MessageHandler extends FirebaseMessagingService {
                     .setColor(this.getResources().getColor(R.color.colorAccent))
                     .setDefaults(DEFAULT_LIGHTS | DEFAULT_VIBRATE | DEFAULT_SOUND)
                     .setStyle(new NotificationCompat.BigTextStyle()) // allow multiline body
-                    .setContentIntent(PendingIntent.getActivity(builder.mContext, 0, new Intent(builder.mContext, MainActivity.class).putExtra("from","notification"), FLAG_CANCEL_CURRENT))
+                    .setContentIntent(PendingIntent.getActivity(builder.mContext, 0, new Intent(builder.mContext, MainActivity.class).putExtra("from", "notification"), FLAG_CANCEL_CURRENT));
+
+            if (channel.equals(TWO_STEP_CODES_CHANNEL_ID)) {
+                partialBuild = this.enrichTwoStepCodeNotification(id, context, title, builder);
+            }
+
+            notificationManager.notify(id, 0,
+                partialBuild
                     .build()
             );
         }
+    }
+
+    private NotificationCompat.Builder enrichTwoStepCodeNotification(String id, Context context, String title, NotificationCompat.Builder builder) {
+        Matcher matcher = twoStepCodePattern.matcher(title);
+        if (matcher.find()) {
+            final String code = matcher.group(0);
+            Intent copy = new Intent(context, ClipboardBroadcastReceiver.class);
+            copy.putExtra("code", code);
+            copy.putExtra("id", id);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 1, copy, PendingIntent.FLAG_UPDATE_CURRENT);
+            builder = builder.addAction(R.drawable.ic_content_copy_black_24dp, "Copy", pendingIntent);
+        }
+        return builder;
     }
 
     /**
@@ -89,7 +116,7 @@ public class MessageHandler extends FirebaseMessagingService {
             // Set a channel, which is ignored for anything before Oreo
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channelId);
 
-            buildAndSend(this, builder, priority, title, body, id);
+            buildAndSend(this, builder, priority, title, body, id, channelId);
 
         } catch (NullPointerException e) {
             Crashlytics.logException(e);
@@ -100,4 +127,5 @@ public class MessageHandler extends FirebaseMessagingService {
     public void onNewToken(String s) {
         super.onNewToken(s);
     }
+
 }

@@ -136,4 +136,5 @@
     <string name="tour_title_welcome">Welcome to My Warwick</string>
     <string name="finish">Finish</string>
     <string name="account_photo_description">A picture of you</string>
+    <string name="tsa_copied">Two-step code copied to clipboard.</string>
 </resources>

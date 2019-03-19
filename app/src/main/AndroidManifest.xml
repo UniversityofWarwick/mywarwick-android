@@ -84,6 +84,7 @@
 
         <receiver android:name=".system.AlarmReceiver" />
         <receiver android:name=".system.ScheduledDownloadReceiver" />
+        <receiver android:name=".services.ClipboardBroadcastReceiver" />
     </application>
 
 </manifest>
