@@ -31,17 +31,6 @@ import uk.ac.warwick.my.app.user.User;
 @Keep
 public class MyWarwickJavaScriptInterface {
 
-    private static final String SAMSUNG_EMAIL_PACKAGE = "com.samsung.android.email.provider";
-    private static final String HTC_EMAIL_PACKAGE = "com.htc.android.mail";
-    private static final String INBOX_PACKAGE = "com.google.android.apps.inbox";
-    private static final String GMAIL_PACKAGE = "com.google.android.gm";
-    private static final List<String> EMAIL_PACKAGES = Arrays.asList(
-        SAMSUNG_EMAIL_PACKAGE,
-        HTC_EMAIL_PACKAGE,
-        INBOX_PACKAGE,
-        GMAIL_PACKAGE
-    );
-
     private static final String OUTLOOK_PACKAGE = "com.microsoft.office.outlook";
     private static final Uri OUTLOOK_URI = Uri.parse("ms-outlook://");
 
@@ -131,20 +120,10 @@ public class MyWarwickJavaScriptInterface {
 
     @JavascriptInterface
     public void openEmailApp() {
-        PackageManager packageManager = state.getActivity().getApplicationContext().getPackageManager();
-        String installedPackage = null;
-        Iterator<String> emailPackages = EMAIL_PACKAGES.iterator();
-        while(installedPackage == null && emailPackages.hasNext()) {
-            String packageName = emailPackages.next();
-            if (isPackageInstalled(packageName)) {
-                installedPackage = packageName;
-            }
-        }
-        if (installedPackage != null) {
-            state.getActivity().startActivity(packageManager.getLaunchIntentForPackage(installedPackage));
-        } else {
-            Toast.makeText(state.getActivity(), "Could not find an installed email app", Toast.LENGTH_SHORT).show();
-        }
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_APP_EMAIL);
+        String openMailLocalised = "Open email app";
+        state.getActivity().startActivity(Intent.createChooser(intent, openMailLocalised));
     }
 
     @JavascriptInterface
