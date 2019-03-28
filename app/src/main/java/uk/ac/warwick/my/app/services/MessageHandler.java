@@ -46,7 +46,7 @@ public class MessageHandler extends FirebaseMessagingService {
                     .setColor(this.getResources().getColor(R.color.colorAccent))
                     .setDefaults(DEFAULT_LIGHTS | DEFAULT_VIBRATE | DEFAULT_SOUND)
                     .setStyle(new NotificationCompat.BigTextStyle()) // allow multiline body
-                    .setContentIntent(PendingIntent.getActivity(builder.mContext, 0, new Intent(builder.mContext, MainActivity.class).putExtra("from", "notification"), FLAG_CANCEL_CURRENT));
+                    .setContentIntent(PendingIntent.getActivity(context, 0, new Intent(context, MainActivity.class).putExtra("from", "notification"), FLAG_CANCEL_CURRENT));
 
             if (channel.equals(TWO_STEP_CODES_CHANNEL_ID)) {
                 partialBuild = this.enrichTwoStepCodeNotification(id, context, title, builder);

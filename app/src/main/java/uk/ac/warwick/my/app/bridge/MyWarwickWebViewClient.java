@@ -44,6 +44,7 @@ public class MyWarwickWebViewClient extends WebViewClient {
                     .setCloseButtonIcon(BitmapFactory.decodeResource(activity.getResources(), R.drawable.ic_arrow_back_white_24dp))
                     .setStartAnimations(activity, R.anim.slide_in_right, R.anim.slide_out_left)
                     .setExitAnimations(activity, android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+                    .addDefaultShareMenuItem()
                     .build();
 
             intent.intent.putExtra(Intent.EXTRA_REFERRER, view.getUrl());
