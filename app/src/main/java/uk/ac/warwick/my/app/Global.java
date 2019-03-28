@@ -12,6 +12,6 @@ public class Global {
     public static String getWebSignOnHost() {
         return "websignon.warwick.ac.uk";
     }
-    public static final String CUSTOM_TAB_PACKAGE_NAME = "com.android.chrome";
+    public static final String CUSTOM_TAB_PACKAGE_NAME_FALLBACK = "com.android.chrome";
 
 }

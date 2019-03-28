@@ -132,7 +132,7 @@ public class WebViewActivity extends AppCompatActivity {
             }
         };
 
-        CustomTabsClient.bindCustomTabsService(this, Global.CUSTOM_TAB_PACKAGE_NAME, tabsConnection);
+        CustomTabsClient.bindCustomTabsService(this, Global.CUSTOM_TAB_PACKAGE_NAME_FALLBACK, tabsConnection);
     }
 
     /**

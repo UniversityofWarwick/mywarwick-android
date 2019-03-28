@@ -12,6 +12,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
@@ -27,6 +28,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.customtabs.CustomTabsCallback;
 import android.support.customtabs.CustomTabsClient;
+import android.support.customtabs.CustomTabsService;
 import android.support.customtabs.CustomTabsServiceConnection;
 import android.support.customtabs.CustomTabsSession;
 import android.support.v4.app.ActivityCompat;
@@ -59,6 +61,8 @@ import com.roughike.bottombar.OnTabSelectListener;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -1041,7 +1045,43 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             }
         };
 
-        CustomTabsClient.bindCustomTabsService(this, Global.CUSTOM_TAB_PACKAGE_NAME, tabsConnection);
+        PackageManager pm = getApplicationContext().getPackageManager();
+        String packageToUse = Global.CUSTOM_TAB_PACKAGE_NAME_FALLBACK;
+
+        // Use a representative URL to work out which packages are capable of opening a typical tab
+        Intent activityIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://warwick.ac.uk"));
+
+        // Does the user have a default browser?
+        String defaultViewHandlerPackageName = null;
+        ResolveInfo defaultViewHandlerInfo = pm.resolveActivity(activityIntent, 0);
+        if (defaultViewHandlerInfo != null) {
+            defaultViewHandlerPackageName = defaultViewHandlerInfo.activityInfo.packageName;
+        }
+
+        List<ResolveInfo> resolvedActivityList = pm.queryIntentActivities(activityIntent, 0);
+        List<String> packagesSupportingCustomTabs = new ArrayList<>();
+        for (ResolveInfo info : resolvedActivityList) {
+            Intent serviceIntent = new Intent();
+            serviceIntent.setAction(CustomTabsService.ACTION_CUSTOM_TABS_CONNECTION);
+            serviceIntent.setPackage(info.activityInfo.packageName);
+            // Check if this package also resolves the Custom Tabs service.
+            if (pm.resolveService(serviceIntent, 0) != null) {
+                // Great, add it to the list
+                packagesSupportingCustomTabs.add(info.activityInfo.packageName);
+            }
+        }
+
+        if (!packagesSupportingCustomTabs.isEmpty()) {
+            // prefer the user's default browser if it supports custom tabs
+            if (packagesSupportingCustomTabs.contains(defaultViewHandlerPackageName)) {
+                packageToUse = defaultViewHandlerPackageName;
+            } else {
+                // arbitrarily pick the first one
+                packageToUse = packagesSupportingCustomTabs.get(0);
+            }
+        }
+
+        CustomTabsClient.bindCustomTabsService(this, packageToUse, tabsConnection);
     }
 
     public CustomTabsSession getCustomTabsSession() {
