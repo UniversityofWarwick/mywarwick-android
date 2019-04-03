@@ -1,3 +1,73 @@
 {
-  "instructions": "Download this config file from https://console.firebase.google.com/project/start-1184/settings/general/android:uk.ac.warwick.my.app"
+  "project_info": {
+    "project_number": "1234",
+    "firebase_url": "https://start-1234.firebaseio.com",
+    "project_id": "start-1234",
+    "storage_bucket": "start-1234.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1234:android:abcde",
+        "android_client_info": {
+          "package_name": "uk.ac.warwick.my.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1234-1234.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "YWJyYWNhZGFicmE-qS0"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1234:android:abcde",
+        "android_client_info": {
+          "package_name": "uk.ac.warwick.my.app.debug"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1234-1234.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "YWJyYWNhZGFicmE-qS0"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
 }
