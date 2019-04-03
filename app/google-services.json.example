@@ -1,5 +1,5 @@
 {
-  "instructions": "Download this config file from https://console.firebase.google.com/project/start-1184/settings/general/android:uk.ac.warwick.my.app"
+  "instructions": "Download this config file from https://console.firebase.google.com/project/start-1184/settings/general/android:uk.ac.warwick.my.app",
   "project_info": {
     "project_number": "1234",
     "firebase_url": "https://start-1234.firebaseio.com",
