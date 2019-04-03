@@ -12,6 +12,7 @@ import android.util.Log;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 import uk.ac.warwick.my.app.R;
 import uk.ac.warwick.my.app.activities.MainActivity;
@@ -109,7 +110,7 @@ public class EventNotificationService {
     }
 
     private String formatTime(Event e) {
-        DateFormat timeFormat = SimpleDateFormat.getTimeInstance(DateFormat.SHORT);
+        DateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.ENGLISH);
 
         return String.format("%s – %s", timeFormat.format(e.getStart()), timeFormat.format(e.getEnd()));
     }
