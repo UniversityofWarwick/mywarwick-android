@@ -38,6 +38,10 @@ public class MessageHandler extends FirebaseMessagingService {
     private void buildAndSend(Context context, NotificationCompat.Builder builder, int priority, String title, String body, String id, String channel) throws NullPointerException {
         NotificationManager notificationManager = getNotificationManager(context);
         if (notificationManager != null) {
+            if (body == null || body.isEmpty()) {
+                body = title;
+                title = null;
+            }
             NotificationCompat.Builder partialBuild = builder
                     .setPriority(priority)
                     .setSmallIcon(R.drawable.ic_warwick_notification)
