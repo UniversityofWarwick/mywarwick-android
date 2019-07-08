@@ -29,7 +29,7 @@ public class EventNotificationScheduler {
         Intent alarmIntent = new Intent(context, AlarmReceiver.class);
 
         // Cancel the next scheduled notification
-        getAlarmManager().cancel(PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT));
+        getAlarmManager().cancel(PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT));
 
         if (!preferences.isTimetableNotificationsEnabled()) {
             // Notifications aren't enabled, so stop after cancelling any that were queued up

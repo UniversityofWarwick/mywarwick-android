@@ -38,6 +38,10 @@ public class MessageHandler extends FirebaseMessagingService {
     private void buildAndSend(Context context, NotificationCompat.Builder builder, int priority, String title, String body, String id, String channel) throws NullPointerException {
         NotificationManager notificationManager = getNotificationManager(context);
         if (notificationManager != null) {
+            if (body == null || body.isEmpty()) {
+                body = title;
+                title = null;
+            }
             NotificationCompat.Builder partialBuild = builder
                     .setPriority(priority)
                     .setSmallIcon(R.drawable.ic_warwick_notification)
@@ -46,7 +50,7 @@ public class MessageHandler extends FirebaseMessagingService {
                     .setColor(this.getResources().getColor(R.color.colorAccent))
                     .setDefaults(DEFAULT_LIGHTS | DEFAULT_VIBRATE | DEFAULT_SOUND)
                     .setStyle(new NotificationCompat.BigTextStyle()) // allow multiline body
-                    .setContentIntent(PendingIntent.getActivity(builder.mContext, 0, new Intent(builder.mContext, MainActivity.class).putExtra("from", "notification"), FLAG_CANCEL_CURRENT));
+                    .setContentIntent(PendingIntent.getActivity(context, 0, new Intent(context, MainActivity.class).putExtra("from", "notification"), FLAG_CANCEL_CURRENT));
 
             if (channel.equals(TWO_STEP_CODES_CHANNEL_ID)) {
                 partialBuild = this.enrichTwoStepCodeNotification(id, context, title, builder);
