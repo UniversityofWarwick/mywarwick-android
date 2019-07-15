@@ -49,7 +49,7 @@ public class MessageHandler extends FirebaseMessagingService {
                     .setContentIntent(PendingIntent.getActivity(context, 0, new Intent(context, MainActivity.class).putExtra("from", "notification"), FLAG_CANCEL_CURRENT));
 
             if (channel.equals(TWO_STEP_CODES_CHANNEL_ID)) {
-                partialBuild = this.enrichTwoStepCodeNotification(id, context, title, builder);
+                partialBuild = this.enrichTwoStepCodeNotification(id, context, title == null ? body : title, builder);
             }
 
             notificationManager.notify(id, 0,
@@ -59,9 +59,9 @@ public class MessageHandler extends FirebaseMessagingService {
         }
     }
 
-    private NotificationCompat.Builder enrichTwoStepCodeNotification(String id, Context context, String title, NotificationCompat.Builder builder) {
-        Matcher matcher = twoStepCodePattern.matcher(title);
-        if (matcher.find()) {
+    private NotificationCompat.Builder enrichTwoStepCodeNotification(String id, Context context, String notificationText, NotificationCompat.Builder builder) {
+        Matcher matcher = twoStepCodePattern.matcher(notificationText);
+        if (notificationText != null && matcher.find()) {
             final String code = matcher.group(0);
             Intent copy = new Intent(context, ClipboardBroadcastReceiver.class);
             copy.putExtra("code", code);
