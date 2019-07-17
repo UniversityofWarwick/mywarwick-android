@@ -1,7 +1,7 @@
 package uk.ac.warwick.my.app.activities;
 
-import android.support.test.filters.LargeTest;
-import android.support.test.runner.AndroidJUnit4;
+import androidx.test.filters.LargeTest;
+import androidx.test.runner.AndroidJUnit4;
 import android.view.View;
 
 import com.roughike.bottombar.BottomBar;
@@ -12,7 +12,7 @@ import org.junit.runner.RunWith;
 
 import uk.ac.warwick.my.app.R;
 
-import static android.support.test.espresso.matcher.ViewMatchers.assertThat;
+import static androidx.test.espresso.matcher.ViewMatchers.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 @LargeTest

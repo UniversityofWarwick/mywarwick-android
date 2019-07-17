@@ -2,7 +2,7 @@ package uk.ac.warwick.my.app.activities;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.support.test.rule.ActivityTestRule;
+import androidx.test.rule.ActivityTestRule;
 
 /**
  * Adds a "from" extra data to the loading intent, which is enough to

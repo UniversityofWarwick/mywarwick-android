@@ -3,7 +3,7 @@ package uk.ac.warwick.my.app.bridge;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.support.annotation.Keep;
+import androidx.annotation.Keep;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 import android.widget.Toast;
@@ -13,9 +13,7 @@ import com.crashlytics.android.Crashlytics;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
 
 import uk.ac.warwick.my.app.BuildConfig;
 import uk.ac.warwick.my.app.Global;
