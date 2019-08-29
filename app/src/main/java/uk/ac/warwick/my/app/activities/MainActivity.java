@@ -38,6 +38,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.InputDevice;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -478,6 +479,70 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         }
     }
 
+    public static boolean isPointerTypeDevice(final InputDevice inputDevice) {
+        int sources = inputDevice.getSources();
+        return (sources & (InputDevice.SOURCE_CLASS_JOYSTICK |
+                InputDevice.SOURCE_CLASS_POINTER |
+                InputDevice.SOURCE_CLASS_POSITION |
+                InputDevice.SOURCE_CLASS_TRACKBALL)) != 0;
+    }
+
+    private static int getPrimaryPointerCapabilities() {
+        int result = NO_POINTER;
+
+        for (int deviceId : InputDevice.getDeviceIds()) {
+            InputDevice inputDevice = InputDevice.getDevice(deviceId);
+            if (inputDevice == null ||
+                    !isPointerTypeDevice(inputDevice)) {
+                continue;
+            }
+
+            result = getPointerCapabilities(inputDevice);
+
+            // We need information only for the primary pointer.
+            // (Assumes that the primary pointer appears first in the list)
+            break;
+        }
+
+        return result;
+    }
+
+    static private final int NO_POINTER            = 0x00000000;
+    static private final int COARSE_POINTER        = 0x00000001;
+    static private final int FINE_POINTER          = 0x00000002;
+    static private final int HOVER_CAPABLE_POINTER = 0x00000004;
+    private static int getPointerCapabilities(final InputDevice inputDevice) {
+        int result = NO_POINTER;
+        int sources = inputDevice.getSources();
+
+        if (hasInputDeviceSource(sources, InputDevice.SOURCE_TOUCHSCREEN, "SOURCE_TOUCHSCREEN") ||
+                hasInputDeviceSource(sources, InputDevice.SOURCE_JOYSTICK, "SOURCE_JOYSTICK")) {
+            result |= COARSE_POINTER;
+        } else if (hasInputDeviceSource(sources, InputDevice.SOURCE_MOUSE, "SOURCE_MOUSE") ||
+                hasInputDeviceSource(sources, InputDevice.SOURCE_STYLUS, "SOURCE_STYLUS") ||
+                hasInputDeviceSource(sources, InputDevice.SOURCE_TOUCHPAD, "SOURCE_TOUCHPAD") ||
+                hasInputDeviceSource(sources, InputDevice.SOURCE_TRACKBALL, "SOURCE_TRACKBALL")) {
+            result |= FINE_POINTER;
+        }
+
+        if (hasInputDeviceSource(sources, InputDevice.SOURCE_MOUSE, "SOURCE_MOUSE") ||
+                hasInputDeviceSource(sources, InputDevice.SOURCE_TOUCHPAD, "SOURCE_TOUCHPAD") ||
+                hasInputDeviceSource(sources, InputDevice.SOURCE_TRACKBALL, "SOURCE_TRACKBALL") ||
+                hasInputDeviceSource(sources, InputDevice.SOURCE_JOYSTICK, "SOURCE_JOYSTICK")) {
+            result |= HOVER_CAPABLE_POINTER;
+        }
+
+        return result;
+    }
+
+
+    private static boolean hasInputDeviceSource(final int sources, final int inputDeviceSource, final String description) {
+        boolean res = (sources & inputDeviceSource) == inputDeviceSource;
+        Log.e("IS_MOUSE ", "Desc: " + description + " - " + res);
+        return res;
+    }
+
+
     @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -558,6 +623,8 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
         updateBackgroundDisplayed(preferences.getBackgroundChoice());
         updateThemeColours(preferences.getBackgroundChoice());
+
+        Log.e("IS_MOUSE", Integer.toString(getPrimaryPointerCapabilities()));
     }
 
     /**
