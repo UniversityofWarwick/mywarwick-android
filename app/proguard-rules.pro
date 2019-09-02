@@ -11,7 +11,7 @@
 }
 -keep class com.bumptech.glide.GeneratedAppGlideModuleImpl
 
-
+-dontobfuscate
 -dontwarn com.roughike.bottombar.VerticalScrollingBehavior$ScrollDirection
 
 ## Code checking annotations and stuff that isn't needed at runtime.
