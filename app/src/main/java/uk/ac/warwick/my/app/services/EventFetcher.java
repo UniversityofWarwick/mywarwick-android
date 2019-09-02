@@ -62,6 +62,7 @@ public class EventFetcher {
     private Collection<Event> fetchEvents() throws FetchException {
         String base = preferences.getAppURL();
         String token = preferences.getTimetableToken();
+        String responseBody = "<unavailable, not yet fetched>";
 
         if (token == null || token.isEmpty()) {
             throw new FetchException("No token for fetching timetable");
@@ -92,8 +93,8 @@ public class EventFetcher {
             }
 
             preferences.setNeedsTimetableTokenRefresh(false);
-
-            JSONObject object = new JSONObject(body.string());
+            responseBody = body.string();
+            JSONObject object = new JSONObject(responseBody);
 
             JSONArray items = object.getJSONObject("data").getJSONArray("items");
 
@@ -107,7 +108,10 @@ public class EventFetcher {
         } catch (IOException e) {
             throw new FetchException("Error fetching data", e);
         } catch (JSONException e) {
-            throw new FetchException("Error parsing JSON", e);
+            throw new FetchException(
+                    String.format("Error parsing JSON, response body was %s", responseBody),
+                    e
+            );
         } catch (ParseException e) {
             throw new FetchException("Error parsing date in event data", e);
         }
