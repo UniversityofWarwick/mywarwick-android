@@ -7,7 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
-import android.support.v4.app.NotificationCompat;
+import androidx.core.app.NotificationCompat;
 import android.util.Log;
 
 import java.text.DateFormat;
@@ -23,7 +23,7 @@ import uk.ac.warwick.my.app.data.EventDao;
 import static android.app.Notification.DEFAULT_LIGHTS;
 import static android.app.Notification.DEFAULT_VIBRATE;
 import static android.app.Notification.PRIORITY_MAX;
-import static android.support.v4.app.NotificationCompat.CATEGORY_EVENT;
+import static androidx.core.app.NotificationCompat.CATEGORY_EVENT;
 import static uk.ac.warwick.my.app.Global.TAG;
 import static uk.ac.warwick.my.app.services.NotificationChannelsService.TIMETABLE_EVENTS_CHANNEL_ID;
 
