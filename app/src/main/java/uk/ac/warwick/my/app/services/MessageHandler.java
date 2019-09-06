@@ -51,7 +51,7 @@ public class MessageHandler extends FirebaseMessagingService {
                     .setStyle(new NotificationCompat.BigTextStyle()) // allow multiline body
                     .setContentIntent(PendingIntent.getActivity(context, 0, new Intent(context, MainActivity.class).putExtra("from", "notification"), FLAG_CANCEL_CURRENT));
 
-            if (channel.equals(TWO_STEP_CODES_CHANNEL_ID)) {
+            if (TWO_STEP_CODES_CHANNEL_ID.equals(channel)) {
                 partialBuild = this.enrichTwoStepCodeNotification(id, context, title == null ? body : title, builder);
             }
 
