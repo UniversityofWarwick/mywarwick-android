@@ -47,6 +47,8 @@
                 var native = {};
                 global.MyWarwickNative = native;
 
+                native.latestBackgroundId = 8;
+
                 native.setUser = function setUser(user) {
                     MyWarwickAndroid.setUser(JSON.stringify(user));
                 };

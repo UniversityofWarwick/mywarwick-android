@@ -383,6 +383,12 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
                 return getResources().getColor(R.color.colorPrimary4);
             case 5:
                 return getResources().getColor(R.color.colorPrimary5);
+            case 6:
+                return getResources().getColor(R.color.colorPrimary6);
+            case 7:
+                return getResources().getColor(R.color.colorPrimary7);
+            case 8:
+                return getResources().getColor(R.color.colorPrimary8);
             default:
                 return getResources().getColor(R.color.colorPrimary1);
         }
@@ -398,6 +404,12 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
                 return getResources().getColor(R.color.colorPrimaryDark4);
             case 5:
                 return getResources().getColor(R.color.colorPrimaryDark5);
+            case 6:
+                return getResources().getColor(R.color.colorPrimaryDark6);
+            case 7:
+                return getResources().getColor(R.color.colorPrimaryDark7);
+            case 8:
+                return getResources().getColor(R.color.colorPrimaryDark8);
             default:
                 return getResources().getColor(R.color.colorPrimaryDark1);
         }
