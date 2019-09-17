@@ -14,6 +14,8 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Color;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -22,6 +24,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
@@ -36,6 +39,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -145,6 +149,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             }, 0, 60, TimeUnit.SECONDS);
         }
     }
+
     private void stopTimetableEventUpdateTimer() {
         Log.d(TAG, "Stopping timetable event update timer.");
         this.timetableEventUpdateScheduler.shutdown();
@@ -327,6 +332,21 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         if (preferences.getHighContrastChoice() != isHighContrast) {
             preferences.setHighContrastChoice(isHighContrast);
         }
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ImageView viewById = getAccountPhotoView().findViewById(R.id.image_view);
+                if (bgId == 8 || isHighContrast) { // dark, desaturate photo
+                    ColorMatrix matrix = new ColorMatrix();
+                    matrix.setSaturation(0);
+                    ColorMatrixColorFilter filter = new ColorMatrixColorFilter(matrix);
+                    viewById.setColorFilter(filter);
+                } else {
+                    viewById.setColorFilter(null);
+                }
+            }
+        });
     }
 
     private void setImageViewToColor(final @ColorInt int bgId) {
@@ -345,7 +365,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             public void run() {
                 ImageView imageView = findViewById(R.id.background);
                 Context ctx = imageView.getContext();
-                int resourceIdentifier = ctx.getResources().getIdentifier(String.format(Locale.ROOT,"bg%02d", newBgId), "drawable", ctx.getPackageName());
+                int resourceIdentifier = ctx.getResources().getIdentifier(String.format(Locale.ROOT, "bg%02d", newBgId), "drawable", ctx.getPackageName());
                 if (resourceIdentifier != 0) {
                     Glide.with(getApplicationContext()).asDrawable().load(resourceIdentifier).into(imageView);
                 }
@@ -482,7 +502,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         } else if (myWarwick.getSsoUrls() != null &&
                 myWarwick.getSsoUrls().getLogoutUrl() != null &&
                 url.toString().equals(myWarwick.getSsoUrls().getLogoutUrl())
-                ) {
+        ) {
             return false;
         } else {
             startSignInActivity(url.toString());
@@ -540,7 +560,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         if (actionBar != null) {
             actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM | ActionBar.DISPLAY_SHOW_TITLE);
             @SuppressLint("InflateParams") // we need to pass layout params, and have no access to the root.
-            View accountPhotoView = getLayoutInflater().inflate(R.layout.account_photo_view, null);
+                    View accountPhotoView = getLayoutInflater().inflate(R.layout.account_photo_view, null);
             ActionBar.LayoutParams layoutParams = new ActionBar.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.END);
             actionBar.setCustomView(accountPhotoView, layoutParams);
         }
@@ -904,7 +924,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             case R.id.action_edit:
                 if (myWarwick.getPath().equals(ROOT_PATH)) {
                     appNavigate(EDIT_PATH);
-                } else if (preferences.featureEnabled(MyWarwickFeatures.EDIT_TILES_BTN)){
+                } else if (preferences.featureEnabled(MyWarwickFeatures.EDIT_TILES_BTN)) {
                     appNavigate(SETTINGS_PATH);
                 } else {
                     appNavigate(ROOT_PATH);
