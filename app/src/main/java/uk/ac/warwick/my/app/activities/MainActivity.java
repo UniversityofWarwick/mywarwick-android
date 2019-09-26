@@ -337,7 +337,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             @Override
             public void run() {
                 ImageView viewById = getAccountPhotoView().findViewById(R.id.image_view);
-                if (bgId == 8 || isHighContrast) { // dark, desaturate photo
+                if (bgId == 8) { // dark theme, desaturate photo
                     ColorMatrix matrix = new ColorMatrix();
                     matrix.setSaturation(0);
                     ColorMatrixColorFilter filter = new ColorMatrixColorFilter(matrix);
