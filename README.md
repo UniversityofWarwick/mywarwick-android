@@ -20,3 +20,15 @@ The Android application has more native functionality than the iOS app. For inst
 
 We have a [Play store](https://play.google.com/store/apps/details?id=uk.ac.warwick.my.app&hl=en) listing.
 
+BrowserStack
+------------
+
+<a href="https://www.browserstack.com"><img alt="Browserstack logo" src="browserstack.svg" width=200></a>
+
+BrowserStack provides instant access to 2000+ browsers and real iOS and Android devices for cross browser/device testing.
+
+This project has been tested for cross-device support using access provided by BrowserStack's open source programme.
+
+This project uses BrowserStack for testing the My Warwick Android app on a wide range of Android devices.
+
+
