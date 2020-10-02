@@ -4,7 +4,7 @@ import android.content.Context;
 import android.os.Build;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -139,7 +139,7 @@ public class EventFetcher {
         } catch (FetchException e) {
             Log.e(TAG, "Error updating events", e);
             try {
-                Crashlytics.logException(new Exception("Error updating events", e));
+                FirebaseCrashlytics.getInstance().recordException(new Exception("Error updating events", e));
             } catch (IllegalStateException e2) {
                 Log.e(TAG, "Error reporting error!", e2);
             }
