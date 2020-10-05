@@ -8,7 +8,7 @@ import android.util.Log;
 import android.webkit.JavascriptInterface;
 import android.widget.Toast;
 
-import com.crashlytics.android.Crashlytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -169,7 +169,7 @@ public class MyWarwickJavaScriptInterface {
             // rebuild menu with new feature set
             state.getActivity().invalidateOptionsMenu();
         } catch (JSONException e) {
-            Crashlytics.logException(e);
+            FirebaseCrashlytics.getInstance().recordException(e);
         }
     }
 

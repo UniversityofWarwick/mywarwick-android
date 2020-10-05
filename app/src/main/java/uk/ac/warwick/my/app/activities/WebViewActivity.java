@@ -16,7 +16,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.crashlytics.android.Crashlytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import uk.ac.warwick.my.app.BuildConfig;
 import uk.ac.warwick.my.app.Global;
@@ -64,7 +64,7 @@ public class WebViewActivity extends AppCompatActivity {
 
         String url = getIntent().getStringExtra(EXTRA_URL);
         try {
-            Crashlytics.log("loadUrl: " + url);
+            FirebaseCrashlytics.getInstance().log("loadUrl: " + url);
         } catch (IllegalStateException ignored) {
         }
         webView.loadUrl(url);

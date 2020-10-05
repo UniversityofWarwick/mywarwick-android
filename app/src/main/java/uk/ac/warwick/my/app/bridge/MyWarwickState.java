@@ -3,7 +3,7 @@ package uk.ac.warwick.my.app.bridge;
 import android.app.Activity;
 import android.util.DisplayMetrics;
 
-import com.crashlytics.android.Crashlytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -44,7 +44,7 @@ public class MyWarwickState {
             staticDeviceDetails.put("device", android.os.Build.DEVICE);
             staticDeviceDetails.put("model", android.os.Build.MODEL + " (" + android.os.Build.PRODUCT + ")");
         } catch (JSONException e) {
-            Crashlytics.logException(e);
+            FirebaseCrashlytics.getInstance().recordException(e);
         }
     }
 
@@ -113,7 +113,7 @@ public class MyWarwickState {
             details.put("path", getPath());
             return details;
         } catch (JSONException e) {
-            Crashlytics.logException(e);
+            FirebaseCrashlytics.getInstance().recordException(e);
             return new JSONObject();
         }
     }
