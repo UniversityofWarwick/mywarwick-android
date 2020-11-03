@@ -17,7 +17,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
-import com.crashlytics.android.Crashlytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import uk.ac.warwick.my.app.Global;
 import uk.ac.warwick.my.app.R;
@@ -71,8 +71,8 @@ public class MyWarwickWebViewClient extends WebViewClient {
         } catch (ActivityNotFoundException e2) {
             // Really didn't work; give up and let ourselves know
             try {
-                Crashlytics.log("Caught ActivityNotFoundException when trying to open a URL");
-                Crashlytics.logException(e2);
+                FirebaseCrashlytics.getInstance().log("Caught ActivityNotFoundException when trying to open a URL");
+                FirebaseCrashlytics.getInstance().recordException(e2);
             } catch (IllegalStateException ignored) {
             }
 
