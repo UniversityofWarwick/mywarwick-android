@@ -160,7 +160,7 @@ public class WebViewActivity extends AppCompatActivity {
                 return true;
             }
 
-            if (!Objects.equals(host, Global.getWebSignOnHost())) {
+            if (!Objects.equals(host, Global.getWebSignOnHost()) && !Objects.equals(host, Global.MS_LOGIN_HOST)) {
                 MyWarwickWebViewClient.openCustomTab(customTabsSession, activity, view, url, activity.getResources().getColor(R.color.colorPrimary1));
 
                 return true;

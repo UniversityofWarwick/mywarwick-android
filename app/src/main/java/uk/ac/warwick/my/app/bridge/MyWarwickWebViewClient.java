@@ -127,7 +127,7 @@ public class MyWarwickWebViewClient extends WebViewClient {
         String host = url.getHost();
 
         if (host != null) {
-            if (host.equals(Global.getWebSignOnHost())) {
+            if (host.equals(Global.getWebSignOnHost()) || host.equals(Global.MS_LOGIN_HOST)) {
                 return listener.onSsoUrl(url);
             } else if (host.equals(preferences.getAppHost())) {
                 return false;
