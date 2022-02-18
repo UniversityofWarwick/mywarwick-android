@@ -156,15 +156,15 @@ public class EventDao implements Closeable {
 
     private Event buildEvent(Cursor cursor) {
         Event event = new Event();
-        event.setId(cursor.getInt(cursor.getColumnIndex(EventTable._ID)));
-        event.setServerId(cursor.getString(cursor.getColumnIndex(EventTable.COLUMN_NAME_SERVER_ID)));
-        event.setType(cursor.getString(cursor.getColumnIndex(EventTable.COLUMN_NAME_TYPE)));
-        event.setTitle(cursor.getString(cursor.getColumnIndex(EventTable.COLUMN_NAME_TITLE)));
-        event.setLocation(cursor.getString(cursor.getColumnIndex(EventTable.COLUMN_NAME_LOCATION)));
-        event.setParentFullName(cursor.getString(cursor.getColumnIndex(EventTable.COLUMN_NAME_PARENT_FULL_NAME)));
-        event.setParentShortName(cursor.getString(cursor.getColumnIndex(EventTable.COLUMN_NAME_PARENT_SHORT_NAME)));
-        event.setStart(new Date(cursor.getLong(cursor.getColumnIndex(EventTable.COLUMN_NAME_START))));
-        event.setEnd(new Date(cursor.getLong(cursor.getColumnIndex(EventTable.COLUMN_NAME_END))));
+        event.setId(cursor.getInt(cursor.getColumnIndexOrThrow(EventTable._ID)));
+        event.setServerId(cursor.getString(cursor.getColumnIndexOrThrow(EventTable.COLUMN_NAME_SERVER_ID)));
+        event.setType(cursor.getString(cursor.getColumnIndexOrThrow(EventTable.COLUMN_NAME_TYPE)));
+        event.setTitle(cursor.getString(cursor.getColumnIndexOrThrow(EventTable.COLUMN_NAME_TITLE)));
+        event.setLocation(cursor.getString(cursor.getColumnIndexOrThrow(EventTable.COLUMN_NAME_LOCATION)));
+        event.setParentFullName(cursor.getString(cursor.getColumnIndexOrThrow(EventTable.COLUMN_NAME_PARENT_FULL_NAME)));
+        event.setParentShortName(cursor.getString(cursor.getColumnIndexOrThrow(EventTable.COLUMN_NAME_PARENT_SHORT_NAME)));
+        event.setStart(new Date(cursor.getLong(cursor.getColumnIndexOrThrow(EventTable.COLUMN_NAME_START))));
+        event.setEnd(new Date(cursor.getLong(cursor.getColumnIndexOrThrow(EventTable.COLUMN_NAME_END))));
         return event;
     }
 
