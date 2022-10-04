@@ -1,7 +1,8 @@
 package uk.ac.warwick.my.app.user;
+
 import android.net.Uri;
 
-import uk.ac.warwick.my.app.helper.Objects;
+import java.util.Objects;
 
 public class SsoUrls {
 

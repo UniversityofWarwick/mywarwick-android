@@ -4,6 +4,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.util.Log;
 
 import java.util.Calendar;
@@ -29,10 +30,15 @@ public class EventNotificationScheduler {
         Intent alarmIntent = new Intent(context, AlarmReceiver.class);
 
         // Cancel the next scheduled notification
-        getAlarmManager().cancel(PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT));
+        getAlarmManager().cancel(PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE));
 
         if (!preferences.isTimetableNotificationsEnabled()) {
             // Notifications aren't enabled, so stop after cancelling any that were queued up
+            return;
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !getAlarmManager().canScheduleExactAlarms()) {
+            // User has blocked the alarm permission so no point creating new ones
             return;
         }
 
@@ -44,11 +50,11 @@ public class EventNotificationScheduler {
         }
 
         alarmIntent.putExtra(AlarmReceiver.EVENT_SERVER_ID, event.getServerId());
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         Date alarmDate = getNotificationDate(event);
 
-        Log.i(TAG, "Scheduling a notification for event '" + event.getTitle() + "' at " + alarmDate.toString());
+        Log.i(TAG, "Scheduling a notification for event '" + event.getTitle() + "' at " + alarmDate);
 
         getAlarmManager().setExact(AlarmManager.RTC_WAKEUP, alarmDate.getTime(), pendingIntent);
     }

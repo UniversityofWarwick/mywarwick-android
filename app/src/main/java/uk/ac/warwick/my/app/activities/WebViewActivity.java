@@ -5,24 +5,27 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.browser.customtabs.CustomTabsCallback;
-import androidx.browser.customtabs.CustomTabsClient;
-import androidx.browser.customtabs.CustomTabsServiceConnection;
-import androidx.browser.customtabs.CustomTabsSession;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.browser.customtabs.CustomTabsCallback;
+import androidx.browser.customtabs.CustomTabsClient;
+import androidx.browser.customtabs.CustomTabsServiceConnection;
+import androidx.browser.customtabs.CustomTabsSession;
+
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
+
+import java.util.Objects;
 
 import uk.ac.warwick.my.app.BuildConfig;
 import uk.ac.warwick.my.app.Global;
 import uk.ac.warwick.my.app.R;
 import uk.ac.warwick.my.app.bridge.MyWarwickWebViewClient;
-import uk.ac.warwick.my.app.helper.Objects;
 
 /**
  * Used as a full screen web page for signing in to websignon.
@@ -141,8 +144,8 @@ public class WebViewActivity extends AppCompatActivity {
      */
     public class DestinationWebViewClient extends WebViewClient {
 
-        private WebViewActivity activity;
-        private String destinationHost;
+        private final WebViewActivity activity;
+        private final String destinationHost;
 
         DestinationWebViewClient(WebViewActivity activity, String destinationHost) {
             this.activity = activity;
@@ -150,8 +153,8 @@ public class WebViewActivity extends AppCompatActivity {
         }
 
         @Override
-        public boolean shouldOverrideUrlLoading(WebView view, String urlString) {
-            Uri url = Uri.parse(urlString);
+        public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+            Uri url = request.getUrl();
             String host = url.getHost();
 
             if (Objects.equals(url.getHost(), destinationHost)) {
@@ -161,7 +164,7 @@ public class WebViewActivity extends AppCompatActivity {
             }
 
             if (!Objects.equals(host, Global.getWebSignOnHost()) && !Objects.equals(host, Global.MS_LOGIN_HOST)) {
-                MyWarwickWebViewClient.openCustomTab(customTabsSession, activity, view, url, activity.getResources().getColor(R.color.colorPrimary1));
+                MyWarwickWebViewClient.openCustomTab(customTabsSession, activity, view, url, activity.getResources().getColor(R.color.colorPrimary1, getTheme()));
 
                 return true;
             }

@@ -47,13 +47,11 @@ public final class JavascriptInvoker {
         pageReady = true;
         Log.d("MyWarwick", "HTML page reports it is ready");
         // handler to run on the right thread
-        handler.post(new Runnable() {
-            public void run() {
-                for (String js : pendingInvocations) {
-                    doInvoke(js);
-                }
-                pendingInvocations.clear();
+        handler.post(() -> {
+            for (String js : pendingInvocations) {
+                doInvoke(js);
             }
+            pendingInvocations.clear();
         });
     }
 

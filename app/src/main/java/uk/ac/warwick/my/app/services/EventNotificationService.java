@@ -82,7 +82,7 @@ public class EventNotificationService {
              .setWhen(event.getStart().getTime())
              .setShowWhen(false)
              .setDefaults(DEFAULT_LIGHTS | DEFAULT_VIBRATE)
-             .setContentIntent(PendingIntent.getActivity(context, id, intent, 0));
+             .setContentIntent(PendingIntent.getActivity(context, id, intent, PendingIntent.FLAG_IMMUTABLE));
 
         if (preferences.isTimetableNotificationsSoundEnabled()) {
             builder.setSound(Uri.parse(String.format("android.resource://%s/%s", context.getPackageName(), R.raw.timetable_alarm)));

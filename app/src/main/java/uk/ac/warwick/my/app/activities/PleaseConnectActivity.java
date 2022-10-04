@@ -22,7 +22,7 @@ public class PleaseConnectActivity extends AppCompatActivity {
 
     private ConnectivityManager connectivityManager;
 
-    private BroadcastReceiver connectivity = new BroadcastReceiver() {
+    private final BroadcastReceiver connectivity = new BroadcastReceiver() {
         @Override public void onReceive(Context context, Intent intent) {
             checkConnectivity();
         }
