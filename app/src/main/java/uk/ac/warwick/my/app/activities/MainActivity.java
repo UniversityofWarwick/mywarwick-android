@@ -8,6 +8,7 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.annotation.SuppressLint;
+import android.app.AlarmManager;
 import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -680,6 +681,10 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             buildNotificationChannels((NotificationManager) getSystemService(NOTIFICATION_SERVICE));
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            invoker.invokeMyWarwickMethod("setAlarmsPermissionGranted(" + ((AlarmManager) getSystemService(Context.ALARM_SERVICE)).canScheduleExactAlarms() + ")");
         }
     }
 

@@ -116,6 +116,12 @@
                         MyWarwickAndroid.openOutlookApp();
                     }
                 };
+
+                native.openAlarmsSettings = function openAlarmsSettings() {
+                    if (MyWarwickAndroid.openAlarmsSettings) {
+                        MyWarwickAndroid.openAlarmsSettings();
+                    }
+                }
             }
         })(window);
     </string>
