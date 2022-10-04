@@ -24,11 +24,13 @@ import uk.ac.warwick.my.app.bridge.MyWarwickPreferences;
 
 import static com.google.common.net.HttpHeaders.USER_AGENT;
 
+import androidx.annotation.NonNull;
+
 public class PushRegistrationAPI {
     private static final String TAG = PushRegistrationAPI.class.getSimpleName();
 
     private final OkHttpClient http;
-    private MyWarwickPreferences preferences;
+    private final MyWarwickPreferences preferences;
 
     public PushRegistrationAPI(MyWarwickPreferences preferences) {
         this.preferences = preferences;
@@ -51,11 +53,11 @@ public class PushRegistrationAPI {
                     .build();
 
             http.newCall(request).enqueue(new Callback() {
-                public void onFailure(Call call, IOException e) {
-                    Log.e(TAG, "Failed to unregister device token - " + e.toString());
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    Log.e(TAG, "Failed to unregister device token - " + e);
                 }
 
-                public void onResponse(Call call, Response response) throws IOException {
+                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                     Log.i(TAG, "Successfully unregistered device token");
                 }
             });

@@ -1,7 +1,9 @@
 package uk.ac.warwick.my.app.services;
 
+import static com.google.common.net.HttpHeaders.USER_AGENT;
+import static uk.ac.warwick.my.app.Global.TAG;
+
 import android.content.Context;
-import android.os.Build;
 import android.util.Log;
 
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
@@ -26,18 +28,11 @@ import uk.ac.warwick.my.app.data.Event;
 import uk.ac.warwick.my.app.data.EventDao;
 import uk.ac.warwick.my.app.utils.ISO8601RoughParser;
 import uk.ac.warwick.my.app.utils.ISO8601RoughParserImpl;
-import uk.ac.warwick.my.app.utils.LegacyISO8601RoughParserImpl;
-
-import static com.google.common.net.HttpHeaders.USER_AGENT;
-import static uk.ac.warwick.my.app.Global.TAG;
 
 public class EventFetcher {
 
     private static final ThreadLocal<ISO8601RoughParser> dateFormat = new ThreadLocal<ISO8601RoughParser>() {
         protected ISO8601RoughParser initialValue() {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-                return new LegacyISO8601RoughParserImpl();
-            }
             return new ISO8601RoughParserImpl();
         }
     };

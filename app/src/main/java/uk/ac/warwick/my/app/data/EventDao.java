@@ -44,7 +44,8 @@ public class EventDao implements Closeable {
     }
 
     public List<Event> findAllByStart(Date start) {
-        Cursor cursor = db.query(
+
+        try (Cursor cursor = db.query(
                 EventTable.TABLE_NAME,
                 null,
                 EventTable.COLUMN_NAME_START + " = ?",
@@ -52,9 +53,7 @@ public class EventDao implements Closeable {
                 null,
                 null,
                 null
-        );
-
-        try {
+        )) {
             List<Event> events = new ArrayList<>();
 
             while (cursor.moveToNext()) {
@@ -62,13 +61,12 @@ public class EventDao implements Closeable {
             }
 
             return events;
-        } finally {
-            cursor.close();
         }
     }
 
     public Event findByServerId(String serverId) {
-        Cursor cursor = db.query(
+
+        try (Cursor cursor = db.query(
                 EventTable.TABLE_NAME,
                 null,
                 EventTable.COLUMN_NAME_SERVER_ID + " = ?",
@@ -76,21 +74,18 @@ public class EventDao implements Closeable {
                 null,
                 null,
                 null
-        );
-
-        try {
+        )) {
             if (cursor.moveToNext()) {
                 return buildEvent(cursor);
             }
 
             return null;
-        } finally {
-            cursor.close();
         }
     }
 
     public Event find(String id) {
-        Cursor cursor = db.query(
+
+        try (Cursor cursor = db.query(
                 EventTable.TABLE_NAME,
                 null,
                 EventTable._ID + " = ?",
@@ -98,21 +93,18 @@ public class EventDao implements Closeable {
                 null,
                 null,
                 null
-        );
-
-        try {
+        )) {
             if (cursor.moveToNext()) {
                 return buildEvent(cursor);
             }
 
             return null;
-        } finally {
-            cursor.close();
         }
     }
 
     public Event getFirstEventAfterDate(Date date) {
-        Cursor cursor = db.query(
+
+        try (Cursor cursor = db.query(
                 EventTable.TABLE_NAME,
                 null,
                 EventTable.COLUMN_NAME_START + " > ?",
@@ -121,16 +113,12 @@ public class EventDao implements Closeable {
                 null,
                 EventTable.COLUMN_NAME_START + " ASC",
                 "1"
-        );
-
-        try {
+        )) {
             if (cursor.moveToNext()) {
                 return buildEvent(cursor);
             }
 
             return null;
-        } finally {
-            cursor.close();
         }
     }
 

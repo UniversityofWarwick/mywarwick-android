@@ -36,7 +36,7 @@ public class TourActivity extends AppIntro {
 
     public static class SlideFragment extends Fragment {
 
-        private static String POSITION_ARG = "position";
+        private static final String POSITION_ARG = "position";
 
         public static SlideFragment newInstance(int position) {
             SlideFragment f = new SlideFragment();
@@ -50,7 +50,10 @@ public class TourActivity extends AppIntro {
         }
 
         private int getPosition() {
-            return getArguments().getInt(POSITION_ARG, 0);
+            if (getArguments() != null) {
+                return getArguments().getInt(POSITION_ARG, 0);
+            }
+            return 0;
         }
 
         @NonNull
@@ -70,7 +73,7 @@ public class TourActivity extends AppIntro {
             addSlide(SlideFragment.newInstance(i));
         }
 
-        int colorPrimary = getResources().getColor(R.color.colorPrimary);
+        int colorPrimary = getResources().getColor(R.color.colorPrimary, getTheme());
 
         setColorDoneText(colorPrimary);
         setColorSkipButton(colorPrimary);

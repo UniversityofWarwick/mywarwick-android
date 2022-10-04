@@ -56,12 +56,9 @@ public class MyWarwickJavaScriptInterface {
 
     @JavascriptInterface
     public void loadDeviceDetails() {
-        state.getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                String json = state.getDeviceDetails().toString().replace("'", "\\'");
-                invoker.invokeMyWarwickMethod("feedback('" + json + "')");
-            }
+        state.getActivity().runOnUiThread(() -> {
+            String json = state.getDeviceDetails().toString().replace("'", "\\'");
+            invoker.invokeMyWarwickMethod("feedback('" + json + "')");
         });
     }
 
