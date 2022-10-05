@@ -1,9 +1,14 @@
 package uk.ac.warwick.my.app.bridge;
 
+import static android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM;
+
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import androidx.annotation.Keep;
+import androidx.annotation.RequiresApi;
+
+import android.os.Build;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 import android.widget.Toast;
@@ -168,6 +173,12 @@ public class MyWarwickJavaScriptInterface {
         } catch (JSONException e) {
             FirebaseCrashlytics.getInstance().recordException(e);
         }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.S)
+    @JavascriptInterface
+    public void openAlarmsSettings() {
+        state.getActivity().startActivity(new Intent(ACTION_REQUEST_SCHEDULE_EXACT_ALARM));
     }
 
     private boolean isPackageInstalled(String packageName) {
