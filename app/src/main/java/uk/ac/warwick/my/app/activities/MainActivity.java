@@ -1,14 +1,17 @@
 package uk.ac.warwick.my.app.activities;
 
+import static uk.ac.warwick.my.app.services.EventNotificationService.NOTIFICATION_ID;
+import static uk.ac.warwick.my.app.services.NotificationChannelsService.buildNotificationChannels;
+
 import android.Manifest;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.annotation.SuppressLint;
+import android.app.AlarmManager;
 import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -16,7 +19,6 @@ import android.content.pm.ResolveInfo;
 import android.graphics.Color;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
@@ -24,22 +26,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-
-import androidx.annotation.ColorInt;
-import androidx.annotation.IdRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.browser.customtabs.CustomTabsCallback;
-import androidx.browser.customtabs.CustomTabsClient;
-import androidx.browser.customtabs.CustomTabsService;
-import androidx.browser.customtabs.CustomTabsServiceConnection;
-import androidx.browser.customtabs.CustomTabsSession;
-import androidx.core.app.ActivityCompat;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -53,11 +39,24 @@ import android.webkit.WebView;
 import android.widget.EdgeEffect;
 import android.widget.ImageView;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.IdRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.browser.customtabs.CustomTabsCallback;
+import androidx.browser.customtabs.CustomTabsClient;
+import androidx.browser.customtabs.CustomTabsService;
+import androidx.browser.customtabs.CustomTabsServiceConnection;
+import androidx.browser.customtabs.CustomTabsSession;
+import androidx.core.app.ActivityCompat;
+
 import com.bumptech.glide.Glide;
-import com.google.firebase.crashlytics.FirebaseCrashlytics;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.google.firebase.iid.InstanceIdResult;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.BottomBarTab;
 import com.roughike.bottombar.OnTabReselectListener;
@@ -91,9 +90,6 @@ import uk.ac.warwick.my.app.user.User;
 import uk.ac.warwick.my.app.utils.DownloadImageTask;
 import uk.ac.warwick.my.app.utils.PushNotifications;
 
-import static uk.ac.warwick.my.app.services.EventNotificationService.NOTIFICATION_ID;
-import static uk.ac.warwick.my.app.services.NotificationChannelsService.buildNotificationChannels;
-
 public class MainActivity extends AppCompatActivity implements OnTabSelectListener, OnTabReselectListener, MyWarwickListener {
 
     public static final String ROOT_PATH = "/";
@@ -122,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     public static final float enabledTabAlpha = 1;
 
     private WebView myWarwickWebView;
-    private MyWarwickState myWarwick = new MyWarwickState(this, this);
+    private final MyWarwickState myWarwick = new MyWarwickState(this, this);
     private MyWarwickPreferences preferences;
     private JavascriptInvoker invoker;
     private MenuItem editMenuItem;
@@ -140,12 +136,9 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     private void startTimetableEventUpdateTimer() {
         if (timetableEventUpdateScheduler == null) {
             timetableEventUpdateScheduler = Executors.newSingleThreadScheduledExecutor();
-            timetableEventUpdateScheduler.scheduleAtFixedRate(new Runnable() {
-                @Override
-                public void run() {
-                    Log.d(TAG, "Starting timetable event update.");
-                    new EventFetcher(getApplicationContext()).updateEvents();
-                }
+            timetableEventUpdateScheduler.scheduleAtFixedRate(() -> {
+                Log.d(TAG, "Starting timetable event update.");
+                new EventFetcher(getApplicationContext()).updateEvents();
             }, 0, 60, TimeUnit.SECONDS);
         }
     }
@@ -180,62 +173,51 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             FirebaseCrashlytics.getInstance().log("onPathChange: " + oldPath);
         } catch (IllegalStateException ignored) {
         }
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                setTitle(getTitleForPath(path));
+        runOnUiThread(() -> {
+            setTitle(getTitleForPath(path));
 
-                if (path.startsWith(SETTINGS_PATH)) {
-                    BottomBar bottomBar = getBottomBar();
-                    bottomBar.setVisibility(View.GONE);
+            if (path.startsWith(SETTINGS_PATH)) {
+                BottomBar bottomBar = getBottomBar();
+                bottomBar.setVisibility(View.GONE);
+            } else {
+                // Don't call listeners when the webview changes the tab
+                BottomBar bottomBar = getBottomBar();
+                bottomBar.setVisibility(View.VISIBLE);
+                bottomBar.removeOnTabSelectListener();
+                bottomBar.removeOnTabReselectListener();
+                // Only update the tab if the new path is on a different tab
+                if (oldPath == null) {
+                    bottomBar.selectTabWithId(getTabItemForPath(path));
                 } else {
-                    // Don't call listeners when the webview changes the tab
-                    BottomBar bottomBar = getBottomBar();
-                    bottomBar.setVisibility(View.VISIBLE);
-                    bottomBar.removeOnTabSelectListener();
-                    bottomBar.removeOnTabReselectListener();
-                    // Only update the tab if the new path is on a different tab
-                    if (oldPath == null) {
-                        bottomBar.selectTabWithId(getTabItemForPath(path));
-                    } else {
-                        String oldTabPath = getPathForTabItem(getTabItemForPath(oldPath));
-                        int newTabItem = getTabItemForPath(path);
-                        String newTabPath = getPathForTabItem(newTabItem);
-                        if (!oldTabPath.equals(newTabPath)) {
-                            bottomBar.selectTabWithId(newTabItem);
-                        }
-                    }
-                    bottomBar.setOnTabSelectListener(MainActivity.this, false);
-                    bottomBar.setOnTabReselectListener(MainActivity.this);
-                }
-
-                ActionBar actionBar = getSupportActionBar();
-
-                if (actionBar != null) {
-                    if (path.matches("^/.+/.+") || path.startsWith(SETTINGS_PATH) || (path.startsWith(EDIT_PATH) && preferences.featureEnabled(MyWarwickFeatures.EDIT_TILES_BTN))) {
-                        // Display a back arrow in place of the drawer indicator
-                        actionBar.setDisplayHomeAsUpEnabled(true);
-                    } else {
-                        // Restore the drawer indicator
-                        actionBar.setDisplayHomeAsUpEnabled(false);
+                    String oldTabPath = getPathForTabItem(getTabItemForPath(oldPath));
+                    int newTabItem = getTabItemForPath(path);
+                    String newTabPath = getPathForTabItem(newTabItem);
+                    if (!oldTabPath.equals(newTabPath)) {
+                        bottomBar.selectTabWithId(newTabItem);
                     }
                 }
-
-                updateEditMenuItem(path);
-                updateSettingsMenuItem(path);
+                bottomBar.setOnTabSelectListener(MainActivity.this, false);
+                bottomBar.setOnTabReselectListener(MainActivity.this);
             }
+
+            ActionBar actionBar = getSupportActionBar();
+
+            if (actionBar != null) {
+                // Display a back arrow in place of the drawer indicator or restore the drawer indicator
+                actionBar.setDisplayHomeAsUpEnabled(path.matches("^/.+/.+") || path.startsWith(SETTINGS_PATH) || (path.startsWith(EDIT_PATH) && preferences.featureEnabled(MyWarwickFeatures.EDIT_TILES_BTN)));
+            }
+
+            updateEditMenuItem(path);
+            updateSettingsMenuItem(path);
         });
     }
 
     @Override
     public void onUnreadNotificationCountChange(final int count) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                BottomBarTab tab = getBottomBar().getTabAtPosition(TAB_INDEX_NOTIFICATIONS);
+        runOnUiThread(() -> {
+            BottomBarTab tab = getBottomBar().getTabAtPosition(TAB_INDEX_NOTIFICATIONS);
 
-                tab.setBadgeCount(count);
-            }
+            tab.setBadgeCount(count);
         });
     }
 
@@ -245,60 +227,57 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
      */
     @Override
     public void onUserChange(@Nullable final User user) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                View accountPhotoView = getAccountPhotoView();
-                View cardView = accountPhotoView.findViewById(R.id.image_card_view);
-                ImageView photoView = accountPhotoView.findViewById(R.id.image_view);
+        runOnUiThread(() -> {
+            View accountPhotoView = getAccountPhotoView();
+            View cardView = accountPhotoView.findViewById(R.id.image_card_view);
+            ImageView photoView = accountPhotoView.findViewById(R.id.image_view);
 
-                final boolean signedIn = (user != null && user.isSignedIn());
+            final boolean signedIn = (user != null && user.isSignedIn());
 
-                if (signedIn) {
-                    new DownloadImageTask(photoView, cardView).execute(user.getPhotoUrl());
+            if (signedIn) {
+                new DownloadImageTask(photoView, cardView).execute(user.getPhotoUrl());
 
-                    if (user.isAuthoritative()) {
-                        registerForPushNotifications();
+                if (user.isAuthoritative()) {
+                    registerForPushNotifications();
 
-                        if (preferences.getTimetableToken() == null) {
-                            registerForTimetable();
-                        } else if (preferences.isNeedsTimetableTokenRefresh()) {
-                            Log.d(TAG, "Refreshing timetable token");
-                            registerForTimetable();
-                        }
-                    }
-                } else {
-                    photoView.setImageURI(null);
-                    cardView.setVisibility(View.GONE);
-
-                    if (user != null && user.isAuthoritative()) {
-                        unregisterForPushNotifications();
-
-                        preferences.setTimetableToken(null);
-                        try (EventDao eventDao = new EventDao(getApplicationContext())) {
-                            eventDao.deleteAll();
-                        }
+                    if (preferences.getTimetableToken() == null) {
+                        registerForTimetable();
+                    } else if (preferences.isNeedsTimetableTokenRefresh()) {
+                        Log.d(TAG, "Refreshing timetable token");
+                        registerForTimetable();
                     }
                 }
+            } else {
+                photoView.setImageURI(null);
+                cardView.setVisibility(View.GONE);
 
-                BottomBar bottomBar = getBottomBar();
+                if (user != null && user.isAuthoritative()) {
+                    unregisterForPushNotifications();
 
-                BottomBarTab notificationsTab = bottomBar.getTabAtPosition(TAB_INDEX_NOTIFICATIONS);
-                BottomBarTab activitiesTab = bottomBar.getTabAtPosition(TAB_INDEX_ACTIVITIES);
-                notificationsTab.setEnabled(signedIn);
-                activitiesTab.setEnabled(signedIn);
-
-                if (!signedIn) {
-                    notificationsTab.setAlpha(disabledTabAlpha);
-                    activitiesTab.setAlpha(disabledTabAlpha);
-                } else {
-                    notificationsTab.setAlpha(enabledTabAlpha);
-                    activitiesTab.setAlpha(enabledTabAlpha);
+                    preferences.setTimetableToken(null);
+                    try (EventDao eventDao = new EventDao(getApplicationContext())) {
+                        eventDao.deleteAll();
+                    }
                 }
-
-                // Cause the options menu to be updated to reflect the signed in/out state
-                supportInvalidateOptionsMenu();
             }
+
+            BottomBar bottomBar = getBottomBar();
+
+            BottomBarTab notificationsTab = bottomBar.getTabAtPosition(TAB_INDEX_NOTIFICATIONS);
+            BottomBarTab activitiesTab = bottomBar.getTabAtPosition(TAB_INDEX_ACTIVITIES);
+            notificationsTab.setEnabled(signedIn);
+            activitiesTab.setEnabled(signedIn);
+
+            if (!signedIn) {
+                notificationsTab.setAlpha(disabledTabAlpha);
+                activitiesTab.setAlpha(disabledTabAlpha);
+            } else {
+                notificationsTab.setAlpha(enabledTabAlpha);
+                activitiesTab.setAlpha(enabledTabAlpha);
+            }
+
+            // Cause the options menu to be updated to reflect the signed in/out state
+            supportInvalidateOptionsMenu();
         });
     }
 
@@ -308,12 +287,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
     @Override
     public void onSetSsoUrls(final SsoUrls ssoUrls) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                supportInvalidateOptionsMenu();
-            }
-        });
+        runOnUiThread(this::supportInvalidateOptionsMenu);
     }
 
     @Override
@@ -333,42 +307,33 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             preferences.setHighContrastChoice(isHighContrast);
         }
 
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                ImageView viewById = getAccountPhotoView().findViewById(R.id.image_view);
-                if (bgId == 8) { // dark theme, desaturate photo
-                    ColorMatrix matrix = new ColorMatrix();
-                    matrix.setSaturation(0);
-                    ColorMatrixColorFilter filter = new ColorMatrixColorFilter(matrix);
-                    viewById.setColorFilter(filter);
-                } else {
-                    viewById.setColorFilter(null);
-                }
+        runOnUiThread(() -> {
+            ImageView viewById = getAccountPhotoView().findViewById(R.id.image_view);
+            if (bgId == 8) { // dark theme, desaturate photo
+                ColorMatrix matrix = new ColorMatrix();
+                matrix.setSaturation(0);
+                ColorMatrixColorFilter filter = new ColorMatrixColorFilter(matrix);
+                viewById.setColorFilter(filter);
+            } else {
+                viewById.setColorFilter(null);
             }
         });
     }
 
     private void setImageViewToColor(final @ColorInt int bgId) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                ImageView imageView = findViewById(R.id.background);
-                imageView.setImageDrawable(new ColorDrawable(getColourForTheme(bgId)));
-            }
+        runOnUiThread(() -> {
+            ImageView imageView = findViewById(R.id.background);
+            imageView.setImageDrawable(new ColorDrawable(getColourForTheme(bgId)));
         });
     }
 
     private void updateBackgroundDisplayed(final int newBgId) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                ImageView imageView = findViewById(R.id.background);
-                Context ctx = imageView.getContext();
-                int resourceIdentifier = ctx.getResources().getIdentifier(String.format(Locale.ROOT, "bg%02d", newBgId), "drawable", ctx.getPackageName());
-                if (resourceIdentifier != 0) {
-                    Glide.with(getApplicationContext()).asDrawable().load(resourceIdentifier).into(imageView);
-                }
+        runOnUiThread(() -> {
+            ImageView imageView = findViewById(R.id.background);
+            Context ctx = imageView.getContext();
+            int resourceIdentifier = ctx.getResources().getIdentifier(String.format(Locale.ROOT, "bg%02d", newBgId), "drawable", ctx.getPackageName());
+            if (resourceIdentifier != 0) {
+                Glide.with(getApplicationContext()).asDrawable().load(resourceIdentifier).into(imageView);
             }
         });
     }
@@ -376,62 +341,57 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
     private void updateThemeColours(final int newId) {
         themePrimaryColour = getColourForTheme(newId);
 
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (getSupportActionBar() != null) {
-                    getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getColourForTheme(newId)));
-                }
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    getWindow().setStatusBarColor(getDarkColourForTheme(newId));
-                }
-
-                getBottomBar().setActiveTabColor(getColourForTheme(newId));
-                setEdgeEffectColour(myWarwickWebView, themePrimaryColour);
+        runOnUiThread(() -> {
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getColourForTheme(newId)));
             }
+
+            getWindow().setStatusBarColor(getDarkColourForTheme(newId));
+
+            getBottomBar().setActiveTabColor(getColourForTheme(newId));
+            setEdgeEffectColour(myWarwickWebView, themePrimaryColour);
         });
     }
 
     public int getColourForTheme(final int themeId) {
         switch (themeId) {
             case 2:
-                return getResources().getColor(R.color.colorPrimary2);
+                return getResources().getColor(R.color.colorPrimary2, getTheme());
             case 3:
-                return getResources().getColor(R.color.colorPrimary3);
+                return getResources().getColor(R.color.colorPrimary3, getTheme());
             case 4:
-                return getResources().getColor(R.color.colorPrimary4);
+                return getResources().getColor(R.color.colorPrimary4, getTheme());
             case 5:
-                return getResources().getColor(R.color.colorPrimary5);
+                return getResources().getColor(R.color.colorPrimary5, getTheme());
             case 6:
-                return getResources().getColor(R.color.colorPrimary6);
+                return getResources().getColor(R.color.colorPrimary6, getTheme());
             case 7:
-                return getResources().getColor(R.color.colorPrimary7);
+                return getResources().getColor(R.color.colorPrimary7, getTheme());
             case 8:
-                return getResources().getColor(R.color.colorPrimary8);
+                return getResources().getColor(R.color.colorPrimary8, getTheme());
             default:
-                return getResources().getColor(R.color.colorPrimary1);
+                return getResources().getColor(R.color.colorPrimary1, getTheme());
         }
     }
 
     public int getDarkColourForTheme(final int themeId) {
         switch (themeId) {
             case 2:
-                return getResources().getColor(R.color.colorPrimaryDark2);
+                return getResources().getColor(R.color.colorPrimaryDark2, getTheme());
             case 3:
-                return getResources().getColor(R.color.colorPrimaryDark3);
+                return getResources().getColor(R.color.colorPrimaryDark3, getTheme());
             case 4:
-                return getResources().getColor(R.color.colorPrimaryDark4);
+                return getResources().getColor(R.color.colorPrimaryDark4, getTheme());
             case 5:
-                return getResources().getColor(R.color.colorPrimaryDark5);
+                return getResources().getColor(R.color.colorPrimaryDark5, getTheme());
             case 6:
-                return getResources().getColor(R.color.colorPrimaryDark6);
+                return getResources().getColor(R.color.colorPrimaryDark6, getTheme());
             case 7:
-                return getResources().getColor(R.color.colorPrimaryDark7);
+                return getResources().getColor(R.color.colorPrimaryDark7, getTheme());
             case 8:
-                return getResources().getColor(R.color.colorPrimaryDark8);
+                return getResources().getColor(R.color.colorPrimaryDark8, getTheme());
             default:
-                return getResources().getColor(R.color.colorPrimaryDark1);
+                return getResources().getColor(R.color.colorPrimaryDark1, getTheme());
         }
     }
 
@@ -470,21 +430,9 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
     private void setEdgeEffectColor(EdgeEffect edgeEffect, @ColorInt int color) {
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                edgeEffect.setColor(color);
-                return;
-            }
-            for (String name : new String[]{"mEdge", "mGlow"}) {
-                Field field = EdgeEffect.class.getDeclaredField(name);
-                if (!field.isAccessible()) {
-                    field.setAccessible(true);
-                }
-                Drawable drawable = (Drawable) field.get(edgeEffect);
-                drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
-                drawable.setCallback(null); // free up any references
-            }
-        } catch (Throwable ignored) {
-            ignored.printStackTrace();
+            edgeEffect.setColor(color);
+        } catch (Throwable e) {
+            e.printStackTrace();
         }
     }
 
@@ -527,10 +475,8 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         settings.setGeolocationEnabled(true);
         settings.setUserAgentString(settings.getUserAgentString() + " " + getString(R.string.user_agent_prefix) + BuildConfig.VERSION_NAME);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            if (isDebugBuild()) {
-                WebView.setWebContentsDebuggingEnabled(true);
-            }
+        if (isDebugBuild()) {
+            WebView.setWebContentsDebuggingEnabled(true);
         }
 
         this.preferences = new MyWarwickPreferences(this);
@@ -649,17 +595,15 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case LOCATION_PERMISSION_REQUEST:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Log.d(TAG, "Permission granted");
-                } else {
-                    Bundle bundle = new Bundle();
-                    bundle.putString("permission", Manifest.permission.ACCESS_FINE_LOCATION);
-                    firebaseAnalytics.logEvent("permission_denied", bundle);
-                    Log.d(TAG, "Permission denied");
-                }
-                break;
+        if (requestCode == LOCATION_PERMISSION_REQUEST) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Log.d(TAG, "Permission granted");
+            } else {
+                Bundle bundle = new Bundle();
+                bundle.putString("permission", Manifest.permission.ACCESS_FINE_LOCATION);
+                firebaseAnalytics.logEvent("permission_denied", bundle);
+                Log.d(TAG, "Permission denied");
+            }
         }
     }
 
@@ -672,11 +616,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
                     .setTitle(R.string.location_dialog_title)
                     .setMessage(R.string.location_dialog_message)
                     .setCancelable(false)
-                    .setPositiveButton(R.string.okay_ask, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            requestLocationPermissions();
-                        }
-                    }).create();
+                    .setPositiveButton(R.string.okay_ask, (dialog, which) -> requestLocationPermissions()).create();
         }
         locationPermissionsDialog.show();
     }
@@ -695,17 +635,14 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
             return;
         }
 
-        PushNotifications.getToken(this, new OnSuccessListener<InstanceIdResult>() {
-            @Override
-            public void onSuccess(InstanceIdResult instanceIdResult) {
-                String token = instanceIdResult.getToken();
+        PushNotifications.getToken(this, instanceIdResult -> {
+            String token = instanceIdResult.getToken();
 
-                preferences.setPushNotificationToken(token);
+            preferences.setPushNotificationToken(token);
 
-                Log.i(TAG, "Registering for push notifications with token " + token);
+            Log.i(TAG, "Registering for push notifications with token " + token);
 
-                invoker.invokeMyWarwickMethod(String.format("registerForFCM('%s')", token));
-            }
+            invoker.invokeMyWarwickMethod(String.format("registerForFCM('%s')", token));
         });
     }
 
@@ -744,6 +681,10 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             buildNotificationChannels((NotificationManager) getSystemService(NOTIFICATION_SERVICE));
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            invoker.invokeMyWarwickMethod("setAlarmsPermissionGranted(" + ((AlarmManager) getSystemService(Context.ALARM_SERVICE)).canScheduleExactAlarms() + ")");
         }
     }
 

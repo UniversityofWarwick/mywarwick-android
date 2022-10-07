@@ -8,7 +8,8 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import uk.ac.warwick.my.app.helper.Objects;
+import java.util.Objects;
+
 import uk.ac.warwick.my.app.user.SsoUrls;
 import uk.ac.warwick.my.app.user.User;
 
@@ -24,8 +25,8 @@ public class MyWarwickState {
     private boolean isHighContrast = false;
     private String path;
     private SsoUrls ssoUrls;
-    private MyWarwickListener listener;
-    private Activity activity;
+    private final MyWarwickListener listener;
+    private final Activity activity;
     private Boolean appCached;
     private JSONObject staticDeviceDetails;
 

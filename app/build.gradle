@@ -1,8 +1,8 @@
 buildscript {
     repositories {
-        jcenter()
         google()
         maven { url "https://jitpack.io" }
+        mavenCentral()
     }
     dependencies {
         classpath 'com.github.timfreiheit:ResourcePlaceholdersPlugin:0.2'
@@ -18,7 +18,7 @@ if (!project.hasProperty("MyWarwick.keystore")) {
     throw new Exception("~/.gradle/gradle.properties needs to contain the necessary MyWarwick.* properties.")
 }
 
-def buildNumber = 53
+def buildNumber = 54
 
 android {
     signingConfigs {
@@ -30,12 +30,12 @@ android {
         }
     }
 
-    compileSdkVersion 29
+    compileSdkVersion 32
 
     defaultConfig {
         applicationId "uk.ac.warwick.my.app"
-        minSdkVersion 19
-        targetSdkVersion 29
+        minSdkVersion 24
+        targetSdkVersion 32
         versionCode buildNumber
         versionName buildNumber + ""
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
@@ -55,6 +55,7 @@ android {
             minifyEnabled false
         }
     }
+    namespace 'uk.ac.warwick.my.app'
 
 }
 

@@ -1,21 +1,21 @@
 package uk.ac.warwick.my.app.bridge;
 
-import android.annotation.TargetApi;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.Build;
-import androidx.browser.customtabs.CustomTabsIntent;
-import androidx.browser.customtabs.CustomTabsSession;
-import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.webkit.CookieManager;
-import android.webkit.CookieSyncManager;
+import android.webkit.WebResourceError;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.browser.customtabs.CustomTabsIntent;
+import androidx.browser.customtabs.CustomTabsSession;
 
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
@@ -81,24 +81,22 @@ public class MyWarwickWebViewClient extends WebViewClient {
     }
 
     /**
-     * This method is deprecated on newer APIs but we are using older APIs. Note that this
-     * should only be called for errors on the top level page, whereas the replacement APIs are
-     * called for subresources as well, so would need to watch out for that.
-     * <p>
      * Catches failure to load a page by showing a helpful message.
      */
     @Override
-    public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
-        switch (errorCode) {
-            case ERROR_HOST_LOOKUP:
-            case ERROR_CONNECT:
-            case ERROR_TIMEOUT:
-                Log.d(Global.TAG, "onReceivedError for " + failingUrl);
-                view.loadUrl("about:blank");
-                listener.onUncachedPageFail();
-                break;
-            default:
-                super.onReceivedError(view, errorCode, description, failingUrl);
+    public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+        if (request.isForMainFrame()) {
+            switch (error.getErrorCode()) {
+                case ERROR_HOST_LOOKUP:
+                case ERROR_CONNECT:
+                case ERROR_TIMEOUT:
+                    Log.d(Global.TAG, "onReceivedError for " + request.getUrl());
+                    view.loadUrl("about:blank");
+                    listener.onUncachedPageFail();
+                    break;
+                default:
+                    super.onReceivedError(view, request, error);
+            }
         }
     }
 
@@ -108,22 +106,16 @@ public class MyWarwickWebViewClient extends WebViewClient {
         String js = view.getContext().getString(R.string.bridge);
         view.loadUrl("javascript:" + js);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) flushCookies();
-        else syncCookies();
+        flushCookies();
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void flushCookies() {
         CookieManager.getInstance().flush();
     }
 
-    private void syncCookies() {
-        CookieSyncManager.getInstance().sync();
-    }
-
     @Override
-    public boolean shouldOverrideUrlLoading(WebView view, String urlString) {
-        Uri url = Uri.parse(urlString);
+    public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+        Uri url = request.getUrl();
         String host = url.getHost();
 
         if (host != null) {

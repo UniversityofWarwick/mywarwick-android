@@ -1,5 +1,7 @@
 package uk.ac.warwick.my.app.data;
 
+import androidx.annotation.NonNull;
+
 import com.google.common.base.MoreObjects;
 
 import java.util.Date;
@@ -90,6 +92,7 @@ public class Event {
         this.location = location;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
