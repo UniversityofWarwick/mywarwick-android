@@ -19,6 +19,7 @@ import uk.ac.warwick.my.app.activities.MainActivity;
 import uk.ac.warwick.my.app.bridge.MyWarwickPreferences;
 import uk.ac.warwick.my.app.data.Event;
 import uk.ac.warwick.my.app.data.EventDao;
+import uk.ac.warwick.my.app.utils.CustomLogger;
 
 import static android.app.Notification.DEFAULT_LIGHTS;
 import static android.app.Notification.DEFAULT_VIBRATE;
@@ -50,6 +51,7 @@ public class EventNotificationService {
 
             if (event == null) {
                 Log.w(TAG, "Event " + serverId + " not found in database");
+                CustomLogger.log(context, "Event " + serverId + " not found in database");
                 return;
             }
 
@@ -89,7 +91,9 @@ public class EventNotificationService {
         }
 
         Notification notification = builder.build();
+        CustomLogger.log(context, String.format("Sending notification %d for %s at %s", id, getNotificationTitle(event), event.getStart().getTime()));
         getNotificationManager().notify(id, notification);
+        CustomLogger.log(context, String.format("Dispatched notification %d for %s at %s", id, getNotificationTitle(event), event.getStart().getTime()));
     }
 
     private NotificationManager getNotificationManager() {

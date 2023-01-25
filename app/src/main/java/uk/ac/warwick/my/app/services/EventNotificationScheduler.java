@@ -14,6 +14,7 @@ import uk.ac.warwick.my.app.bridge.MyWarwickPreferences;
 import uk.ac.warwick.my.app.data.Event;
 import uk.ac.warwick.my.app.data.EventDao;
 import uk.ac.warwick.my.app.system.AlarmReceiver;
+import uk.ac.warwick.my.app.utils.CustomLogger;
 
 import static uk.ac.warwick.my.app.Global.TAG;
 
@@ -34,11 +35,13 @@ public class EventNotificationScheduler {
 
         if (!preferences.isTimetableNotificationsEnabled()) {
             // Notifications aren't enabled, so stop after cancelling any that were queued up
+            CustomLogger.log(context, "Notifications aren't enabled, so stop after cancelling any that were queued up");
             return;
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !getAlarmManager().canScheduleExactAlarms()) {
             // User has blocked the alarm permission so no point creating new ones
+            CustomLogger.log(context, "User has blocked the alarm permission so no point creating new ones");
             return;
         }
 
@@ -46,6 +49,7 @@ public class EventNotificationScheduler {
 
         if (event == null) {
             Log.i(TAG, "scheduleNextNotification called, but there are no future events");
+            CustomLogger.log(context, "scheduleNextNotification called, but there are no future events");
             return;
         }
 
@@ -55,6 +59,7 @@ public class EventNotificationScheduler {
         Date alarmDate = getNotificationDate(event);
 
         Log.i(TAG, "Scheduling a notification for event '" + event.getTitle() + "' at " + alarmDate);
+        CustomLogger.log(context, "Scheduling a notification for event '" + event.getTitle() + "' at " + alarmDate);
 
         getAlarmManager().setExact(AlarmManager.RTC_WAKEUP, alarmDate.getTime(), pendingIntent);
     }

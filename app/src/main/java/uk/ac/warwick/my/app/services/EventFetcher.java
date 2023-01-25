@@ -26,6 +26,7 @@ import uk.ac.warwick.my.app.BuildConfig;
 import uk.ac.warwick.my.app.bridge.MyWarwickPreferences;
 import uk.ac.warwick.my.app.data.Event;
 import uk.ac.warwick.my.app.data.EventDao;
+import uk.ac.warwick.my.app.utils.CustomLogger;
 import uk.ac.warwick.my.app.utils.ISO8601RoughParser;
 import uk.ac.warwick.my.app.utils.ISO8601RoughParserImpl;
 
@@ -98,6 +99,8 @@ public class EventFetcher {
             for (int i = 0; i < items.length(); i++) {
                 events.add(buildEvent(items.getJSONObject(i)));
             }
+
+            CustomLogger.log(context, String.format("Successfully fetched %d events", events.size()));
 
             return events;
         } catch (IOException e) {

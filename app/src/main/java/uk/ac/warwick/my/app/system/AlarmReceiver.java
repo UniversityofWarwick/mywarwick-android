@@ -7,6 +7,7 @@ import android.util.Log;
 
 import uk.ac.warwick.my.app.services.EventNotificationScheduler;
 import uk.ac.warwick.my.app.services.EventNotificationService;
+import uk.ac.warwick.my.app.utils.CustomLogger;
 
 import static uk.ac.warwick.my.app.Global.TAG;
 
@@ -19,6 +20,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         if (serverId == null) {
             Log.w(TAG, "AlarmReceiver invoked with missing " + EVENT_SERVER_ID + " extra");
+            CustomLogger.log(context, "AlarmReceiver invoked with missing " + EVENT_SERVER_ID + " extra");
         } else {
             new EventNotificationService(context).notify(serverId);
         }
