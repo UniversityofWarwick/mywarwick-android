@@ -21,30 +21,32 @@ import uk.ac.warwick.my.app.bridge.MyWarwickPreferences;
 
 public class CustomLogger {
     public static void log(Context context, String message) {
-        MyWarwickPreferences preferences = new MyWarwickPreferences(context);
-        OkHttpClient http = new OkHttpClient.Builder().build();
-        String base = preferences.getAppURL();
+        new Thread(() -> {
+            MyWarwickPreferences preferences = new MyWarwickPreferences(context);
+            OkHttpClient http = new OkHttpClient.Builder().build();
+            String base = preferences.getAppURL();
 
-        try {
-            JSONArray postBody = new JSONArray().put(new JSONObject()
-                    .put("message", message));
-            Request request = new Request.Builder()
-                    .url(base + "/api/errors/js")
-                    .header(USER_AGENT, "MyWarwick/" + BuildConfig.VERSION_NAME)
-                    .post(RequestBody.create(MediaType.parse("application/json"), postBody.toString()))
-                    .build();
-            Response response = http.newCall(request).execute();
-            ResponseBody body = response.body();
+            try {
+                JSONArray postBody = new JSONArray().put(new JSONObject()
+                        .put("message", message));
+                Request request = new Request.Builder()
+                        .url(base + "/api/errors/js")
+                        .header(USER_AGENT, "MyWarwick/" + BuildConfig.VERSION_NAME)
+                        .post(RequestBody.create(MediaType.parse("application/json"), postBody.toString()))
+                        .build();
+                Response response = http.newCall(request).execute();
+                ResponseBody body = response.body();
 
-            if (body == null) {
-                throw new RuntimeException("Response body was null");
+                if (body == null) {
+                    throw new RuntimeException("Response body was null");
+                }
+
+                if (!response.isSuccessful()) {
+                    throw new RuntimeException("Error response: " + response.code() + " " + response.message());
+                }
+            } catch (IOException | JSONException e) {
+                throw new RuntimeException("Error logging custom data (" + message + ")", e);
             }
-
-            if (!response.isSuccessful()) {
-                throw new RuntimeException("Error response: " + response.code() + " " + response.message());
-            }
-        } catch (IOException | JSONException e) {
-            throw new RuntimeException("Error logging custom data (" + message + ")", e);
-        }
+        }).start();
     }
 }
