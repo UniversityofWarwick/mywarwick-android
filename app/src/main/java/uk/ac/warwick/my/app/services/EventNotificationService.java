@@ -1,6 +1,7 @@
 package uk.ac.warwick.my.app.services;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -97,7 +98,22 @@ public class EventNotificationService {
     }
 
     private NotificationManager getNotificationManager() {
-        return (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            NotificationChannel nc = nm.getNotificationChannel(TIMETABLE_EVENTS_CHANNEL_ID);
+            CustomLogger.log(context, String.format(
+                    "areNotificationsEnabled: %s, areNotificationsPaused: %s",
+                    nm.areNotificationsEnabled(),
+                    nm.areNotificationsPaused()
+            ));
+            if (nc != null) {
+                CustomLogger.log(context, String.format(
+                        "getImportance: %s",
+                        nc.getImportance()
+                ));
+            }
+        }
+        return nm;
     }
 
     private String getNotificationTitle(Event e) {

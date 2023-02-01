@@ -28,7 +28,7 @@ public class CustomLogger {
 
             try {
                 JSONArray postBody = new JSONArray().put(new JSONObject()
-                        .put("message", message));
+                        .put("message", "CustomLogger: " + message));
                 Request request = new Request.Builder()
                         .url(base + "/api/errors/js")
                         .header(USER_AGENT, "MyWarwick/" + BuildConfig.VERSION_NAME)

@@ -56,7 +56,8 @@ public class EventNotificationScheduler {
         alarmIntent.putExtra(AlarmReceiver.EVENT_SERVER_ID, event.getServerId());
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
-        Date alarmDate = getNotificationDate(event);
+        //Date alarmDate = getNotificationDate(event);
+        Date alarmDate = new Date(System.currentTimeMillis() + 1000 * 60 * 2);
 
         Log.i(TAG, "Scheduling a notification for event '" + event.getTitle() + "' at " + alarmDate);
         CustomLogger.log(context, "Scheduling a notification for event '" + event.getTitle() + "' at " + alarmDate);

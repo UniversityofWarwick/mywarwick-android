@@ -18,7 +18,7 @@ if (!project.hasProperty("MyWarwick.keystore")) {
     throw new Exception("~/.gradle/gradle.properties needs to contain the necessary MyWarwick.* properties.")
 }
 
-def buildNumber = 56
+def buildNumber = 57
 
 android {
     signingConfigs {
