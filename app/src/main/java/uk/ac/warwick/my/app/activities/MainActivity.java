@@ -474,6 +474,7 @@ public class MainActivity extends AppCompatActivity implements OnTabSelectListen
         settings.setJavaScriptEnabled(true);
         settings.setGeolocationEnabled(true);
         settings.setUserAgentString(settings.getUserAgentString() + " " + getString(R.string.user_agent_prefix) + BuildConfig.VERSION_NAME);
+        settings.setDomStorageEnabled(true);
 
         if (isDebugBuild()) {
             WebView.setWebContentsDebuggingEnabled(true);
